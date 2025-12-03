@@ -8,30 +8,87 @@
     <meta name="theme-color" content="#2c3e50">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-body: #eaeff2; --dark-blue: #2c3e50; --green-matin: #1abc9c; --red-soir: #e74c3c; --yellow-poste: #f1c40f; --white-card: #ffffff; --grey-name: #f8f9fa; }
+        :root { 
+            --bg-body: #eaeff2; 
+            --dark-blue: #2c3e50; 
+            --green-matin: #1abc9c; 
+            --red-soir: #e74c3c; 
+            --yellow-poste: #f1c40f; 
+            --white-card: #ffffff; 
+            --grey-name: #f8f9fa; 
+        }
         body { font-family: 'Roboto', sans-serif; background-color: var(--bg-body); margin: 0; padding: 0; color: #333; -webkit-font-smoothing: antialiased; }
-        header { background-color: var(--dark-blue); padding: 40px 20px 30px; text-align: center; color: white; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-bottom: 25px; }
+        
+        header { 
+            background-color: var(--dark-blue); 
+            padding: 40px 20px 30px; 
+            text-align: center; 
+            color: white; 
+            border-bottom-left-radius: 30px; 
+            border-bottom-right-radius: 30px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            margin-bottom: 25px; 
+        }
         .logo-img { width: 100px; height: 100px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.1); object-fit: cover; margin-bottom: 15px; background: #000; }
         h1 { margin: 0; font-size: 1.5rem; font-weight: 700; }
         p.subtitle { margin: 5px 0 0; font-size: 0.9rem; color: #bdc3c7; }
+        
         #alert-box { display: none; background-color: #e74c3c; color: white; text-align: center; padding: 12px 20px; font-weight: bold; font-size: 0.95rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); animation: slideDown 0.5s ease; }
         @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+        
         .container { max-width: 500px; margin: 0 auto; padding: 0 15px 80px; }
+        
         .day-card { margin-bottom: 35px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); background: white; }
         .card-header { background-color: var(--dark-blue); color: white; padding: 15px; text-align: center; }
         .day-name { font-size: 1.5rem; font-weight: 700; display: block; text-transform: capitalize; }
         .day-date { font-size: 0.9rem; font-weight: 400; color: #bdc3c7; margin-top: 2px; text-transform: capitalize; }
+        
         .card-body { padding: 15px; background: white; }
         .shift-block { margin-bottom: 25px; } .shift-block:last-child { margin-bottom: 0; }
+        
         .shift-header { text-align: center; color: white; font-weight: 700; font-size: 1.1rem; padding: 12px; border-radius: 8px; margin-bottom: 12px; text-transform: capitalize; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .matin-header { background-color: var(--green-matin); } .soir-header { background-color: var(--red-soir); }
+        .matin-header { background-color: var(--green-matin); } 
+        .soir-header { background-color: var(--red-soir); }
+        
         .staff-list { display: flex; flex-direction: column; gap: 6px; }
         .staff-row { display: flex; gap: 6px; height: 45px; }
-        .poste-badge { background-color: var(--yellow-poste); color: #2c3e50; font-weight: 800; font-size: 0.9rem; width: 35%; display: flex; align-items: center; justify-content: center; border-radius: 6px; text-transform: uppercase; }
-        .staff-name { background-color: var(--grey-name); color: #2c3e50; font-weight: 700; font-size: 1rem; width: 65%; display: flex; align-items: center; justify-content: center; border-radius: 6px; text-transform: uppercase; }
+        
+        /* Modif ici : le badge s'adapte au contenu */
+        .poste-badge { 
+            background-color: var(--yellow-poste); 
+            color: #2c3e50; 
+            font-weight: 800; 
+            font-size: 0.85rem; 
+            width: 35%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border-radius: 6px; 
+            text-transform: uppercase; 
+            padding: 0 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .staff-name { 
+            background-color: var(--grey-name); 
+            color: #2c3e50; 
+            font-weight: 700; 
+            font-size: 1rem; 
+            width: 65%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border-radius: 6px; 
+            text-transform: uppercase; 
+        }
+        
         .back-btn { display: inline-block; margin-top: 10px; color: #bdc3c7; text-decoration: none; font-size: 0.8rem; border: 1px solid #bdc3c7; padding: 5px 15px; border-radius: 20px; }
+        
         @keyframes pulse-card { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         .is-today { animation: pulse-card 2s infinite; border: 2px solid var(--dark-blue); }
+        
         #loading { text-align: center; padding: 40px; }
     </style>
 </head>
@@ -43,63 +100,143 @@
         <p class="subtitle">Équipe Service</p>
         <a href="index.html" class="back-btn">⬅ Retour Menu</a>
     </header>
+
     <div class="container" id="planning-container">
         <div id="loading">Chargement...</div>
     </div>
+
     <script>
+        // Votre ID de feuille Google Sheet
         const SHEET_ID = "1aKrmu7Hdf1tb4_0QFCGC6VYjUVlRKeDJYLYs9qIM6Aw";
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+
         async function init() {
             try {
                 const response = await fetch(SHEET_URL);
                 const text = await response.text();
+                
+                // Vérification Alert Box (Ligne 2, Col D)
                 const lines = text.split('\n');
                 if(lines.length > 1) {
                     const row2 = lines[1].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     if(row2.length >= 4) {
                         let message = row2[3].replace(/^"|"$/g, '').trim();
-                        if(message) { document.getElementById('alert-box').innerText = message; document.getElementById('alert-box').style.display = 'block'; }
+                        if(message) { 
+                            document.getElementById('alert-box').innerText = message; 
+                            document.getElementById('alert-box').style.display = 'block'; 
+                        }
                     }
                 }
+
                 document.getElementById('loading').style.display = 'none';
                 renderPlanning(parseCSV(text));
-            } catch (error) { console.error(error); document.getElementById('loading').innerText = "Erreur chargement"; }
+
+            } catch (error) { 
+                console.error(error); 
+                document.getElementById('loading').innerText = "Erreur chargement"; 
+            }
         }
+
         function parseCSV(text) {
             const rows = text.split('\n').map(r => r.trim()).filter(r => r);
             const result = [];
             for (let i = 0; i < rows.length; i++) {
+                // Regex complexe pour bien couper les CSV même avec virgules dans les "guillemets"
                 const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
+                
+                // On saute la ligne d'en-tête
                 if (cols[0] && cols[0].toUpperCase().includes("DATE")) continue;
-                if (cols.length >= 3) result.push({ date: cols[0], matin: cols[1], soir: cols[2] });
+
+                // On s'assure d'avoir au moins Date, Matin et Soir
+                if (cols.length >= 3) {
+                    result.push({ date: cols[0], matin: cols[1], soir: cols[2] });
+                }
             }
             return result;
         }
+
         function renderPlanning(data) {
             const container = document.getElementById('planning-container');
             container.innerHTML = '';
+
             const now = new Date();
             const jourSemaine = now.toLocaleDateString('fr-FR', { weekday: 'long' }).toLowerCase();
             const jourNumero = now.getDate();
             const jourNumeroZero = jourNumero < 10 ? '0' + jourNumero : jourNumero.toString();
+
             data.forEach((jour) => {
                 let isToday = '';
-                if (jour.date.toLowerCase().includes(jourSemaine) && (jour.date.includes(jourNumero) || jour.date.includes(jourNumeroZero))) { isToday = 'is-today'; }
+                // Détection jour actuel simple
+                if (jour.date.toLowerCase().includes(jourSemaine) && (jour.date.includes(jourNumero) || jour.date.includes(jourNumeroZero))) { 
+                    isToday = 'is-today'; 
+                }
+
                 let splitDate = jour.date.split(' ');
-                const html = `<div class="day-card ${isToday}"><div class="card-header"><span class="day-name">${splitDate[0]}</span><span class="day-date">${splitDate.slice(1).join(' ')}</span></div><div class="card-body"><div class="shift-block"><div class="shift-header matin-header">Matin 06:30 - 14:30</div><div class="staff-list">${parseStaff(jour.matin)}</div></div><div class="shift-block"><div class="shift-header soir-header">Soir 14:30 - Fin</div><div class="staff-list">${parseStaff(jour.soir)}</div></div></div></div>`;
+                
+                const html = `
+                    <div class="day-card ${isToday}">
+                        <div class="card-header">
+                            <span class="day-name">${splitDate[0]}</span>
+                            <span class="day-date">${splitDate.slice(1).join(' ')}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="shift-block">
+                                <div class="shift-header matin-header">Matin 06:30 - 14:30</div>
+                                <div class="staff-list">${parseStaff(jour.matin)}</div>
+                            </div>
+                            <div class="shift-block">
+                                <div class="shift-header soir-header">Soir 14:30 - Fin</div>
+                                <div class="staff-list">${parseStaff(jour.soir)}</div>
+                            </div>
+                        </div>
+                    </div>`;
+                
                 container.innerHTML += html;
             });
-            setTimeout(() => { const t = document.querySelector('.is-today'); if(t) t.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 500);
+
+            // Scroll automatique vers le jour J
+            setTimeout(() => { 
+                const t = document.querySelector('.is-today'); 
+                if(t) t.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+            }, 500);
         }
+
+        // --- NOUVELLE FONCTION DE PARSING POUR "NOM (POSTE)" ---
         function parseStaff(text) {
             if (!text || text === '-' || text === '') return '<div style="padding:10px; text-align:center; color:#bbb;">-</div>';
-            return text.split(',').map(s => {
-                let parts = s.split(':');
-                let poste = parts.length > 1 ? parts[0].trim() : "STAFF";
-                let nom = parts.length > 1 ? parts[1].trim() : parts[0].trim();
-                return `<div class="staff-row"><div class="poste-badge">${poste}</div><div class="staff-name">${nom}</div></div>`;
+            
+            // On sépare par virgule (pour Google Sheets)
+            // On nettoie les espaces autour
+            const staffMembers = text.split(',').map(s => s.trim()).filter(s => s);
+
+            return staffMembers.map(entry => {
+                let nom = entry;
+                let poste = "STAFF";
+
+                // 1. Essayer le format "NOM (POSTE)"
+                // Regex : Tout le texte jusqu'à une parenthèse ouvrante, puis le contenu des parenthèses
+                const matchParens = entry.match(/^(.*?)\s*\((.*?)\)$/);
+                
+                if (matchParens) {
+                    nom = matchParens[1].trim();   // Partie avant la parenthèse
+                    poste = matchParens[2].trim(); // Partie dans la parenthèse
+                } 
+                // 2. Essayer le format "POSTE: NOM" (ancien format backup)
+                else if (entry.includes(':')) {
+                    let parts = entry.split(':');
+                    poste = parts[0].trim();
+                    nom = parts[1].trim();
+                }
+
+                // Génération HTML
+                return `
+                <div class="staff-row">
+                    <div class="poste-badge">${poste}</div>
+                    <div class="staff-name">${nom}</div>
+                </div>`;
             }).join('');
         }
+
         init();
     </script>
 </body>
