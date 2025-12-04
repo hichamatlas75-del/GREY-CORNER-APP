@@ -361,36 +361,63 @@
             }).join('');
         }
 
-        // --- FONCTION DE TÉLÉCHARGEMENT ---
+        // --- FONCTION DE TÉLÉCHARGEMENT AMÉLIORÉE (VERSION LARGE) ---
         function downloadPlanning() {
             const element = document.getElementById("capture-zone");
             const btn = document.getElementById("dl-btn");
+            const container = document.getElementById("planning-container");
             
             // Feedback visuel
             btn.innerText = "⏳";
 
-            // Options pour html2canvas
-            html2canvas(element, {
-                scale: 2, // Meilleure qualité
-                backgroundColor: "#f4f7f6", // Fond correct
-                useCORS: true, // Pour essayer de charger le logo
-                logging: false
-            }).then(canvas => {
-                // Création du lien de téléchargement
+            // 1. SAUVEGARDER LE STYLE MOBILE ACTUEL
+            const originalMaxWidth = container.style.maxWidth;
+            const originalWidth = container.style.width;
+
+            // 2. FORCER UN FORMAT "LARGE" TEMPORAIREMENT
+            // Cela élargit le planning juste pour la photo
+            container.style.maxWidth = "none"; 
+            container.style.width = "800px"; // Largeur fixe idéale pour une image
+            container.style.margin = "0 auto";
+
+            // Options html2canvas pour simuler un grand écran
+            const options = {
+                scale: 2,                // Haute résolution (HD)
+                backgroundColor: "#f4f7f6", 
+                useCORS: true,
+                windowWidth: 1000,       // Simule un écran d'ordinateur
+                width: 850,              // Largeur de la zone de capture
+                x: (window.innerWidth - 850) / 2 // Centre la capture
+            };
+
+            // Si on est sur mobile, on force le X à 0 pour éviter le décalage
+            if(window.innerWidth < 850) {
+                options.x = 0;
+            }
+
+            html2canvas(element, options).then(canvas => {
+                // Création du lien
                 const link = document.createElement('a');
-                link.download = 'Planning-Service.png';
+                link.download = 'Planning-Service-HD.png';
                 link.href = canvas.toDataURL("image/png");
                 link.click();
                 
-                // Reset bouton
+                // 3. REMETTRE LE STYLE MOBILE IMMEDIATEMENT
+                container.style.maxWidth = originalMaxWidth;
+                container.style.width = originalWidth;
+                
                 btn.innerText = "📷";
             }).catch(err => {
                 console.error("Erreur capture", err);
+                
+                // En cas d'erreur, on remet le style aussi
+                container.style.maxWidth = originalMaxWidth;
+                container.style.width = originalWidth;
+                
                 alert("Erreur lors de la création de l'image.");
                 btn.innerText = "📷";
             });
         }
-
         init();
     </script>
 </body>
