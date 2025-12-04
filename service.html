@@ -2,111 +2,244 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <!-- Viewport essentiel pour le mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Grey Corner - Service</title>
+    <title>Planning Service - Mobile</title>
     <link rel="icon" type="image/jpeg" href="LOGO.jpg">
     <meta name="theme-color" content="#2c3e50">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- LIBRAIRIE POUR LA CAPTURE D'ÉCRAN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
         :root { 
-            --bg-body: #eaeff2; 
+            --bg-body: #f4f7f6; 
             --dark-blue: #2c3e50; 
             --green-matin: #1abc9c; 
             --red-soir: #e74c3c; 
             --yellow-poste: #f1c40f; 
-            --white-card: #ffffff; 
-            --grey-name: #f8f9fa; 
+            --text-color: #333;
         }
-        body { font-family: 'Roboto', sans-serif; background-color: var(--bg-body); margin: 0; padding: 0; color: #333; -webkit-font-smoothing: antialiased; }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            background-color: var(--bg-body); 
+            margin: 0; 
+            padding: 0; 
+            color: var(--text-color); 
+            -webkit-font-smoothing: antialiased; 
+            padding-bottom: 80px; /* Espace pour le bouton flottant */
+        }
         
+        /* --- HEADER --- */
         header { 
             background-color: var(--dark-blue); 
-            padding: 40px 20px 30px; 
+            padding: 20px 15px 30px; 
             text-align: center; 
             color: white; 
-            border-bottom-left-radius: 30px; 
-            border-bottom-right-radius: 30px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
-            margin-bottom: 25px; 
+            border-bottom-left-radius: 25px; 
+            border-bottom-right-radius: 25px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+            margin-bottom: 20px; 
         }
-        .logo-img { width: 100px; height: 100px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.1); object-fit: cover; margin-bottom: 15px; background: #000; }
-        h1 { margin: 0; font-size: 1.5rem; font-weight: 700; }
+
+        .logo-img { 
+            width: 80px; height: 80px; 
+            border-radius: 50%; 
+            border: 3px solid rgba(255,255,255,0.2); 
+            object-fit: cover; 
+            margin-bottom: 10px; 
+            background: #000; 
+        }
+
+        h1 { margin: 0; font-size: 1.4rem; font-weight: 900; letter-spacing: 1px; }
         p.subtitle { margin: 5px 0 0; font-size: 0.9rem; color: #bdc3c7; }
         
-        #alert-box { display: none; background-color: #e74c3c; color: white; text-align: center; padding: 12px 20px; font-weight: bold; font-size: 0.95rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); animation: slideDown 0.5s ease; }
-        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+        /* --- ALERTE / NOTIFICATION --- */
+        #alert-box { 
+            display: none; 
+            background-color: #c0392b; 
+            color: white; 
+            text-align: center; 
+            padding: 15px; 
+            font-weight: 700; 
+            font-size: 0.9rem; 
+            box-shadow: 0 4px 15px rgba(192, 57, 43, 0.4); 
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 9999;
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red { 0% { background-color: #c0392b; } 50% { background-color: #e74c3c; } 100% { background-color: #c0392b; } }
+        body.has-alert { padding-top: 50px; }
+
+        /* --- CONTENEUR --- */
+        .container { 
+            width: 100%; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 0 10px; 
+        }
         
-        .container { max-width: 500px; margin: 0 auto; padding: 0 15px 80px; }
+        /* --- CARTE JOUR --- */
+        .day-card { 
+            margin-bottom: 25px; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+            background: white; 
+            border: 1px solid #eee;
+        }
+
+        .card-header { 
+            background-color: var(--dark-blue); 
+            color: white; 
+            padding: 15px; 
+            text-align: center; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
         
-        .day-card { margin-bottom: 35px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); background: white; }
-        .card-header { background-color: var(--dark-blue); color: white; padding: 15px; text-align: center; }
-        .day-name { font-size: 1.5rem; font-weight: 700; display: block; text-transform: capitalize; }
-        .day-date { font-size: 0.9rem; font-weight: 400; color: #bdc3c7; margin-top: 2px; text-transform: capitalize; }
+        .day-name { font-size: 1.6rem; font-weight: 800; text-transform: capitalize; }
+        .day-date { font-size: 0.85rem; opacity: 0.8; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- NOUVEAU : BADGE AUJOURD'HUI --- */
+        .today-badge {
+            background-color: #e74c3c;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 900;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-5px);} 60% {transform: translateY(-3px);} }
         
-        .card-body { padding: 15px; background: white; }
-        .shift-block { margin-bottom: 25px; } .shift-block:last-child { margin-bottom: 0; }
+        .card-body { padding: 10px; background: #fff; }
+
+        /* --- BLOC SERVICE (Matin/Soir) --- */
+        .shift-block { margin-bottom: 20px; } 
+        .shift-block:last-child { margin-bottom: 5px; }
         
-        .shift-header { text-align: center; color: white; font-weight: 700; font-size: 1.1rem; padding: 12px; border-radius: 8px; margin-bottom: 12px; text-transform: capitalize; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .shift-header { 
+            text-align: center; 
+            color: white; 
+            font-weight: 700; 
+            font-size: 1rem; 
+            padding: 10px; 
+            border-radius: 6px; 
+            margin-bottom: 10px; 
+            text-transform: uppercase; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
         .matin-header { background-color: var(--green-matin); } 
         .soir-header { background-color: var(--red-soir); }
         
-        .staff-list { display: flex; flex-direction: column; gap: 6px; }
-        .staff-row { display: flex; gap: 6px; height: 45px; }
+        /* --- LISTE STAFF --- */
+        .staff-list { display: flex; flex-direction: column; gap: 8px; }
         
-        /* Modif ici : le badge s'adapte au contenu */
+        .staff-row { 
+            display: flex; 
+            align-items: stretch; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-radius: 6px;
+            overflow: hidden;
+            min-height: 42px; 
+        }
+        
         .poste-badge { 
             background-color: var(--yellow-poste); 
             color: #2c3e50; 
-            font-weight: 800; 
-            font-size: 0.85rem; 
+            font-weight: 900; 
+            font-size: 0.75rem; 
             width: 35%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            border-radius: 6px; 
-            text-transform: uppercase; 
-            padding: 0 5px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            display: flex; align-items: center; justify-content: center; 
+            text-transform: uppercase; padding: 5px; text-align: center; line-height: 1.1;
         }
         
         .staff-name { 
-            background-color: var(--grey-name); 
+            background-color: #f1f2f6; 
             color: #2c3e50; 
-            font-weight: 700; 
-            font-size: 1rem; 
+            font-weight: 600; 
+            font-size: 0.95rem; 
             width: 65%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            border-radius: 6px; 
-            text-transform: uppercase; 
+            display: flex; align-items: center; justify-content: center; 
+            text-transform: uppercase; padding: 5px; 
+            border-left: 1px solid rgba(0,0,0,0.05);
         }
         
-        .back-btn { display: inline-block; margin-top: 10px; color: #bdc3c7; text-decoration: none; font-size: 0.8rem; border: 1px solid #bdc3c7; padding: 5px 15px; border-radius: 20px; }
+        .back-btn { 
+            display: inline-block; margin-top: 15px; color: rgba(255,255,255,0.7); 
+            text-decoration: none; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.3); 
+            padding: 8px 20px; border-radius: 20px; transition: all 0.3s;
+        }
         
-        @keyframes pulse-card { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
-        .is-today { animation: pulse-card 2s infinite; border: 2px solid var(--dark-blue); }
+        /* Animation jour actuel */
+        .is-today { 
+            border: 2px solid var(--dark-blue); 
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(44, 62, 80, 0.15);
+        }
+
+        /* --- BOUTON TÉLÉCHARGEMENT FLOTTANT --- */
+        .fab-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--dark-blue);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 100;
+            border: 2px solid white;
+            transition: transform 0.2s;
+        }
+        .fab-btn:active { transform: scale(0.9); }
         
-        #loading { text-align: center; padding: 40px; }
+        #loading { text-align: center; padding: 40px; color: #7f8c8d; }
     </style>
 </head>
 <body>
+    
+    <!-- Zone de Notification -->
     <div id="alert-box"></div>
-    <header>
-        <img src="LOGO.jpg" alt="Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/90?text=LOGO'">
-        <h1>Grey Corner Café</h1>
-        <p class="subtitle">Équipe Service</p>
-        <a href="index.html" class="back-btn">⬅ Retour Menu</a>
-    </header>
 
-    <div class="container" id="planning-container">
-        <div id="loading">Chargement...</div>
+    <!-- Bouton Flottant Téléchargement -->
+    <div class="fab-btn" onclick="downloadPlanning()" id="dl-btn">📷</div>
+
+    <!-- Le contenu qui sera capturé -->
+    <div id="capture-zone">
+        <header>
+            <img src="LOGO.jpg" alt="Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/90?text=LOGO'">
+            <h1>PLANNING SERVICE</h1>
+            <p class="subtitle">Grey Corner Café</p>
+            <a href="index.html" class="back-btn" data-html2canvas-ignore="true">⬅ Retour Menu</a>
+        </header>
+
+        <div class="container" id="planning-container">
+            <div id="loading">Chargement des données...</div>
+        </div>
+
+        <div style="text-align: center; color: #ccc; font-size: 0.7rem; padding: 20px;">
+            Planning généré automatiquement
+        </div>
     </div>
 
     <script>
-        // Votre ID de feuille Google Sheet
         const SHEET_ID = "1aKrmu7Hdf1tb4_0QFCGC6VYjUVlRKeDJYLYs9qIM6Aw";
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 
@@ -114,16 +247,18 @@
             try {
                 const response = await fetch(SHEET_URL);
                 const text = await response.text();
-                
-                // Vérification Alert Box (Ligne 2, Col D)
                 const lines = text.split('\n');
+
                 if(lines.length > 1) {
                     const row2 = lines[1].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     if(row2.length >= 4) {
                         let message = row2[3].replace(/^"|"$/g, '').trim();
                         if(message) { 
-                            document.getElementById('alert-box').innerText = message; 
-                            document.getElementById('alert-box').style.display = 'block'; 
+                            const alertBox = document.getElementById('alert-box');
+                            alertBox.innerHTML = "⚠️ " + message; 
+                            alertBox.style.display = 'block';
+                            document.body.classList.add('has-alert');
+                            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
                         }
                     }
                 }
@@ -133,7 +268,7 @@
 
             } catch (error) { 
                 console.error(error); 
-                document.getElementById('loading').innerText = "Erreur chargement"; 
+                document.getElementById('loading').innerHTML = "Erreur de connexion."; 
             }
         }
 
@@ -141,13 +276,8 @@
             const rows = text.split('\n').map(r => r.trim()).filter(r => r);
             const result = [];
             for (let i = 0; i < rows.length; i++) {
-                // Regex complexe pour bien couper les CSV même avec virgules dans les "guillemets"
                 const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
-                
-                // On saute la ligne d'en-tête
-                if (cols[0] && cols[0].toUpperCase().includes("DATE")) continue;
-
-                // On s'assure d'avoir au moins Date, Matin et Soir
+                if (cols[0] && cols[0].toUpperCase().includes("DATE")) continue; 
                 if (cols.length >= 3) {
                     result.push({ date: cols[0], matin: cols[1], soir: cols[2] });
                 }
@@ -162,22 +292,25 @@
             const now = new Date();
             const jourSemaine = now.toLocaleDateString('fr-FR', { weekday: 'long' }).toLowerCase();
             const jourNumero = now.getDate();
-            const jourNumeroZero = jourNumero < 10 ? '0' + jourNumero : jourNumero.toString();
-
+            
             data.forEach((jour) => {
-                let isToday = '';
-                // Détection jour actuel simple
-                if (jour.date.toLowerCase().includes(jourSemaine) && (jour.date.includes(jourNumero) || jour.date.includes(jourNumeroZero))) { 
-                    isToday = 'is-today'; 
+                let isTodayClass = '';
+                let todayBadgeHTML = '';
+
+                // Logique "Aujourd'hui"
+                if (jour.date.toLowerCase().includes(jourSemaine) && jour.date.includes(jourNumero)) { 
+                    isTodayClass = 'is-today'; 
+                    todayBadgeHTML = '<div class="today-badge">AUJOURD\'HUI</div>';
                 }
 
                 let splitDate = jour.date.split(' ');
                 
                 const html = `
-                    <div class="day-card ${isToday}">
+                    <div class="day-card ${isTodayClass}">
                         <div class="card-header">
                             <span class="day-name">${splitDate[0]}</span>
                             <span class="day-date">${splitDate.slice(1).join(' ')}</span>
+                            ${todayBadgeHTML}
                         </div>
                         <div class="card-body">
                             <div class="shift-block">
@@ -194,47 +327,68 @@
                 container.innerHTML += html;
             });
 
-            // Scroll automatique vers le jour J
             setTimeout(() => { 
                 const t = document.querySelector('.is-today'); 
-                if(t) t.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-            }, 500);
+                if(t) { t.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+            }, 600);
         }
 
-        // --- NOUVELLE FONCTION DE PARSING POUR "NOM (POSTE)" ---
         function parseStaff(text) {
-            if (!text || text === '-' || text === '') return '<div style="padding:10px; text-align:center; color:#bbb;">-</div>';
+            if (!text || text === '-' || text === '') return '<div style="padding:10px; text-align:center; color:#bbb; font-size:0.8rem;">- Aucun Staff -</div>';
             
-            // On sépare par virgule (pour Google Sheets)
-            // On nettoie les espaces autour
             const staffMembers = text.split(',').map(s => s.trim()).filter(s => s);
 
             return staffMembers.map(entry => {
                 let nom = entry;
                 let poste = "STAFF";
+                entry = entry.replace(/^:\s*/, ''); 
 
-                // 1. Essayer le format "NOM (POSTE)"
-                // Regex : Tout le texte jusqu'à une parenthèse ouvrante, puis le contenu des parenthèses
                 const matchParens = entry.match(/^(.*?)\s*\((.*?)\)$/);
-                
                 if (matchParens) {
-                    nom = matchParens[1].trim();   // Partie avant la parenthèse
-                    poste = matchParens[2].trim(); // Partie dans la parenthèse
-                } 
-                // 2. Essayer le format "POSTE: NOM" (ancien format backup)
-                else if (entry.includes(':')) {
+                    nom = matchParens[1].trim();
+                    poste = matchParens[2].trim();
+                } else if (entry.includes(':')) {
                     let parts = entry.split(':');
                     poste = parts[0].trim();
                     nom = parts[1].trim();
                 }
 
-                // Génération HTML
                 return `
                 <div class="staff-row">
                     <div class="poste-badge">${poste}</div>
                     <div class="staff-name">${nom}</div>
                 </div>`;
             }).join('');
+        }
+
+        // --- FONCTION DE TÉLÉCHARGEMENT ---
+        function downloadPlanning() {
+            const element = document.getElementById("capture-zone");
+            const btn = document.getElementById("dl-btn");
+            
+            // Feedback visuel
+            btn.innerText = "⏳";
+
+            // Options pour html2canvas
+            html2canvas(element, {
+                scale: 2, // Meilleure qualité
+                backgroundColor: "#f4f7f6", // Fond correct
+                useCORS: true, // Pour essayer de charger le logo
+                logging: false
+            }).then(canvas => {
+                // Création du lien de téléchargement
+                const link = document.createElement('a');
+                link.download = 'Planning-Service.png';
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+                
+                // Reset bouton
+                btn.innerText = "📷";
+            }).catch(err => {
+                console.error("Erreur capture", err);
+                alert("Erreur lors de la création de l'image.");
+                btn.innerText = "📷";
+            });
         }
 
         init();
