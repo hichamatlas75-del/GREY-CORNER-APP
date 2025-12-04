@@ -2,24 +2,24 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <!-- Viewport essentiel pour le mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Planning Bar - Mobile</title>
     <link rel="icon" type="image/jpeg" href="LOGO.jpg">
-    <meta name="theme-color" content="#2c3e50">
+    <meta name="theme-color" content="#37474f"> <!-- Couleur barre navigateur changée -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     
-    <!-- LIBRAIRIE POUR LA CAPTURE D'ÉCRAN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
+        /* --- NOUVELLE PALETTE DE COULEURS BAR --- */
         :root { 
-            --bg-body: #f4f7f6; 
-            --dark-blue: #2c3e50; 
-            --green-matin: #1abc9c; 
-            --red-soir: #e74c3c; 
-            --yellow-poste: #f1c40f; 
+            --bg-body: #eceff1;          /* Fond gris très clair */
+            --dark-blue: #37474f;        /* HEADER: Gris Ardoise (Slate) */
+            --green-matin: #00897b;      /* MATIN: Vert Sarcelle (Teal) */
+            --red-soir: #c62828;         /* SOIR: Rouge Profond */
+            --yellow-poste: #4fc3f7;     /* BADGES: Bleu Ciel (Distinctif du Service) */
             --text-color: #333;
+            --badge-text: #000;          /* Texte noir sur les badges bleus */
         }
 
         * { box-sizing: border-box; }
@@ -31,7 +31,7 @@
             padding: 0; 
             color: var(--text-color); 
             -webkit-font-smoothing: antialiased; 
-            padding-bottom: 80px; /* Espace pour le bouton flottant */
+            padding-bottom: 80px; 
         }
         
         /* --- HEADER --- */
@@ -56,25 +56,24 @@
         }
 
         h1 { margin: 0; font-size: 1.4rem; font-weight: 900; letter-spacing: 1px; }
-        p.subtitle { margin: 5px 0 0; font-size: 0.9rem; color: #bdc3c7; }
+        p.subtitle { margin: 5px 0 0; font-size: 0.9rem; color: #cfd8dc; } /* Sous-titre gris clair */
         
-        /* --- ALERTE / NOTIFICATION --- */
+        /* --- ALERTE --- */
         #alert-box { 
             display: none; 
-            background-color: #c0392b; 
+            background-color: #d32f2f; /* Rouge alerte */
             color: white; 
             text-align: center; 
             padding: 15px; 
             font-weight: 700; 
             font-size: 0.9rem; 
-            box-shadow: 0 4px 15px rgba(192, 57, 43, 0.4); 
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.4); 
             position: fixed; top: 0; left: 0; width: 100%; z-index: 9999;
             animation: pulse-red 2s infinite;
         }
-        @keyframes pulse-red { 0% { background-color: #c0392b; } 50% { background-color: #e74c3c; } 100% { background-color: #c0392b; } }
+        @keyframes pulse-red { 0% { background-color: #d32f2f; } 50% { background-color: #f44336; } 100% { background-color: #d32f2f; } }
         body.has-alert { padding-top: 50px; }
 
-        /* --- CONTENEUR --- */
         .container { 
             width: 100%; 
             max-width: 600px; 
@@ -82,14 +81,13 @@
             padding: 0 10px; 
         }
         
-        /* --- CARTE JOUR --- */
         .day-card { 
             margin-bottom: 25px; 
             border-radius: 12px; 
             overflow: hidden; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
             background: white; 
-            border: 1px solid #eee;
+            border: 1px solid #cfd8dc;
         }
 
         .card-header { 
@@ -105,9 +103,9 @@
         .day-name { font-size: 1.6rem; font-weight: 800; text-transform: capitalize; }
         .day-date { font-size: 0.85rem; opacity: 0.8; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* --- BADGE AUJOURD'HUI --- */
+        /* --- BADGE AUJOURD'HUI (Orange) --- */
         .today-badge {
-            background-color: #e74c3c;
+            background-color: #ff9800; /* Orange pour le contraste avec le gris */
             color: white;
             font-size: 0.7rem;
             font-weight: 900;
@@ -123,7 +121,6 @@
         
         .card-body { padding: 10px; background: #fff; }
 
-        /* --- BLOC SERVICE (Matin/Soir) --- */
         .shift-block { margin-bottom: 20px; } 
         .shift-block:last-child { margin-bottom: 5px; }
         
@@ -141,7 +138,6 @@
         .matin-header { background-color: var(--green-matin); } 
         .soir-header { background-color: var(--red-soir); }
         
-        /* --- LISTE STAFF --- */
         .staff-list { display: flex; flex-direction: column; gap: 8px; }
         
         .staff-row { 
@@ -153,9 +149,10 @@
             min-height: 42px; 
         }
         
+        /* STYLE DU BADGE POSTE (BLEU) */
         .poste-badge { 
             background-color: var(--yellow-poste); 
-            color: #2c3e50; 
+            color: var(--badge-text); 
             font-weight: 900; 
             font-size: 0.75rem; 
             width: 35%; 
@@ -180,14 +177,13 @@
             padding: 8px 20px; border-radius: 20px; transition: all 0.3s;
         }
         
-        /* Animation jour actuel */
         .is-today { 
             border: 2px solid var(--dark-blue); 
             transform: scale(1.02);
-            box-shadow: 0 8px 20px rgba(44, 62, 80, 0.15);
+            box-shadow: 0 8px 20px rgba(55, 71, 79, 0.2);
         }
 
-        /* --- BOUTON TÉLÉCHARGEMENT FLOTTANT --- */
+        /* --- BOUTON TÉLÉCHARGEMENT --- */
         .fab-btn {
             position: fixed;
             bottom: 20px;
@@ -209,18 +205,15 @@
         }
         .fab-btn:active { transform: scale(0.9); }
         
-        #loading { text-align: center; padding: 40px; color: #7f8c8d; }
+        #loading { text-align: center; padding: 40px; color: #78909c; }
     </style>
 </head>
 <body>
     
-    <!-- Zone de Notification -->
     <div id="alert-box"></div>
 
-    <!-- Bouton Flottant Téléchargement -->
     <div class="fab-btn" onclick="downloadPlanning()" id="dl-btn">📷</div>
 
-    <!-- Le contenu qui sera capturé -->
     <div id="capture-zone">
         <header>
             <img src="LOGO.jpg" alt="Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/90?text=LOGO'">
@@ -233,8 +226,8 @@
             <div id="loading">Chargement des données...</div>
         </div>
 
-        <div style="text-align: center; color: #ccc; font-size: 0.7rem; padding: 20px;">
-            Planning généré automatiquement
+        <div style="text-align: center; color: #b0bec5; font-size: 0.7rem; padding: 20px;">
+            Planning Bar généré automatiquement
         </div>
     </div>
 
@@ -249,7 +242,6 @@
                 const text = await response.text();
                 const lines = text.split('\n');
 
-                // --- GESTION NOTIFICATION (Ligne 2, Col D) ---
                 if(lines.length > 1) {
                     const row2 = lines[1].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     if(row2.length >= 4) {
@@ -340,7 +332,7 @@
 
             return staffMembers.map(entry => {
                 let nom = entry;
-                let poste = "BAR"; // Par défaut "BAR" au lieu de "STAFF"
+                let poste = "BAR"; 
                 
                 entry = entry.replace(/^:\s*/, ''); 
 
@@ -370,18 +362,18 @@
             
             btn.innerText = "⏳";
 
-            // 1. Sauvegarder style mobile
+            // Sauvegarde styles
             const originalMaxWidth = container.style.maxWidth;
             const originalWidth = container.style.width;
 
-            // 2. Forcer format large
+            // Mode Large
             container.style.maxWidth = "none"; 
             container.style.width = "800px"; 
             container.style.margin = "0 auto";
 
             const options = {
                 scale: 2,
-                backgroundColor: "#f4f7f6", 
+                backgroundColor: "#eceff1", // Couleur de fond Bar
                 useCORS: true,
                 windowWidth: 1000,
                 width: 850,
@@ -396,10 +388,8 @@
                 link.href = canvas.toDataURL("image/png");
                 link.click();
                 
-                // 3. Restaurer style
                 container.style.maxWidth = originalMaxWidth;
                 container.style.width = originalWidth;
-                
                 btn.innerText = "📷";
             }).catch(err => {
                 console.error("Erreur", err);
