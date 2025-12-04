@@ -33,9 +33,33 @@
         h1 { margin: 0; font-size: 1.5rem; font-weight: 700; }
         p.subtitle { margin: 5px 0 0; font-size: 0.9rem; color: #bdc3c7; }
         
-        #alert-box { display: none; background-color: #e74c3c; color: white; text-align: center; padding: 12px 20px; font-weight: bold; font-size: 0.95rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); animation: slideDown 0.5s ease; }
+        /* STYLE DE LA NOTIFICATION D'ALERTE */
+        #alert-box { 
+            display: none; 
+            background-color: #c0392b; 
+            color: white; 
+            text-align: center; 
+            padding: 15px 20px; 
+            font-weight: 900; 
+            font-size: 1rem; 
+            box-shadow: 0 4px 15px rgba(192, 57, 43, 0.4); 
+            animation: slideDown 0.5s ease, pulse-red 2s infinite;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 9999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid white;
+        }
+
         @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+        @keyframes pulse-red { 0% { background-color: #c0392b; } 50% { background-color: #e74c3c; } 100% { background-color: #c0392b; } }
         
+        /* Marge pour ne pas cacher le header quand l'alerte est là */
+        body.has-alert header { margin-top: 50px; transition: margin 0.3s; }
+
         .container { max-width: 500px; margin: 0 auto; padding: 0 15px 80px; }
         
         .day-card { margin-bottom: 35px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); background: white; }
@@ -53,7 +77,6 @@
         .staff-list { display: flex; flex-direction: column; gap: 6px; }
         .staff-row { display: flex; gap: 6px; height: 45px; }
         
-        /* Modif ici : le badge s'adapte au contenu */
         .poste-badge { 
             background-color: var(--yellow-poste); 
             color: #2c3e50; 
@@ -93,7 +116,9 @@
     </style>
 </head>
 <body>
+    <!-- BANNIÈRE D'ALERTE -->
     <div id="alert-box"></div>
+
     <header>
         <img src="LOGO.jpg" alt="Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/90?text=LOGO'">
         <h1>Grey Corner Café</h1>
@@ -106,7 +131,6 @@
     </div>
 
     <script>
-        // Votre ID de feuille Google Sheet
         const SHEET_ID = "1aKrmu7Hdf1tb4_0QFCGC6VYjUVlRKeDJYLYs9qIM6Aw";
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 
@@ -114,130 +138,14 @@
             try {
                 const response = await fetch(SHEET_URL);
                 const text = await response.text();
-                
-                // Vérification Alert Box (Ligne 2, Col D)
                 const lines = text.split('\n');
+
+                // --- GESTION DE LA NOTIFICATION (ALERTE) ---
+                // On regarde la Ligne 2 (index 1), Colonne D (index 3) du CSV
                 if(lines.length > 1) {
+                    // Regex pour bien découper le CSV
                     const row2 = lines[1].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    
+                    // Si la case D2 existe et contient du texte
                     if(row2.length >= 4) {
-                        let message = row2[3].replace(/^"|"$/g, '').trim();
-                        if(message) { 
-                            document.getElementById('alert-box').innerText = message; 
-                            document.getElementById('alert-box').style.display = 'block'; 
-                        }
-                    }
-                }
-
-                document.getElementById('loading').style.display = 'none';
-                renderPlanning(parseCSV(text));
-
-            } catch (error) { 
-                console.error(error); 
-                document.getElementById('loading').innerText = "Erreur chargement"; 
-            }
-        }
-
-        function parseCSV(text) {
-            const rows = text.split('\n').map(r => r.trim()).filter(r => r);
-            const result = [];
-            for (let i = 0; i < rows.length; i++) {
-                // Regex complexe pour bien couper les CSV même avec virgules dans les "guillemets"
-                const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
-                
-                // On saute la ligne d'en-tête
-                if (cols[0] && cols[0].toUpperCase().includes("DATE")) continue;
-
-                // On s'assure d'avoir au moins Date, Matin et Soir
-                if (cols.length >= 3) {
-                    result.push({ date: cols[0], matin: cols[1], soir: cols[2] });
-                }
-            }
-            return result;
-        }
-
-        function renderPlanning(data) {
-            const container = document.getElementById('planning-container');
-            container.innerHTML = '';
-
-            const now = new Date();
-            const jourSemaine = now.toLocaleDateString('fr-FR', { weekday: 'long' }).toLowerCase();
-            const jourNumero = now.getDate();
-            const jourNumeroZero = jourNumero < 10 ? '0' + jourNumero : jourNumero.toString();
-
-            data.forEach((jour) => {
-                let isToday = '';
-                // Détection jour actuel simple
-                if (jour.date.toLowerCase().includes(jourSemaine) && (jour.date.includes(jourNumero) || jour.date.includes(jourNumeroZero))) { 
-                    isToday = 'is-today'; 
-                }
-
-                let splitDate = jour.date.split(' ');
-                
-                const html = `
-                    <div class="day-card ${isToday}">
-                        <div class="card-header">
-                            <span class="day-name">${splitDate[0]}</span>
-                            <span class="day-date">${splitDate.slice(1).join(' ')}</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="shift-block">
-                                <div class="shift-header matin-header">Matin 06:30 - 14:30</div>
-                                <div class="staff-list">${parseStaff(jour.matin)}</div>
-                            </div>
-                            <div class="shift-block">
-                                <div class="shift-header soir-header">Soir 14:30 - Fin</div>
-                                <div class="staff-list">${parseStaff(jour.soir)}</div>
-                            </div>
-                        </div>
-                    </div>`;
-                
-                container.innerHTML += html;
-            });
-
-            // Scroll automatique vers le jour J
-            setTimeout(() => { 
-                const t = document.querySelector('.is-today'); 
-                if(t) t.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-            }, 500);
-        }
-
-        // --- NOUVELLE FONCTION DE PARSING POUR "NOM (POSTE)" ---
-        function parseStaff(text) {
-            if (!text || text === '-' || text === '') return '<div style="padding:10px; text-align:center; color:#bbb;">-</div>';
-            
-            // On sépare par virgule (pour Google Sheets)
-            // On nettoie les espaces autour
-            const staffMembers = text.split(',').map(s => s.trim()).filter(s => s);
-
-            return staffMembers.map(entry => {
-                let nom = entry;
-                let poste = "STAFF";
-
-                // 1. Essayer le format "NOM (POSTE)"
-                // Regex : Tout le texte jusqu'à une parenthèse ouvrante, puis le contenu des parenthèses
-                const matchParens = entry.match(/^(.*?)\s*\((.*?)\)$/);
-                
-                if (matchParens) {
-                    nom = matchParens[1].trim();   // Partie avant la parenthèse
-                    poste = matchParens[2].trim(); // Partie dans la parenthèse
-                } 
-                // 2. Essayer le format "POSTE: NOM" (ancien format backup)
-                else if (entry.includes(':')) {
-                    let parts = entry.split(':');
-                    poste = parts[0].trim();
-                    nom = parts[1].trim();
-                }
-
-                // Génération HTML
-                return `
-                <div class="staff-row">
-                    <div class="poste-badge">${poste}</div>
-                    <div class="staff-name">${nom}</div>
-                </div>`;
-            }).join('');
-        }
-
-        init();
-    </script>
-</body>
-</html>
+                        let message = row2[3].
