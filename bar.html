@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Planning Bar - Mensuel</title>
+    <title>Planning Bar - Mobile</title>
     <link rel="icon" type="image/jpeg" href="LOGO.jpg">
     <meta name="theme-color" content="#37474f">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        /* --- STYLE BAR PREMIUM --- */
+        /* --- STYLE BAR (Gris/Vert/Rouge/Bleu) --- */
         :root { 
             --bg-body: #eceff1;          
             --dark-blue: #37474f;        
@@ -140,7 +140,6 @@
 <body>
     
     <div id="alert-box"></div>
-
     <div class="fab-btn" onclick="downloadPlanning()" id="dl-btn">📷</div>
 
     <div id="capture-zone">
@@ -161,7 +160,6 @@
     </div>
 
     <script>
-        // ID SHEET BAR
         const SHEET_ID = "1mfwB4zNHS79YsNH4vTMUGOdWeQwC3htMgPtDWsrMbWg";
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 
@@ -194,7 +192,7 @@
             }
         }
 
-        // --- NOUVELLE FONCTION PARSE CSV AMÉLIORÉE POUR LE MENSUEL ---
+        // --- FONCTION DE PARSING CORRIGÉE (Anti-Bug Headers) ---
         function parseCSV(text) {
             const rows = text.split('\n').map(r => r.trim()).filter(r => r);
             const result = [];
@@ -202,18 +200,22 @@
             for (let i = 0; i < rows.length; i++) {
                 const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
                 
-                // 1. Ignorer si la ligne est vide (moins de 3 colonnes)
+                // 1. Si la ligne est trop courte, on saute
                 if (cols.length < 3) continue;
 
-                // 2. Ignorer les lignes de titres (si on empile les semaines)
-                // Si la première colonne contient "DATE" ou "JOUR", on saute
                 const col0 = cols[0].toUpperCase();
-                if (col0.includes("DATE") || col0.includes("JOUR")) continue;
+                const col1 = cols[1].toUpperCase();
+
+                // 2. DETECTION STRICTE DES TITRES (C'est ici que ça corrige votre bug)
+                // Si la colonne A contient "DATE" OU si la colonne B contient "MATIN" -> On saute
+                if (col0.includes("DATE") || col1.includes("MATIN")) continue;
                 
-                // 3. Ignorer si les colonnes Matin et Soir sont vides (Ligne de séparation vide mal formatée)
+                // 3. Si les données sont vides
                 if (cols[1] === "" && cols[2] === "") continue;
 
-                // Si tout est bon, on ajoute
+                // 4. (Optionnel) Vérifier s'il y a un chiffre dans la date pour être sûr
+                if (!/\d/.test(cols[0])) continue; 
+
                 result.push({ date: cols[0], matin: cols[1], soir: cols[2] });
             }
             return result;
@@ -227,25 +229,19 @@
             const jourSemaine = now.toLocaleDateString('fr-FR', { weekday: 'long' }).toLowerCase();
             const jourNumero = now.getDate();
             
-            // On cherche l'index du PREMIER jour correspondant à aujourd'hui
-            // (Utile si le mois contient plusieurs "Mardi 8" sur des années différentes, mais ici on suppose mois courant)
-            let todayIndex = -1;
-
-            data.forEach((jour, index) => {
+            data.forEach((jour) => {
                 let isTodayClass = '';
                 let todayBadgeHTML = '';
 
-                // Logique de détection "Aujourd'hui"
                 if (jour.date.toLowerCase().includes(jourSemaine) && jour.date.includes(jourNumero)) { 
                     isTodayClass = 'is-today'; 
                     todayBadgeHTML = '<div class="today-badge">AUJOURD\'HUI</div>';
-                    if(todayIndex === -1) todayIndex = index; // On garde le premier trouvé
                 }
 
                 let splitDate = jour.date.split(' ');
                 
                 const html = `
-                    <div class="day-card ${isTodayClass}" id="card-${index}">
+                    <div class="day-card ${isTodayClass}">
                         <div class="card-header">
                             <span class="day-name">${splitDate[0]}</span>
                             <span class="day-date">${splitDate.slice(1).join(' ')}</span>
@@ -266,12 +262,9 @@
                 container.innerHTML += html;
             });
 
-            // Scroll automatique vers "Aujourd'hui"
             setTimeout(() => { 
                 const t = document.querySelector('.is-today'); 
-                if(t) { 
-                    t.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-                }
+                if(t) { t.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
             }, 600);
         }
 
@@ -308,16 +301,12 @@
             const element = document.getElementById("capture-zone");
             const btn = document.getElementById("dl-btn");
             const container = document.getElementById("planning-container");
-            
             btn.innerText = "⏳";
-
             const originalMaxWidth = container.style.maxWidth;
             const originalWidth = container.style.width;
-
             container.style.maxWidth = "none"; 
             container.style.width = "800px"; 
             container.style.margin = "0 auto";
-
             const options = {
                 scale: 2,
                 backgroundColor: "#eceff1", 
@@ -326,15 +315,12 @@
                 width: 850,
                 x: (window.innerWidth - 850) / 2
             };
-
             if(window.innerWidth < 850) { options.x = 0; }
-
             html2canvas(element, options).then(canvas => {
                 const link = document.createElement('a');
                 link.download = 'Planning-Bar-Mensuel.png';
                 link.href = canvas.toDataURL("image/png");
                 link.click();
-                
                 container.style.maxWidth = originalMaxWidth;
                 container.style.width = originalWidth;
                 btn.innerText = "📷";
