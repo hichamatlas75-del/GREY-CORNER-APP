@@ -3,23 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Planning Bar - Mobile</title>
+    <title>Planning Bar - Mensuel</title>
     <link rel="icon" type="image/jpeg" href="LOGO.jpg">
-    <meta name="theme-color" content="#37474f"> <!-- Couleur barre navigateur changée -->
+    <meta name="theme-color" content="#37474f">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        /* --- NOUVELLE PALETTE DE COULEURS BAR --- */
+        /* --- STYLE BAR PREMIUM --- */
         :root { 
-            --bg-body: #eceff1;          /* Fond gris très clair */
-            --dark-blue: #37474f;        /* HEADER: Gris Ardoise (Slate) */
-            --green-matin: #00897b;      /* MATIN: Vert Sarcelle (Teal) */
-            --red-soir: #c62828;         /* SOIR: Rouge Profond */
-            --yellow-poste: #4fc3f7;     /* BADGES: Bleu Ciel (Distinctif du Service) */
+            --bg-body: #eceff1;          
+            --dark-blue: #37474f;        
+            --green-matin: #00897b;      
+            --red-soir: #c62828;         
+            --yellow-poste: #4fc3f7;     
             --text-color: #333;
-            --badge-text: #000;          /* Texte noir sur les badges bleus */
+            --badge-text: #000;          
         }
 
         * { box-sizing: border-box; }
@@ -27,14 +26,12 @@
         body { 
             font-family: 'Roboto', sans-serif; 
             background-color: var(--bg-body); 
-            margin: 0; 
-            padding: 0; 
+            margin: 0; padding: 0; 
             color: var(--text-color); 
             -webkit-font-smoothing: antialiased; 
             padding-bottom: 80px; 
         }
         
-        /* --- HEADER --- */
         header { 
             background-color: var(--dark-blue); 
             padding: 20px 15px 30px; 
@@ -48,25 +45,16 @@
 
         .logo-img { 
             width: 80px; height: 80px; 
-            border-radius: 50%; 
-            border: 3px solid rgba(255,255,255,0.2); 
-            object-fit: cover; 
-            margin-bottom: 10px; 
-            background: #000; 
+            border-radius: 50%; border: 3px solid rgba(255,255,255,0.2); 
+            object-fit: cover; margin-bottom: 10px; background: #000; 
         }
 
         h1 { margin: 0; font-size: 1.4rem; font-weight: 900; letter-spacing: 1px; }
-        p.subtitle { margin: 5px 0 0; font-size: 0.9rem; color: #cfd8dc; } /* Sous-titre gris clair */
+        p.subtitle { margin: 5px 0 0; font-size: 0.9rem; color: #cfd8dc; }
         
-        /* --- ALERTE --- */
         #alert-box { 
-            display: none; 
-            background-color: #d32f2f; /* Rouge alerte */
-            color: white; 
-            text-align: center; 
-            padding: 15px; 
-            font-weight: 700; 
-            font-size: 0.9rem; 
+            display: none; background-color: #d32f2f; color: white; 
+            text-align: center; padding: 15px; font-weight: 700; font-size: 0.9rem; 
             box-shadow: 0 4px 15px rgba(211, 47, 47, 0.4); 
             position: fixed; top: 0; left: 0; width: 100%; z-index: 9999;
             animation: pulse-red 2s infinite;
@@ -74,65 +62,34 @@
         @keyframes pulse-red { 0% { background-color: #d32f2f; } 50% { background-color: #f44336; } 100% { background-color: #d32f2f; } }
         body.has-alert { padding-top: 50px; }
 
-        .container { 
-            width: 100%; 
-            max-width: 600px; 
-            margin: 0 auto; 
-            padding: 0 10px; 
-        }
+        .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 0 10px; }
         
         .day-card { 
-            margin-bottom: 25px; 
-            border-radius: 12px; 
-            overflow: hidden; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
-            background: white; 
-            border: 1px solid #cfd8dc;
+            margin-bottom: 25px; border-radius: 12px; overflow: hidden; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); background: white; border: 1px solid #cfd8dc;
         }
 
         .card-header { 
-            background-color: var(--dark-blue); 
-            color: white; 
-            padding: 15px; 
-            text-align: center; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background-color: var(--dark-blue); color: white; padding: 15px; 
+            text-align: center; display: flex; flex-direction: column; align-items: center;
         }
         
         .day-name { font-size: 1.6rem; font-weight: 800; text-transform: capitalize; }
         .day-date { font-size: 0.85rem; opacity: 0.8; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* --- BADGE AUJOURD'HUI (Orange) --- */
         .today-badge {
-            background-color: #ff9800; /* Orange pour le contraste avec le gris */
-            color: white;
-            font-size: 0.7rem;
-            font-weight: 900;
-            padding: 4px 10px;
-            border-radius: 20px;
-            margin-top: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            animation: bounce 2s infinite;
+            background-color: #ff9800; color: white; font-size: 0.7rem; font-weight: 900;
+            padding: 4px 10px; border-radius: 20px; margin-top: 8px; text-transform: uppercase;
+            letter-spacing: 1px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); animation: bounce 2s infinite;
         }
         @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-5px);} 60% {transform: translateY(-3px);} }
         
         .card-body { padding: 10px; background: #fff; }
-
-        .shift-block { margin-bottom: 20px; } 
-        .shift-block:last-child { margin-bottom: 5px; }
+        .shift-block { margin-bottom: 20px; } .shift-block:last-child { margin-bottom: 5px; }
         
         .shift-header { 
-            text-align: center; 
-            color: white; 
-            font-weight: 700; 
-            font-size: 1rem; 
-            padding: 10px; 
-            border-radius: 6px; 
-            margin-bottom: 10px; 
-            text-transform: uppercase; 
+            text-align: center; color: white; font-weight: 700; font-size: 1rem; 
+            padding: 10px; border-radius: 6px; margin-bottom: 10px; text-transform: uppercase; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
         }
         .matin-header { background-color: var(--green-matin); } 
@@ -141,34 +98,20 @@
         .staff-list { display: flex; flex-direction: column; gap: 8px; }
         
         .staff-row { 
-            display: flex; 
-            align-items: stretch; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            border-radius: 6px;
-            overflow: hidden;
-            min-height: 42px; 
+            display: flex; align-items: stretch; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-radius: 6px; overflow: hidden; min-height: 42px; 
         }
         
-        /* STYLE DU BADGE POSTE (BLEU) */
         .poste-badge { 
-            background-color: var(--yellow-poste); 
-            color: var(--badge-text); 
-            font-weight: 900; 
-            font-size: 0.75rem; 
-            width: 35%; 
-            display: flex; align-items: center; justify-content: center; 
+            background-color: var(--yellow-poste); color: var(--badge-text); font-weight: 900; 
+            font-size: 0.75rem; width: 35%; display: flex; align-items: center; justify-content: center; 
             text-transform: uppercase; padding: 5px; text-align: center; line-height: 1.1;
         }
         
         .staff-name { 
-            background-color: #f1f2f6; 
-            color: #2c3e50; 
-            font-weight: 600; 
-            font-size: 0.95rem; 
-            width: 65%; 
-            display: flex; align-items: center; justify-content: center; 
-            text-transform: uppercase; padding: 5px; 
-            border-left: 1px solid rgba(0,0,0,0.05);
+            background-color: #f1f2f6; color: #2c3e50; font-weight: 600; font-size: 0.95rem; 
+            width: 65%; display: flex; align-items: center; justify-content: center; 
+            text-transform: uppercase; padding: 5px; border-left: 1px solid rgba(0,0,0,0.05);
         }
         
         .back-btn { 
@@ -178,30 +121,16 @@
         }
         
         .is-today { 
-            border: 2px solid var(--dark-blue); 
-            transform: scale(1.02);
+            border: 2px solid var(--dark-blue); transform: scale(1.02);
             box-shadow: 0 8px 20px rgba(55, 71, 79, 0.2);
         }
 
-        /* --- BOUTON TÉLÉCHARGEMENT --- */
         .fab-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: var(--dark-blue);
-            color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            cursor: pointer;
-            z-index: 100;
-            border: 2px solid white;
-            transition: transform 0.2s;
+            position: fixed; bottom: 20px; right: 20px; background-color: var(--dark-blue);
+            color: white; width: 60px; height: 60px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; z-index: 100;
+            border: 2px solid white; transition: transform 0.2s;
         }
         .fab-btn:active { transform: scale(0.9); }
         
@@ -218,7 +147,7 @@
         <header>
             <img src="LOGO.jpg" alt="Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/90?text=LOGO'">
             <h1>PLANNING BAR</h1>
-            <p class="subtitle">Grey Corner Café</p>
+            <p class="subtitle">Mensuel</p>
             <a href="index.html" class="back-btn" data-html2canvas-ignore="true">⬅ Retour Menu</a>
         </header>
 
@@ -265,15 +194,27 @@
             }
         }
 
+        // --- NOUVELLE FONCTION PARSE CSV AMÉLIORÉE POUR LE MENSUEL ---
         function parseCSV(text) {
             const rows = text.split('\n').map(r => r.trim()).filter(r => r);
             const result = [];
+            
             for (let i = 0; i < rows.length; i++) {
                 const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
-                if (cols[0] && cols[0].toUpperCase().includes("DATE")) continue; 
-                if (cols.length >= 3) {
-                    result.push({ date: cols[0], matin: cols[1], soir: cols[2] });
-                }
+                
+                // 1. Ignorer si la ligne est vide (moins de 3 colonnes)
+                if (cols.length < 3) continue;
+
+                // 2. Ignorer les lignes de titres (si on empile les semaines)
+                // Si la première colonne contient "DATE" ou "JOUR", on saute
+                const col0 = cols[0].toUpperCase();
+                if (col0.includes("DATE") || col0.includes("JOUR")) continue;
+                
+                // 3. Ignorer si les colonnes Matin et Soir sont vides (Ligne de séparation vide mal formatée)
+                if (cols[1] === "" && cols[2] === "") continue;
+
+                // Si tout est bon, on ajoute
+                result.push({ date: cols[0], matin: cols[1], soir: cols[2] });
             }
             return result;
         }
@@ -286,19 +227,25 @@
             const jourSemaine = now.toLocaleDateString('fr-FR', { weekday: 'long' }).toLowerCase();
             const jourNumero = now.getDate();
             
-            data.forEach((jour) => {
+            // On cherche l'index du PREMIER jour correspondant à aujourd'hui
+            // (Utile si le mois contient plusieurs "Mardi 8" sur des années différentes, mais ici on suppose mois courant)
+            let todayIndex = -1;
+
+            data.forEach((jour, index) => {
                 let isTodayClass = '';
                 let todayBadgeHTML = '';
 
+                // Logique de détection "Aujourd'hui"
                 if (jour.date.toLowerCase().includes(jourSemaine) && jour.date.includes(jourNumero)) { 
                     isTodayClass = 'is-today'; 
                     todayBadgeHTML = '<div class="today-badge">AUJOURD\'HUI</div>';
+                    if(todayIndex === -1) todayIndex = index; // On garde le premier trouvé
                 }
 
                 let splitDate = jour.date.split(' ');
                 
                 const html = `
-                    <div class="day-card ${isTodayClass}">
+                    <div class="day-card ${isTodayClass}" id="card-${index}">
                         <div class="card-header">
                             <span class="day-name">${splitDate[0]}</span>
                             <span class="day-date">${splitDate.slice(1).join(' ')}</span>
@@ -319,14 +266,17 @@
                 container.innerHTML += html;
             });
 
+            // Scroll automatique vers "Aujourd'hui"
             setTimeout(() => { 
                 const t = document.querySelector('.is-today'); 
-                if(t) { t.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+                if(t) { 
+                    t.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+                }
             }, 600);
         }
 
         function parseStaff(text) {
-            if (!text || text === '-' || text === '') return '<div style="padding:10px; text-align:center; color:#bbb; font-size:0.8rem;">- Aucun Staff -</div>';
+            if (!text || text === '-' || text === '') return '<div style="padding:10px; text-align:center; color:#bbb; font-size:0.8rem;">- Aucun Staff / Fermé -</div>';
             
             const staffMembers = text.split(',').map(s => s.trim()).filter(s => s);
 
@@ -354,7 +304,6 @@
             }).join('');
         }
 
-        // --- FONCTION DE TÉLÉCHARGEMENT (LARGE) ---
         function downloadPlanning() {
             const element = document.getElementById("capture-zone");
             const btn = document.getElementById("dl-btn");
@@ -362,18 +311,16 @@
             
             btn.innerText = "⏳";
 
-            // Sauvegarde styles
             const originalMaxWidth = container.style.maxWidth;
             const originalWidth = container.style.width;
 
-            // Mode Large
             container.style.maxWidth = "none"; 
             container.style.width = "800px"; 
             container.style.margin = "0 auto";
 
             const options = {
                 scale: 2,
-                backgroundColor: "#eceff1", // Couleur de fond Bar
+                backgroundColor: "#eceff1", 
                 useCORS: true,
                 windowWidth: 1000,
                 width: 850,
@@ -384,7 +331,7 @@
 
             html2canvas(element, options).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'Planning-Bar-HD.png';
+                link.download = 'Planning-Bar-Mensuel.png';
                 link.href = canvas.toDataURL("image/png");
                 link.click();
                 
