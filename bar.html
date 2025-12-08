@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Planning Bar - Mobile</title>
+    <title>Planning Bar - Décembre</title>
     <link rel="icon" type="image/jpeg" href="LOGO.jpg">
-    <meta name="theme-color" content="#37474f">
+    <meta name="theme-color" content="#8e0e00"> <!-- Rouge Festif -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        /* --- VARIABLES PAR DEFAUT --- */
         :root { 
-            --bg-body: #eceff1; 
-            --text-color: #333; 
+            --bg-body: #fdfbf7; /* Fond crème hivernal */
+            --text-color: #333;
         }
 
         * { box-sizing: border-box; }
@@ -26,66 +25,85 @@
             padding-bottom: 80px; 
         }
         
+        /* HEADER SPECIAL DECEMBRE (BAR) */
         header { 
-            background-color: #37474f; 
-            padding: 20px 15px 30px; 
+            background: linear-gradient(135deg, #1f1c18, #8e0e00); /* Dégradé Noir vers Rouge (Inversé par rapport au Service) */
+            padding: 25px 15px 35px; 
             text-align: center; 
             color: white; 
-            border-bottom-left-radius: 25px; 
-            border-bottom-right-radius: 25px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
-            margin-bottom: 20px; 
+            border-bottom-left-radius: 30px; 
+            border-bottom-right-radius: 30px; 
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); 
+            margin-bottom: 25px; 
+            position: relative;
+            overflow: hidden;
         }
 
-        .logo-img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.2); object-fit: cover; margin-bottom: 10px; background: #000; }
-        h1 { margin: 0; font-size: 1.4rem; font-weight: 900; letter-spacing: 1px; }
-        p.subtitle { margin: 5px 0 0; font-size: 0.9rem; color: #cfd8dc; }
-        
-        #alert-box { 
-            display: none; background-color: #d32f2f; color: white; text-align: center; padding: 15px; font-weight: 700; 
-            position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; animation: pulse-red 2s infinite;
+        /* Animation Neige */
+        header::before {
+            content: '❄'; position: absolute; top: 10px; left: 15px; font-size: 22px; opacity: 0.4; animation: spin 12s linear infinite;
         }
-        @keyframes pulse-red { 0% { background-color: #d32f2f; } 50% { background-color: #f44336; } 100% { background-color: #d32f2f; } }
+        header::after {
+            content: '❄'; position: absolute; bottom: 25px; right: 25px; font-size: 28px; opacity: 0.3; animation: spin 18s linear infinite reverse;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .logo-img { width: 90px; height: 90px; border-radius: 50%; border: 4px solid rgba(255,215,0,0.6); object-fit: cover; margin-bottom: 10px; background: #000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        h1 { margin: 0; font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        p.subtitle { margin: 5px 0 0; font-size: 0.95rem; color: #ffeb3b; font-weight: 500; }
+        
+        #alert-box { display: none; background-color: #c0392b; color: white; text-align: center; padding: 15px; font-weight: 700; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; animation: pulse-red 2s infinite; }
+        @keyframes pulse-red { 0% { background-color: #c0392b; } 50% { background-color: #e74c3c; } 100% { background-color: #c0392b; } }
         body.has-alert { padding-top: 50px; }
 
         .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 0 10px; }
         
-        /* CARD DYNAMIQUE (Couleurs injectées par JS) */
+        /* CARD DYNAMIQUE */
         .day-card { 
-            margin-bottom: 25px; border-radius: 12px; overflow: hidden; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08); background: white; border: 1px solid #cfd8dc;
-            transition: transform 0.3s;
+            margin-bottom: 25px; 
+            border-radius: 16px; 
+            overflow: hidden; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            background: white; 
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
         }
 
         .card-header { 
-            background-color: var(--theme-header); /* Variable dynamique */
+            background-color: var(--theme-header); 
             color: white; padding: 15px; 
             text-align: center; display: flex; flex-direction: column; align-items: center;
         }
         
         .day-name { font-size: 1.6rem; font-weight: 800; text-transform: capitalize; }
-        .day-date { font-size: 0.85rem; opacity: 0.8; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+        .day-date { font-size: 0.85rem; opacity: 0.9; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
 
         .today-badge {
-            background-color: white; color: var(--theme-header); font-size: 0.7rem; font-weight: 900; 
-            padding: 4px 10px; border-radius: 20px; margin-top: 8px; text-transform: uppercase; 
-            letter-spacing: 1px; animation: bounce 2s infinite;
+            background-color: white; color: var(--theme-header); 
+            font-size: 0.7rem; font-weight: 900; padding: 5px 12px; border-radius: 20px; 
+            margin-top: 8px; text-transform: uppercase; letter-spacing: 1px; animation: bounce 2s infinite;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
         @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-5px);} 60% {transform: translateY(-3px);} }
         
-        .card-body { padding: 10px; background: #fff; }
+        .card-body { padding: 15px; background: #fff; }
         .shift-block { margin-bottom: 20px; } .shift-block:last-child { margin-bottom: 5px; }
         
         .shift-header { 
             text-align: center; color: white; font-weight: 700; font-size: 1rem; 
-            padding: 10px; border-radius: 6px; margin-bottom: 10px; text-transform: uppercase; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+            padding: 10px; border-radius: 10px; margin-bottom: 12px; text-transform: uppercase; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
         }
+        
         .matin-header { background-color: var(--theme-matin); } 
-        .soir-header { background-color: var(--theme-soir); }
+        .soir-header { background-color: var(--theme-soir); }   
         
         .staff-list { display: flex; flex-direction: column; gap: 8px; }
-        .staff-row { display: flex; align-items: stretch; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border-radius: 6px; overflow: hidden; min-height: 42px; }
+        
+        .staff-row { 
+            display: flex; align-items: stretch; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-radius: 8px; overflow: hidden; min-height: 45px; 
+        }
         
         .poste-badge { 
             background-color: var(--theme-badge); color: var(--theme-badge-text); 
@@ -94,24 +112,38 @@
         }
         
         .staff-name { 
-            background-color: #f1f2f6; color: #2c3e50; font-weight: 600; font-size: 0.95rem; 
+            background-color: #f9f9f9; color: #2c3e50; font-weight: 700; font-size: 0.95rem; 
             width: 65%; display: flex; align-items: center; justify-content: center; 
             text-transform: uppercase; padding: 5px; border-left: 1px solid rgba(0,0,0,0.05);
         }
         
-        .back-btn { display: inline-block; margin-top: 15px; color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.3); padding: 8px 20px; border-radius: 20px; }
-        .is-today { border: 3px solid var(--theme-header); transform: scale(1.02); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .back-btn { 
+            display: inline-block; margin-top: 15px; color: rgba(255,255,255,0.8); 
+            text-decoration: none; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.4); 
+            padding: 8px 25px; border-radius: 20px; transition: all 0.3s;
+        }
+        
+        .is-today { 
+            border: 3px solid var(--theme-header); transform: scale(1.02);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
 
         .fab-btn {
-            position: fixed; bottom: 20px; right: 20px; background-color: #37474f; color: white; width: 60px; height: 60px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; z-index: 100;
-            border: 2px solid white; transition: transform 0.2s;
+            position: fixed; bottom: 20px; right: 20px; 
+            background: linear-gradient(135deg, #1f1c18, #8e0e00);
+            color: white; width: 60px; height: 60px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4); cursor: pointer; z-index: 100;
+            border: 2px solid #ffd700; 
+            transition: transform 0.2s;
         }
         .fab-btn:active { transform: scale(0.9); }
+        
         #loading { text-align: center; padding: 40px; color: #7f8c8d; }
     </style>
 </head>
 <body>
+    
     <div id="alert-box"></div>
     <div class="fab-btn" onclick="downloadPlanning()" id="dl-btn">📷</div>
 
@@ -119,7 +151,7 @@
         <header>
             <img src="LOGO.jpg" alt="Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/90?text=LOGO'">
             <h1>PLANNING BAR</h1>
-            <p class="subtitle">Mensuel</p>
+            <p class="subtitle">✨ Edition Fêtes de Fin d'Année ✨</p>
             <a href="index.html" class="back-btn" data-html2canvas-ignore="true">⬅ Retour Menu</a>
         </header>
 
@@ -127,21 +159,26 @@
             <div id="loading">Chargement des données...</div>
         </div>
 
-        <div style="text-align: center; color: #b0bec5; font-size: 0.7rem; padding: 20px;">
+        <div style="text-align: center; color: #aaa; font-size: 0.7rem; padding: 20px;">
             Planning Bar généré automatiquement
         </div>
     </div>
 
     <script>
+        // ID GOOGLE SHEET BAR
         const SHEET_ID = "1mfwB4zNHS79YsNH4vTMUGOdWeQwC3htMgPtDWsrMbWg";
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 
-        // --- PALETTES COULEURS BAR (Rotatives) ---
+        // --- PALETTES SPECIAL DECEMBRE (Identiques au Service pour cohérence) ---
         const PALETTES = [
-            { header: '#37474f', matin: '#00897b', soir: '#c62828', badge: '#4fc3f7', badgeText: '#000' }, // Sem 1
-            { header: '#1a237e', matin: '#283593', soir: '#b71c1c', badge: '#c5cae9', badgeText: '#000' }, // Sem 2
-            { header: '#1b5e20', matin: '#2e7d32', soir: '#d84315', badge: '#a5d6a7', badgeText: '#000' }, // Sem 3
-            { header: '#212121', matin: '#424242', soir: '#bf360c', badge: '#ffab91', badgeText: '#000' }  // Sem 4
+            // Semaine 1 : Rouge & Or (Noël Classique)
+            { header: '#b71540', matin: '#e58e26', soir: '#0c2461', badge: '#f6b93b', badgeText: '#000' },
+            // Semaine 2 : Vert Sapin & Rouge (Tradition)
+            { header: '#079992', matin: '#38ada9', soir: '#b71540', badge: '#fad390', badgeText: '#000' },
+            // Semaine 3 : Bleu Glacé & Argent (Hiver)
+            { header: '#1e3799', matin: '#4a69bd', soir: '#6a89cc', badge: '#dff9fb', badgeText: '#000' },
+            // Semaine 4 : Noir & Or (Nouvel An Premium)
+            { header: '#2f3542', matin: '#57606f', soir: '#2f3542', badge: '#eccc68', badgeText: '#000' }
         ];
 
         async function init() {
@@ -156,7 +193,7 @@
                         let message = row2[3].replace(/^"|"$/g, '').trim();
                         if(message) { 
                             const alertBox = document.getElementById('alert-box');
-                            alertBox.innerHTML = "⚠️ " + message; 
+                            alertBox.innerHTML = "❄️ " + message + " ❄️"; 
                             alertBox.style.display = 'block';
                             document.body.classList.add('has-alert');
                             if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
@@ -166,35 +203,29 @@
 
                 document.getElementById('loading').style.display = 'none';
                 renderPlanning(parseCSV(text));
+
             } catch (error) { 
-                console.error(error); document.getElementById('loading').innerHTML = "Erreur de connexion."; 
+                console.error(error); 
+                document.getElementById('loading').innerHTML = "Erreur de connexion."; 
             }
         }
 
-        // --- CORRECTION BUG MARDI/MARS ---
+        // --- FONCTION DATE ROBUSTE (CORRECTION MARDI) ---
         function parseDateFr(dateStr) {
             if(!dateStr) return null;
             let cleanStr = dateStr.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\./g, "").trim();
             
-            // 1. On supprime les jours de la semaine pour ne pas confondre (ex: MARdi et MARs)
-            const joursSemaine = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
-            joursSemaine.forEach(j => cleanStr = cleanStr.replace(j, ""));
+            // Suppression des jours pour éviter confusion (Mardi != Mars)
+            const jours = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
+            jours.forEach(j => cleanStr = cleanStr.replace(j, ""));
 
-            // 2. On cherche le jour (chiffre)
             let dayMatch = cleanStr.match(/(\d+)/);
             if (!dayMatch) return null;
             let day = parseInt(dayMatch[0]);
 
-            // 3. On cherche le mois
             let month = -1;
             const monthsShort = ['jan', 'fev', 'mar', 'avr', 'mai', 'jui', 'jul', 'aou', 'sep', 'oct', 'nov', 'dec'];
-            for (let i = 0; i < monthsShort.length; i++) { 
-                // Vérifie si le mois est présent
-                if (cleanStr.includes(monthsShort[i])) { 
-                    month = i; 
-                    break; 
-                } 
-            }
+            for (let i = 0; i < monthsShort.length; i++) { if (cleanStr.includes(monthsShort[i])) { month = i; break; } }
             if (month === -1) return null;
 
             let now = new Date(); let year = now.getFullYear();
@@ -209,16 +240,10 @@
             for (let i = 0; i < rows.length; i++) {
                 const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
                 if (cols.length < 3) continue;
-                
                 const col0 = cols[0].toUpperCase();
                 const col1 = cols[1].toUpperCase();
-
-                // Ignorer les titres
-                if (col0.includes("DATE") || col1.includes("MATIN")) continue;
-                
-                // Ignorer si pas de date
+                if (col0.includes("DATE") || col1.includes("MATIN")) continue; 
                 if (!cols[0] || cols[0] === "") continue;
-
                 result.push({ date: cols[0], matin: cols[1], soir: cols[2] });
             }
             return result;
@@ -227,11 +252,12 @@
         function renderPlanning(data) {
             const container = document.getElementById('planning-container');
             container.innerHTML = '';
+
             const now = new Date();
             const jourSemaine = now.toLocaleDateString('fr-FR', { weekday: 'long' }).toLowerCase();
             const jourNumero = now.getDate();
-            
-            // FILTRE DATE : On cache les jours d'AVANT-HIER
+
+            // Filtre date (Avant-hier)
             const cutoffDate = new Date(); 
             cutoffDate.setDate(now.getDate() - 2); 
             cutoffDate.setHours(0,0,0,0);
@@ -241,17 +267,18 @@
 
             data.forEach((jour) => {
                 let jourDateObj = parseDateFr(jour.date);
-                
-                // Si la date est valide et passée -> on cache
                 if (jourDateObj && jourDateObj < cutoffDate) { return; }
 
-                // LOGIQUE CHANGEMENT COULEUR SEMAINE
-                if (jour.date.toLowerCase().includes("lundi") && !firstDay) { currentWeekIndex++; }
+                if (jour.date.toLowerCase().includes("lundi") && !firstDay) {
+                    currentWeekIndex++;
+                }
                 firstDay = false;
+
                 const theme = PALETTES[currentWeekIndex % PALETTES.length];
 
                 let isTodayClass = '';
                 let todayBadgeHTML = '';
+
                 if (jour.date.toLowerCase().includes(jourSemaine) && jour.date.includes(jourNumero)) { 
                     isTodayClass = 'is-today'; 
                     todayBadgeHTML = '<div class="today-badge">AUJOURD\'HUI</div>';
@@ -296,16 +323,12 @@
         }
 
         function parseStaff(text) {
-            if (!text || text === '-' || text === '') return '<div style="padding:10px; text-align:center; color:#bbb; font-size:0.8rem;">- Aucun Staff -</div>';
-            
+            if (!text || text === '-' || text === '') return '<div style="padding:10px; text-align:center; color:#bbb; font-size:0.8rem;">-</div>';
             const staffMembers = text.split(',').map(s => s.trim()).filter(s => s);
-
             return staffMembers.map(entry => {
                 let nom = entry;
                 let poste = "BAR"; 
-                
                 entry = entry.replace(/^:\s*/, ''); 
-
                 const matchParens = entry.match(/^(.*?)\s*\((.*?)\)$/);
                 if (matchParens) {
                     nom = matchParens[1].trim();
@@ -315,7 +338,6 @@
                     poste = parts[0].trim();
                     nom = parts[1].trim();
                 }
-
                 return `
                 <div class="staff-row">
                     <div class="poste-badge">${poste}</div>
@@ -324,32 +346,28 @@
             }).join('');
         }
 
-        // --- FONCTION DE TÉLÉCHARGEMENT ---
         function downloadPlanning() {
             const element = document.getElementById("capture-zone");
             const btn = document.getElementById("dl-btn");
             const container = document.getElementById("planning-container");
             btn.innerText = "⏳";
-            const originalMaxWidth = container.style.maxWidth; const originalWidth = container.style.width;
+            const originalMaxWidth = container.style.maxWidth;
+            const originalWidth = container.style.width;
             container.style.maxWidth = "none"; container.style.width = "800px"; container.style.margin = "0 auto";
-            const options = {
-                scale: 2,
-                backgroundColor: "#eceff1", 
-                useCORS: true,
-                windowWidth: 1000,
-                width: 850,
-                x: (window.innerWidth - 850) / 2
-            };
+            const options = { scale: 2, backgroundColor: "#fdfbf7", useCORS: true, windowWidth: 1000, width: 850, x: (window.innerWidth - 850) / 2 };
             if(window.innerWidth < 850) { options.x = 0; }
             html2canvas(element, options).then(canvas => {
-                const link = document.createElement('a'); link.download = 'Planning-Bar-HD.png'; link.href = canvas.toDataURL("image/png"); link.click();
-                container.style.maxWidth = originalMaxWidth; container.style.width = originalWidth; btn.innerText = "📷";
+                const link = document.createElement('a');
+                link.download = 'Planning-Bar-Fetes.png';
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+                container.style.maxWidth = originalMaxWidth; container.style.width = originalWidth;
+                btn.innerText = "📷";
             }).catch(err => {
-                console.error("Erreur", err);
-                container.style.maxWidth = originalMaxWidth; container.style.width = originalWidth; btn.innerText = "📷";
+                container.style.maxWidth = originalMaxWidth; container.style.width = originalWidth;
+                alert("Erreur capture"); btn.innerText = "📷";
             });
         }
-
         init();
     </script>
 </body>
