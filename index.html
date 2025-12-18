@@ -3,29 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Grey Corner - Fêtes</title>
+    <title>Grey Corner - CAN 2025</title>
     <link rel="icon" type="image/jpeg" href="LOGO.jpg">
-    <meta name="theme-color" content="#4a0000">
+    <meta name="theme-color" content="#c1272d"> <!-- Rouge Maroc -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body { 
             margin: 0; padding: 0; 
-            background: radial-gradient(circle at top, #6e0000, #1a0000); /* Fond Rouge Noël Sombre */
+            /* Dégradé Rouge Maroc vers Vert Profond (Ambiance CAN) */
+            background: radial-gradient(circle at top, #d92831, #0f4d19); 
             color: white; 
             font-family: 'Roboto', sans-serif; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             height: 100vh; text-align: center; 
-            overflow: hidden; /* Important pour la neige */
+            overflow: hidden; 
         }
 
-        /* --- EFFET NEIGE --- */
-        .snowflake {
+        /* --- EFFET FOOTBALL / CONFETTIS --- */
+        .falling-item {
             position: absolute;
-            top: -10px;
-            color: #fff;
-            font-size: 1em;
-            opacity: 0.8;
-            pointer-events: none; /* La neige ne bloque pas les clics */
+            top: -20px;
+            font-size: 1.2em;
+            opacity: 0.7;
+            pointer-events: none; 
             animation: fall linear infinite;
             z-index: 1;
         }
@@ -37,7 +37,7 @@
 
         /* --- CONTENU --- */
         .content-wrapper {
-            z-index: 10; /* Au dessus de la neige */
+            z-index: 10;
             display: flex; flex-direction: column; align-items: center;
             width: 100%;
         }
@@ -45,17 +45,17 @@
         .logo-img { 
             width: 140px; height: 140px; 
             border-radius: 50%; 
-            border: 4px solid #ffd700; /* Bordure Or */
+            border: 5px solid #f1c40f; /* Or Trophée */
             object-fit: cover; 
-            box-shadow: 0 0 35px rgba(255, 215, 0, 0.4); 
+            box-shadow: 0 0 35px rgba(241, 196, 15, 0.5); 
             background: white; 
             margin-bottom: 25px; 
-            animation: pulse-gold 3s infinite ease-in-out;
+            animation: pulse-stadium 2s infinite ease-in-out;
         }
 
-        @keyframes pulse-gold {
-            0%, 100% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.3); }
-            50% { box-shadow: 0 0 45px rgba(255, 215, 0, 0.6); }
+        @keyframes pulse-stadium {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(241, 196, 15, 0.4); }
+            50% { transform: scale(1.03); box-shadow: 0 0 50px rgba(241, 196, 15, 0.8); }
         }
 
         h1 { 
@@ -65,21 +65,22 @@
             margin: 0; 
             color: #fff; 
             font-weight: 900;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 0px #006233; /* Ombre Verte */
         }
 
         p { 
-            color: #ffeb3b; /* Doré clair */
-            font-size: 1rem; 
+            color: #f1c40f; /* Jaune Or */
+            font-size: 1.2rem; 
             margin-bottom: 40px; 
-            font-weight: 500;
+            font-weight: 700;
             letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         .btn { 
             display: flex; align-items: center; justify-content: center; 
             padding: 22px; 
-            border-radius: 50px; /* Boutons très ronds */
+            border-radius: 10px; /* Moins rond, plus "sport" */
             text-decoration: none; 
             font-weight: 900; 
             font-size: 1.1rem; 
@@ -87,80 +88,89 @@
             margin-bottom: 25px; 
             width: 85%; 
             max-width: 320px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4); 
-            transition: transform 0.2s;
+            box-shadow: 0 6px 0px rgba(0,0,0,0.3); /* Effet 3D */
+            transition: transform 0.1s, box-shadow 0.1s;
             position: relative;
             overflow: hidden;
+            letter-spacing: 1px;
         }
 
-        .btn:active { transform: scale(0.95); }
+        .btn:active { 
+            transform: translateY(4px); 
+            box-shadow: 0 2px 0px rgba(0,0,0,0.3);
+        }
 
-        /* BOUTON BAR (Thème Chaud/Noël) */
+        /* BOUTON BAR (Vert Pelouse / Maroc) */
         .btn-bar { 
-            background: linear-gradient(135deg, #b33939, #8e0e00); 
+            background: linear-gradient(135deg, #006233, #004d25); 
             color: white; 
-            border: 2px solid #ffda79;
+            border: 2px solid #2ecc71;
         }
 
-        /* BOUTON SERVICE (Thème Froid/Hiver) */
+        /* BOUTON SERVICE (Rouge Maillot / Maroc) */
         .btn-service { 
-            background: linear-gradient(135deg, #227093, #1e3799); 
+            background: linear-gradient(135deg, #c1272d, #8a1c20); 
             color: white; 
-            border: 2px solid #4bcffa;
+            border: 2px solid #e74c3c;
         }
 
         .icon { margin-right: 15px; font-size: 1.6rem; }
         
         .footer {
             margin-top: 30px;
-            font-size: 0.7rem;
-            color: rgba(255,255,255,0.4);
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.6);
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <!-- Conteneur pour la neige générée par JS -->
-    <div id="snow-container"></div>
+    <!-- Conteneur pour l'animation générée par JS -->
+    <div id="anim-container"></div>
 
     <div class="content-wrapper">
         <img src="LOGO.jpg" class="logo-img" onerror="this.src='https://via.placeholder.com/150?text=GC'">
         
         <h1>Grey Corner</h1>
-        <p>✨ Édition Fêtes ✨</p>
+        <p>🏆 CAN 2025 🏆</p>
         
         <a href="bar.html" class="btn btn-bar">
-            <span class="icon">🍷</span> Équipe Bar
+            <span class="icon">🍻</span> Équipe Bar
         </a>
         
         <a href="service.html" class="btn btn-service">
-            <span class="icon">❄️</span> Équipe Service
+            <span class="icon">⚽</span> Équipe Service
         </a>
 
-        <div class="footer">Joyeuses Fêtes à toute l'équipe !</div>
+        <div class="footer">Maroc 2025 - Allez les Lions ! 🦁</div>
     </div>
 
     <script>
-        // Script léger pour générer la neige
-        function createSnow() {
-            const container = document.getElementById('snow-container');
-            const flakesCount = 30; // Nombre de flocons
+        // Script pour générer l'ambiance Foot (Ballons, Drapeaux, Trophées)
+        function createAtmosphere() {
+            const container = document.getElementById('anim-container');
+            const itemsCount = 25; // Nombre d'éléments
+            const symbols = ['⚽', '🏆', '🇲🇦', '🦁', '⭐']; // Les symboles qui tombent
 
-            for (let i = 0; i < flakesCount; i++) {
-                const flake = document.createElement('div');
-                flake.classList.add('snowflake');
-                flake.textContent = '❄';
+            for (let i = 0; i < itemsCount; i++) {
+                const item = document.createElement('div');
+                item.classList.add('falling-item');
+                
+                // Choix aléatoire du symbole
+                const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+                item.textContent = randomSymbol;
                 
                 // Position et taille aléatoires
-                flake.style.left = Math.random() * 100 + 'vw';
-                flake.style.fontSize = (Math.random() * 10 + 10) + 'px';
-                flake.style.animationDuration = (Math.random() * 5 + 5) + 's'; // Vitesse entre 5 et 10s
-                flake.style.animationDelay = (Math.random() * 5) + 's';
+                item.style.left = Math.random() * 100 + 'vw';
+                item.style.fontSize = (Math.random() * 15 + 15) + 'px';
+                item.style.animationDuration = (Math.random() * 4 + 4) + 's'; // Vitesse plus rapide que la neige
+                item.style.animationDelay = (Math.random() * 5) + 's';
                 
-                container.appendChild(flake);
+                container.appendChild(item);
             }
         }
-        createSnow();
+        createAtmosphere();
     </script>
 
 </body>
