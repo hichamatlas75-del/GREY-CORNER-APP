@@ -8,8 +8,8 @@
         :root {
             --bg-body: #f0f2f5;
             --card-bg: #ffffff;
-            --femme: #e91e63; /* Rose vif */
-            --homme: #0288d1; /* Bleu vif */
+            --femme: #e91e63;
+            --homme: #0288d1;
             --off-bg: #ffebee;
             --off-text: #c62828;
             --fs-color: #546e7a;
@@ -21,6 +21,8 @@
             background-color: var(--bg-body);
             margin: 0;
             padding: 10px;
+            /* Ajout d'une marge en bas pour permettre au dernier jour de monter en haut de l'écran */
+            padding-bottom: 80vh; 
         }
 
         h1 {
@@ -39,13 +41,19 @@
             margin: 0 auto;
         }
 
-        /* Style de la vignette jour */
         .day-card {
             background: var(--card-bg);
             border-radius: 15px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             overflow: hidden;
             border-left: 6px solid var(--header-bg);
+            transition: transform 0.3s;
+        }
+
+        /* Style pour mettre en évidence le jour actuel */
+        .today-highlight {
+            border: 2px solid #2196f3;
+            box-shadow: 0 0 15px rgba(33, 150, 243, 0.4);
         }
 
         .day-header {
@@ -58,9 +66,7 @@
             align-items: center;
         }
 
-        .staff-list {
-            padding: 5px 0;
-        }
+        .staff-list { padding: 5px 0; }
 
         .staff-row {
             display: flex;
@@ -70,22 +76,9 @@
             align-items: center;
         }
 
-        .staff-row:last-child {
-            border-bottom: none;
-        }
+        .femme { color: var(--femme); font-weight: 700; }
+        .homme { color: var(--homme); font-weight: 700; }
 
-        /* Couleurs par genre */
-        .femme {
-            color: var(--femme);
-            font-weight: 700;
-        }
-
-        .homme {
-            color: var(--homme);
-            font-weight: 700;
-        }
-
-        /* Heures et statuts */
         .time-badge {
             font-family: 'monospace';
             font-size: 0.95rem;
@@ -97,22 +90,8 @@
             color: #333;
         }
 
-        .status-off {
-            background-color: var(--off-bg);
-            color: var(--off-text);
-            border-color: #ffcdd2;
-        }
-
-        .status-fs {
-            color: var(--fs-color);
-            font-style: italic;
-        }
-
-        /* Animation au toucher pour mobile */
-        .day-card:active {
-            transform: scale(0.98);
-            transition: 0.2s;
-        }
+        .status-off { background-color: var(--off-bg); color: var(--off-text); border-color: #ffcdd2; }
+        .status-fs { color: var(--fs-color); font-style: italic; }
     </style>
 </head>
 <body>
@@ -120,9 +99,7 @@
     <h1>📅 Planning Cuisine</h1>
 
     <div class="container">
-        
-        <!-- LUNDI -->
-        <div class="day-card" style="border-left-color: #ff9800;">
+        <div id="day-1" class="day-card" style="border-left-color: #ff9800;">
             <div class="day-header" style="background-color: #ff9800;"><span>LUNDI</span> 👨‍🍳</div>
             <div class="staff-list">
                 <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 14</span></div>
@@ -135,8 +112,7 @@
             </div>
         </div>
 
-        <!-- MARDI -->
-        <div class="day-card" style="border-left-color: #4caf50;">
+        <div id="day-2" class="day-card" style="border-left-color: #4caf50;">
             <div class="day-header" style="background-color: #4caf50;"><span>MARDI</span> 👨‍🍳</div>
             <div class="staff-list">
                 <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 14</span></div>
@@ -149,8 +125,7 @@
             </div>
         </div>
 
-        <!-- MERCREDI -->
-        <div class="day-card" style="border-left-color: #2196f3;">
+        <div id="day-3" class="day-card" style="border-left-color: #2196f3;">
             <div class="day-header" style="background-color: #2196f3;"><span>MERCREDI</span> 👨‍🍳</div>
             <div class="staff-list">
                 <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 14</span></div>
@@ -163,8 +138,7 @@
             </div>
         </div>
 
-        <!-- JEUDI -->
-        <div class="day-card" style="border-left-color: #9c27b0;">
+        <div id="day-4" class="day-card" style="border-left-color: #9c27b0;">
             <div class="day-header" style="background-color: #9c27b0;"><span>JEUDI</span> 👨‍🍳</div>
             <div class="staff-list">
                 <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 14</span></div>
@@ -177,8 +151,7 @@
             </div>
         </div>
 
-        <!-- VENDREDI -->
-        <div class="day-card" style="border-left-color: #f44336;">
+        <div id="day-5" class="day-card" style="border-left-color: #f44336;">
             <div class="day-header" style="background-color: #f44336;"><span>VENDREDI</span> 👨‍🍳</div>
             <div class="staff-list">
                 <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge status-off">OFF</span></div>
@@ -191,8 +164,7 @@
             </div>
         </div>
 
-        <!-- SAMEDI -->
-        <div class="day-card" style="border-left-color: #795548;">
+        <div id="day-6" class="day-card" style="border-left-color: #795548;">
             <div class="day-header" style="background-color: #795548;"><span>SAMEDI</span> 👨‍🍳</div>
             <div class="staff-list">
                 <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 15</span></div>
@@ -205,8 +177,7 @@
             </div>
         </div>
 
-        <!-- DIMANCHE -->
-        <div class="day-card" style="border-left-color: #009688;">
+        <div id="day-0" class="day-card" style="border-left-color: #009688;">
             <div class="day-header" style="background-color: #009688;"><span>DIMANCHE</span> 👨‍🍳</div>
             <div class="staff-list">
                 <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 15</span></div>
@@ -218,8 +189,25 @@
                 <div class="staff-row"><span class="homme">Saâd</span><span class="time-badge">13 / 21</span></div>
             </div>
         </div>
-
     </div>
+
+    <script>
+        window.onload = function() {
+            // 1. On récupère le numéro du jour actuel (0 pour dimanche, 1 pour lundi, etc.)
+            const today = new Date().getDay();
+            
+            // 2. On cible l'élément HTML correspondant à l'ID
+            const todayElement = document.getElementById('day-' + today);
+
+            if (todayElement) {
+                // 3. On fait défiler la page doucement vers cet élément
+                todayElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // 4. Optionnel : on ajoute une petite bordure pour bien le voir
+                todayElement.classList.add('today-highlight');
+            }
+        };
+    </script>
 
 </body>
 </html>
