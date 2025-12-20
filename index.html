@@ -15,8 +15,9 @@
             color: white; 
             font-family: 'Roboto', sans-serif; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            height: 100vh; text-align: center; 
-            overflow: hidden; 
+            min-height: 100vh; /* Changé de height à min-height pour accueillir le nouveau bouton */
+            text-align: center; 
+            overflow-x: hidden; 
         }
 
         /* --- EFFET FOOTBALL / CONFETTIS --- */
@@ -40,16 +41,17 @@
             z-index: 10;
             display: flex; flex-direction: column; align-items: center;
             width: 100%;
+            padding: 20px 0;
         }
 
         .logo-img { 
-            width: 140px; height: 140px; 
+            width: 120px; height: 120px; 
             border-radius: 50%; 
             border: 5px solid #f1c40f; /* Or Trophée */
             object-fit: cover; 
             box-shadow: 0 0 35px rgba(241, 196, 15, 0.5); 
             background: white; 
-            margin-bottom: 25px; 
+            margin-bottom: 20px; 
             animation: pulse-stadium 2s infinite ease-in-out;
         }
 
@@ -59,7 +61,7 @@
         }
 
         h1 { 
-            font-size: 2rem; 
+            font-size: 1.8rem; 
             text-transform: uppercase; 
             letter-spacing: 3px; 
             margin: 0; 
@@ -70,8 +72,8 @@
 
         p { 
             color: #f1c40f; /* Jaune Or */
-            font-size: 1.2rem; 
-            margin-bottom: 40px; 
+            font-size: 1.1rem; 
+            margin-bottom: 30px; 
             font-weight: 700;
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -79,16 +81,16 @@
 
         .btn { 
             display: flex; align-items: center; justify-content: center; 
-            padding: 22px; 
-            border-radius: 10px; /* Moins rond, plus "sport" */
+            padding: 18px; 
+            border-radius: 10px; 
             text-decoration: none; 
             font-weight: 900; 
-            font-size: 1.1rem; 
+            font-size: 1rem; 
             text-transform: uppercase; 
-            margin-bottom: 25px; 
+            margin-bottom: 15px; 
             width: 85%; 
             max-width: 320px;
-            box-shadow: 0 6px 0px rgba(0,0,0,0.3); /* Effet 3D */
+            box-shadow: 0 6px 0px rgba(0,0,0,0.3); 
             transition: transform 0.1s, box-shadow 0.1s;
             position: relative;
             overflow: hidden;
@@ -100,24 +102,31 @@
             box-shadow: 0 2px 0px rgba(0,0,0,0.3);
         }
 
-        /* BOUTON BAR (Vert Pelouse / Maroc) */
+        /* BOUTON BAR (Vert) */
         .btn-bar { 
             background: linear-gradient(135deg, #006233, #004d25); 
             color: white; 
             border: 2px solid #2ecc71;
         }
 
-        /* BOUTON SERVICE (Rouge Maillot / Maroc) */
+        /* BOUTON SERVICE (Rouge) */
         .btn-service { 
             background: linear-gradient(135deg, #c1272d, #8a1c20); 
             color: white; 
             border: 2px solid #e74c3c;
         }
 
-        .icon { margin-right: 15px; font-size: 1.6rem; }
+        /* BOUTON CUISINE (Or/Jaune) */
+        .btn-cuisine { 
+            background: linear-gradient(135deg, #f1c40f, #d4ac0d); 
+            color: #2c3e50; 
+            border: 2px solid #fff;
+        }
+
+        .icon { margin-right: 15px; font-size: 1.4rem; }
         
         .footer {
-            margin-top: 30px;
+            margin-top: 20px;
             font-size: 0.8rem;
             color: rgba(255,255,255,0.6);
             font-weight: bold;
@@ -126,7 +135,6 @@
 </head>
 <body>
 
-    <!-- Conteneur pour l'animation générée par JS -->
     <div id="anim-container"></div>
 
     <div class="content-wrapper">
@@ -143,30 +151,28 @@
             <span class="icon">⚽</span> Équipe Service
         </a>
 
+        <!-- NOUVEAU BOUTON CUISINE -->
+        <a href="cuisine.html" class="btn btn-cuisine">
+            <span class="icon">👨‍🍳</span> Équipe Cuisine
+        </a>
+
         <div class="footer">Maroc 2025 - Allez les Lions ! 🦁</div>
     </div>
 
     <script>
-        // Script pour générer l'ambiance Foot (Ballons, Drapeaux, Trophées)
         function createAtmosphere() {
             const container = document.getElementById('anim-container');
-            const itemsCount = 25; // Nombre d'éléments
-            const symbols = ['⚽', '🏆', '🇲🇦', '🦁', '⭐']; // Les symboles qui tombent
+            const itemsCount = 20; 
+            const symbols = ['⚽', '🏆', '🇲🇦', '🦁', '⭐']; 
 
             for (let i = 0; i < itemsCount; i++) {
                 const item = document.createElement('div');
                 item.classList.add('falling-item');
-                
-                // Choix aléatoire du symbole
-                const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
-                item.textContent = randomSymbol;
-                
-                // Position et taille aléatoires
+                item.textContent = symbols[Math.floor(Math.random() * symbols.length)];
                 item.style.left = Math.random() * 100 + 'vw';
                 item.style.fontSize = (Math.random() * 15 + 15) + 'px';
-                item.style.animationDuration = (Math.random() * 4 + 4) + 's'; // Vitesse plus rapide que la neige
+                item.style.animationDuration = (Math.random() * 4 + 4) + 's';
                 item.style.animationDelay = (Math.random() * 5) + 's';
-                
                 container.appendChild(item);
             }
         }
