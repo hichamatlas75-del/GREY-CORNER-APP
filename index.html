@@ -6,209 +6,171 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Grey Corner • CAN 2025</title>
     <link rel="icon" type="image/jpeg" href="LOGO.jpg">
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --ma-red: #c1272d;
-            --ma-green: #006233;
-            --ma-gold: #f1c40f;
-            --dark-bg: #0a0a0a;
+            --maroc-red: #c1272d;
+            --maroc-green: #006233;
+            --gold: #d4ac0d;
+            --light-gray: #f4f7f6;
         }
 
         body { 
             margin: 0; padding: 0; 
-            background: var(--dark-bg);
+            background-color: var(--light-gray);
             background-image: 
-                linear-gradient(rgba(10, 10, 10, 0.8), rgba(10, 10, 10, 0.8)),
-                url('https://www.transparenttextures.com/patterns/stardust.png');
-            color: white; 
-            font-family: 'Inter', sans-serif; 
+                radial-gradient(at 0% 0%, rgba(193, 39, 45, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(0, 98, 51, 0.05) 0px, transparent 50%);
+            color: #1a1a1a; 
+            font-family: 'Poppins', sans-serif; 
             display: flex; flex-direction: column; align-items: center; 
             min-height: 100vh;
-            overflow-x: hidden; 
         }
 
-        /* --- STADIUM LIGHTS EFFECT --- */
-        body::before {
-            content: "";
-            position: fixed; top: 0; left: 50%; transform: translateX(-50%);
-            width: 100%; height: 300px;
-            background: radial-gradient(circle, rgba(193, 39, 45, 0.2) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .falling-item {
-            position: absolute; top: -20px; opacity: 0.3;
-            pointer-events: none; animation: fall linear infinite; z-index: 1;
-        }
-
-        @keyframes fall {
-            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.5; }
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        .header-bg {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, var(--maroc-red) 0%, #8a1c20 100%);
+            position: absolute; top: 0; left: 0;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            z-index: 1;
         }
 
         .content-wrapper {
             z-index: 10;
             display: flex; flex-direction: column; align-items: center;
             width: 100%; max-width: 400px;
-            padding: 40px 20px;
-        }
-
-        .logo-container {
-            position: relative;
-            margin-bottom: 30px;
+            padding: 60px 20px 20px;
         }
 
         .logo-img { 
-            width: 110px; height: 110px; 
+            width: 100px; height: 100px; 
             border-radius: 50%; 
-            border: 3px solid var(--ma-gold); 
+            border: 4px solid white; 
             object-fit: cover; 
             background: white; 
-            z-index: 2;
-            position: relative;
-        }
-
-        .logo-glow {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 130px; height: 130px;
-            background: var(--ma-gold);
-            filter: blur(20px);
-            opacity: 0.3;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.2; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.1); }
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
         }
 
         h1 { 
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 3rem; 
-            line-height: 1;
+            font-size: 1.6rem; 
+            font-weight: 800;
             margin: 0; 
-            letter-spacing: 2px;
-            background: linear-gradient(to bottom, #fff, #ccc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: white;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
         }
 
-        .event-tag { 
-            background: var(--ma-red);
+        .badge-can {
+            background: var(--maroc-green);
             color: white;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-weight: 900;
-            font-size: 0.9rem;
-            margin-top: 5px;
-            margin-bottom: 40px;
-            display: inline-block;
-            letter-spacing: 2px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 8px;
+            box-shadow: 0 4px 10px rgba(0, 98, 51, 0.3);
+        }
+
+        .menu-container {
+            width: 100%;
+            margin-top: 50px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
         .btn { 
             display: flex; align-items: center; 
             padding: 20px; 
-            border-radius: 12px; 
+            border-radius: 20px; 
             text-decoration: none; 
-            font-weight: 800; 
-            font-size: 0.9rem; 
-            text-transform: uppercase; 
-            margin-bottom: 16px; 
-            width: 100%; 
-            box-sizing: border-box;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.2s;
-            position: relative;
-            backdrop-filter: blur(10px);
-            letter-spacing: 1px;
+            background: white;
+            color: #1a1a1a;
+            font-weight: 600; 
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
-        .btn:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.4); }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.08);
+        }
 
-        .btn-bar { background: rgba(0, 98, 51, 0.2); border-left: 5px solid var(--ma-green); }
-        .btn-service { background: rgba(193, 39, 45, 0.2); border-left: 5px solid var(--ma-red); }
-        .btn-cuisine { background: rgba(241, 196, 15, 0.15); border-left: 5px solid var(--ma-gold); }
+        .btn:active { transform: scale(0.98); }
 
-        .icon-box {
-            width: 40px; height: 40px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 8px;
+        .icon-circle {
+            width: 45px; height: 45px;
+            border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
-            margin-right: 15px;
-            font-size: 1.2rem;
+            margin-right: 18px;
+            font-size: 1.3rem;
         }
+
+        /* Couleurs des icônes */
+        .bg-bar { background-color: #fff3e0; color: #e67e22; }
+        .bg-service { background-color: #ffebee; color: var(--maroc-red); }
+        .bg-cuisine { background-color: #f0f4f1; color: var(--maroc-green); }
+
+        .btn-text { flex-grow: 1; }
+        .btn-text span { display: block; }
+        .btn-title { font-size: 0.95rem; color: #1a1a1a; }
+        .btn-subtitle { font-size: 0.7rem; color: #888; font-weight: 400; }
+
+        .arrow { color: #ccc; font-size: 1.2rem; }
 
         .footer {
-            margin-top: auto;
-            padding: 20px;
+            margin-top: 40px;
             font-size: 0.7rem;
-            color: rgba(255,255,255,0.4);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-
-        .nav-indicator {
-            margin-left: auto;
-            opacity: 0.5;
+            color: #999;
+            font-weight: 600;
+            letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
 
-    <div id="anim-container"></div>
+    <div class="header-bg"></div>
 
     <div class="content-wrapper">
-        <div class="logo-container">
-            <div class="logo-glow"></div>
-            <img src="LOGO.jpg" class="logo-img" onerror="this.src='https://via.placeholder.com/150'">
+        <img src="LOGO.jpg" class="logo-img" onerror="this.src='https://via.placeholder.com/150'">
+        <h1>Grey Corner</h1>
+        <div class="badge-can">MAROC • CAN 2025</div>
+        
+        <div class="menu-container">
+            <a href="bar.html" class="btn">
+                <div class="icon-circle bg-bar">🍻</div>
+                <div class="btn-text">
+                    <span class="btn-title">Équipe Bar</span>
+                    <span class="btn-subtitle">Gestion & Cocktails</span>
+                </div>
+                <div class="arrow">›</div>
+            </a>
+            
+            <a href="service.html" class="btn">
+                <div class="icon-circle bg-service">⚽</div>
+                <div class="btn-text">
+                    <span class="btn-title">Équipe Service</span>
+                    <span class="btn-subtitle">Accueil & Salle</span>
+                </div>
+                <div class="arrow">›</div>
+            </a>
+
+            <a href="Cuisine.html" class="btn">
+                <div class="icon-circle bg-cuisine">👨‍🍳</div>
+                <div class="btn-text">
+                    <span class="btn-title">Équipe Cuisine</span>
+                    <span class="btn-subtitle">Production & Qualité</span>
+                </div>
+                <div class="arrow">›</div>
+            </a>
         </div>
-        
-        <h1>GREY CORNER</h1>
-        <div class="event-tag">OFFICIEL • CAN 2025</div>
-        
-        <a href="bar.html" class="btn btn-bar">
-            <div class="icon-box">🍻</div>
-            <span>Équipe Bar</span>
-            <span class="nav-indicator">→</span>
-        </a>
-        
-        <a href="service.html" class="btn btn-service">
-            <div class="icon-box">⚽</div>
-            <span>Équipe Service</span>
-            <span class="nav-indicator">→</span>
-        </a>
 
-        <a href="Cuisine.html" class="btn btn-cuisine">
-            <div class="icon-box">👨‍🍳</div>
-            <span>Équipe Cuisine</span>
-            <span class="nav-indicator">→</span>
-        </a>
-
-        <div class="footer">Morocco 2025 • High Management</div>
+        <div class="footer">EDITION SPÉCIALE • ALLES LES LIONS</div>
     </div>
-
-    <script>
-        function createAtmosphere() {
-            const container = document.getElementById('anim-container');
-            const itemsCount = 15; 
-            const symbols = ['⚽', '⭐']; 
-
-            for (let i = 0; i < itemsCount; i++) {
-                const item = document.createElement('div');
-                item.classList.add('falling-item');
-                item.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-                item.style.left = Math.random() * 100 + 'vw';
-                item.style.fontSize = (Math.random() * 10 + 10) + 'px';
-                item.style.animationDuration = (Math.random() * 8 + 5) + 's';
-                item.style.animationDelay = (Math.random() * 5) + 's';
-                container.appendChild(item);
-            }
-        }
-        createAtmosphere();
-    </script>
 
 </body>
 </html>
