@@ -4,133 +4,155 @@
     <meta charset="UTF-8">
     <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Grey Corner - CAN 2025</title>
+    <title>Grey Corner • CAN 2025</title>
     <link rel="icon" type="image/jpeg" href="LOGO.jpg">
-    <meta name="theme-color" content="#c1272d"> <!-- Rouge Maroc -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --ma-red: #c1272d;
+            --ma-green: #006233;
+            --ma-gold: #f1c40f;
+            --dark-bg: #0a0a0a;
+        }
+
         body { 
             margin: 0; padding: 0; 
-            /* Dégradé Rouge Maroc vers Vert Profond (Ambiance CAN) */
-            background: radial-gradient(circle at top, #d92831, #0f4d19); 
+            background: var(--dark-bg);
+            background-image: 
+                linear-gradient(rgba(10, 10, 10, 0.8), rgba(10, 10, 10, 0.8)),
+                url('https://www.transparenttextures.com/patterns/stardust.png');
             color: white; 
-            font-family: 'Roboto', sans-serif; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            min-height: 100vh; /* Changé de height à min-height pour accueillir le nouveau bouton */
-            text-align: center; 
+            font-family: 'Inter', sans-serif; 
+            display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh;
             overflow-x: hidden; 
         }
 
-        /* --- EFFET FOOTBALL / CONFETTIS --- */
+        /* --- STADIUM LIGHTS EFFECT --- */
+        body::before {
+            content: "";
+            position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+            width: 100%; height: 300px;
+            background: radial-gradient(circle, rgba(193, 39, 45, 0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
         .falling-item {
-            position: absolute;
-            top: -20px;
-            font-size: 1.2em;
-            opacity: 0.7;
-            pointer-events: none; 
-            animation: fall linear infinite;
-            z-index: 1;
+            position: absolute; top: -20px; opacity: 0.3;
+            pointer-events: none; animation: fall linear infinite; z-index: 1;
         }
 
         @keyframes fall {
-            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.5; }
             100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
         }
 
-        /* --- CONTENU --- */
         .content-wrapper {
             z-index: 10;
             display: flex; flex-direction: column; align-items: center;
-            width: 100%;
-            padding: 20px 0;
+            width: 100%; max-width: 400px;
+            padding: 40px 20px;
+        }
+
+        .logo-container {
+            position: relative;
+            margin-bottom: 30px;
         }
 
         .logo-img { 
-            width: 120px; height: 120px; 
+            width: 110px; height: 110px; 
             border-radius: 50%; 
-            border: 5px solid #f1c40f; /* Or Trophée */
+            border: 3px solid var(--ma-gold); 
             object-fit: cover; 
-            box-shadow: 0 0 35px rgba(241, 196, 15, 0.5); 
             background: white; 
-            margin-bottom: 20px; 
-            animation: pulse-stadium 2s infinite ease-in-out;
+            z-index: 2;
+            position: relative;
         }
 
-        @keyframes pulse-stadium {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(241, 196, 15, 0.4); }
-            50% { transform: scale(1.03); box-shadow: 0 0 50px rgba(241, 196, 15, 0.8); }
+        .logo-glow {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 130px; height: 130px;
+            background: var(--ma-gold);
+            filter: blur(20px);
+            opacity: 0.3;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.2; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.1); }
         }
 
         h1 { 
-            font-size: 1.8rem; 
-            text-transform: uppercase; 
-            letter-spacing: 3px; 
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3rem; 
+            line-height: 1;
             margin: 0; 
-            color: #fff; 
-            font-weight: 900;
-            text-shadow: 2px 2px 0px #006233; /* Ombre Verte */
+            letter-spacing: 2px;
+            background: linear-gradient(to bottom, #fff, #ccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        p { 
-            color: #f1c40f; /* Jaune Or */
-            font-size: 1.1rem; 
-            margin-bottom: 30px; 
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+        .event-tag { 
+            background: var(--ma-red);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 900;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            margin-bottom: 40px;
+            display: inline-block;
+            letter-spacing: 2px;
         }
 
         .btn { 
-            display: flex; align-items: center; justify-content: center; 
-            padding: 18px; 
-            border-radius: 10px; 
+            display: flex; align-items: center; 
+            padding: 20px; 
+            border-radius: 12px; 
             text-decoration: none; 
-            font-weight: 900; 
-            font-size: 1rem; 
+            font-weight: 800; 
+            font-size: 0.9rem; 
             text-transform: uppercase; 
-            margin-bottom: 15px; 
-            width: 85%; 
-            max-width: 320px;
-            box-shadow: 0 6px 0px rgba(0,0,0,0.3); 
-            transition: transform 0.1s, box-shadow 0.1s;
+            margin-bottom: 16px; 
+            width: 100%; 
+            box-sizing: border-box;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.2s;
             position: relative;
-            overflow: hidden;
+            backdrop-filter: blur(10px);
             letter-spacing: 1px;
         }
 
-        .btn:active { 
-            transform: translateY(4px); 
-            box-shadow: 0 2px 0px rgba(0,0,0,0.3);
+        .btn:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.4); }
+
+        .btn-bar { background: rgba(0, 98, 51, 0.2); border-left: 5px solid var(--ma-green); }
+        .btn-service { background: rgba(193, 39, 45, 0.2); border-left: 5px solid var(--ma-red); }
+        .btn-cuisine { background: rgba(241, 196, 15, 0.15); border-left: 5px solid var(--ma-gold); }
+
+        .icon-box {
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
         }
 
-        /* BOUTON BAR (Vert) */
-        .btn-bar { 
-            background: linear-gradient(135deg, #006233, #004d25); 
-            color: white; 
-            border: 2px solid #2ecc71;
-        }
-
-        /* BOUTON SERVICE (Rouge) */
-        .btn-service { 
-            background: linear-gradient(135deg, #c1272d, #8a1c20); 
-            color: white; 
-            border: 2px solid #e74c3c;
-        }
-
-        /* BOUTON CUISINE (Or/Jaune) */
-        .btn-cuisine { 
-            background: linear-gradient(135deg, #f1c40f, #d4ac0d); 
-            color: #2c3e50; 
-            border: 2px solid #fff;
-        }
-
-        .icon { margin-right: 15px; font-size: 1.4rem; }
-        
         .footer {
-            margin-top: 20px;
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.6);
-            font-weight: bold;
+            margin-top: auto;
+            padding: 20px;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .nav-indicator {
+            margin-left: auto;
+            opacity: 0.5;
         }
     </style>
 </head>
@@ -139,40 +161,48 @@
     <div id="anim-container"></div>
 
     <div class="content-wrapper">
-        <img src="LOGO.jpg" class="logo-img" onerror="this.src='https://via.placeholder.com/150?text=GC'">
+        <div class="logo-container">
+            <div class="logo-glow"></div>
+            <img src="LOGO.jpg" class="logo-img" onerror="this.src='https://via.placeholder.com/150'">
+        </div>
         
-        <h1>Grey Corner</h1>
-        <p>🏆 CAN 2025 🏆</p>
+        <h1>GREY CORNER</h1>
+        <div class="event-tag">OFFICIEL • CAN 2025</div>
         
         <a href="bar.html" class="btn btn-bar">
-            <span class="icon">🍻</span> Équipe Bar
+            <div class="icon-box">🍻</div>
+            <span>Équipe Bar</span>
+            <span class="nav-indicator">→</span>
         </a>
         
         <a href="service.html" class="btn btn-service">
-            <span class="icon">⚽</span> Équipe Service
+            <div class="icon-box">⚽</div>
+            <span>Équipe Service</span>
+            <span class="nav-indicator">→</span>
         </a>
 
-        <!-- NOUVEAU BOUTON CUISINE -->
         <a href="Cuisine.html" class="btn btn-cuisine">
-            <span class="icon">👨‍🍳</span> Équipe Cuisine
+            <div class="icon-box">👨‍🍳</div>
+            <span>Équipe Cuisine</span>
+            <span class="nav-indicator">→</span>
         </a>
 
-        <div class="footer">Maroc 2025 - Allez les Lions ! 🦁</div>
+        <div class="footer">Morocco 2025 • High Management</div>
     </div>
 
     <script>
         function createAtmosphere() {
             const container = document.getElementById('anim-container');
-            const itemsCount = 20; 
-            const symbols = ['⚽', '🏆', '🇲🇦', '🦁', '⭐']; 
+            const itemsCount = 15; 
+            const symbols = ['⚽', '⭐']; 
 
             for (let i = 0; i < itemsCount; i++) {
                 const item = document.createElement('div');
                 item.classList.add('falling-item');
                 item.textContent = symbols[Math.floor(Math.random() * symbols.length)];
                 item.style.left = Math.random() * 100 + 'vw';
-                item.style.fontSize = (Math.random() * 15 + 15) + 'px';
-                item.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                item.style.fontSize = (Math.random() * 10 + 10) + 'px';
+                item.style.animationDuration = (Math.random() * 8 + 5) + 's';
                 item.style.animationDelay = (Math.random() * 5) + 's';
                 container.appendChild(item);
             }
