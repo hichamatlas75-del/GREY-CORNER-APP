@@ -2,175 +2,176 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="robots" content="noindex, nofollow">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Grey Corner • CAN 2025</title>
-    <link rel="icon" type="image/jpeg" href="LOGO.jpg">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grey Corner • Plannings Opérationnels</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --maroc-red: #c1272d;
-            --maroc-green: #006233;
-            --gold: #d4ac0d;
-            --light-gray: #f4f7f6;
+            --primary: #6366f1;
+            --slate-50: #f8fafc;
+            --slate-200: #e2e8f0;
+            --slate-900: #0f172a;
         }
 
-        body { 
-            margin: 0; padding: 0; 
-            background-color: var(--light-gray);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(193, 39, 45, 0.05) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(0, 98, 51, 0.05) 0px, transparent 50%);
-            color: #1a1a1a; 
-            font-family: 'Poppins', sans-serif; 
-            display: flex; flex-direction: column; align-items: center; 
-            min-height: 100vh;
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--slate-50);
+            color: var(--slate-900);
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--slate-200);
         }
 
-        .header-bg {
-            width: 100%;
-            height: 180px;
-            background: linear-gradient(135deg, var(--maroc-red) 0%, #8a1c20 100%);
-            position: absolute; top: 0; left: 0;
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
-            z-index: 1;
+        .op-card {
+            background: #ffffff;
+            border: 1px solid var(--slate-200);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .content-wrapper {
-            z-index: 10;
-            display: flex; flex-direction: column; align-items: center;
-            width: 100%; max-width: 400px;
-            padding: 60px 20px 20px;
+        .op-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.1);
         }
 
-        .logo-img { 
-            width: 100px; height: 100px; 
-            border-radius: 50%; 
-            border: 4px solid white; 
-            object-fit: cover; 
-            background: white; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
+        .bg-grid {
+            background-image: radial-gradient(var(--slate-200) 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
         }
 
-        h1 { 
-            font-size: 1.6rem; 
-            font-weight: 800;
-            margin: 0; 
-            color: white;
-            letter-spacing: -0.5px;
-            text-transform: uppercase;
+        @keyframes entry {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .badge-can {
-            background: var(--maroc-green);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin-top: 8px;
-            box-shadow: 0 4px 10px rgba(0, 98, 51, 0.3);
-        }
-
-        .menu-container {
-            width: 100%;
-            margin-top: 50px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .btn { 
-            display: flex; align-items: center; 
-            padding: 20px; 
-            border-radius: 20px; 
-            text-decoration: none; 
-            background: white;
-            color: #1a1a1a;
-            font-weight: 600; 
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 20px rgba(0,0,0,0.08);
-        }
-
-        .btn:active { transform: scale(0.98); }
-
-        .icon-circle {
-            width: 45px; height: 45px;
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            margin-right: 18px;
-            font-size: 1.3rem;
-        }
-
-        /* Couleurs des icônes */
-        .bg-bar { background-color: #fff3e0; color: #e67e22; }
-        .bg-service { background-color: #ffebee; color: var(--maroc-red); }
-        .bg-cuisine { background-color: #f0f4f1; color: var(--maroc-green); }
-
-        .btn-text { flex-grow: 1; }
-        .btn-text span { display: block; }
-        .btn-title { font-size: 0.95rem; color: #1a1a1a; }
-        .btn-subtitle { font-size: 0.7rem; color: #888; font-weight: 400; }
-
-        .arrow { color: #ccc; font-size: 1.2rem; }
-
-        .footer {
-            margin-top: 40px;
-            font-size: 0.7rem;
-            color: #999;
-            font-weight: 600;
-            letter-spacing: 1px;
+        .animate-entry {
+            animation: entry 0.4s ease-out forwards;
         }
     </style>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@19.0.0",
+        "react-dom/client": "https://esm.sh/react-dom@19.0.0/client"
+      }
+    }
+    </script>
 </head>
-<body>
+<body class="bg-grid min-h-screen">
+    <div id="root"></div>
 
-    <div class="header-bg"></div>
+    <script type="module">
+        import React from 'react';
+        import { createRoot } from 'react-dom/client';
 
-    <div class="content-wrapper">
-        <img src="LOGO.jpg" class="logo-img" onerror="this.src='https://via.placeholder.com/150'">
-        <h1>Grey Corner</h1>
-        <div class="badge-can">MAROC • CAN 2025</div>
-        
-        <div class="menu-container">
-            <a href="bar.html" class="btn">
-                <div class="icon-circle bg-bar">🍻</div>
-                <div class="btn-text">
-                    <span class="btn-title">Équipe Bar</span>
-                    <span class="btn-subtitle">Gestion & Cocktails</span>
-                </div>
-                <div class="arrow">›</div>
-            </a>
-            
-            <a href="service.html" class="btn">
-                <div class="icon-circle bg-service">⚽</div>
-                <div class="btn-text">
-                    <span class="btn-title">Équipe Service</span>
-                    <span class="btn-subtitle">Accueil & Salle</span>
-                </div>
-                <div class="arrow">›</div>
-            </a>
+        const PLANNING_DATA = [
+          {
+            id: 'bar',
+            title: 'Planning Bar',
+            desc: 'Horaires et rotations du bar',
+            href: 'bar.html',
+            icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`
+          },
+          {
+            id: 'service',
+            title: 'Planning Service',
+            desc: 'Emploi du temps équipe salle',
+            href: 'service.html',
+            icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`
+          },
+          {
+            id: 'cuisine',
+            title: 'Planning Cuisine',
+            desc: 'Organisation des brigades cuisine',
+            href: 'Cuisine.html',
+            icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`
+          }
+        ];
 
-            <a href="Cuisine.html" class="btn">
-                <div class="icon-circle bg-cuisine">👨‍🍳</div>
-                <div class="btn-text">
-                    <span class="btn-title">Équipe Cuisine</span>
-                    <span class="btn-subtitle">Production & Qualité</span>
-                </div>
-                <div class="arrow">›</div>
-            </a>
-        </div>
+        const App = () => {
+          return React.createElement('div', { className: 'flex flex-col items-center pb-20' },
+            // Navigation
+            React.createElement('nav', { className: 'w-full glass-nav sticky top-0 z-50 px-6 py-4 flex justify-center' },
+              React.createElement('div', { className: 'max-w-xl w-full flex items-center justify-between' },
+                React.createElement('div', { className: 'flex items-center gap-3' },
+                  React.createElement('div', { className: 'w-8 h-8 rounded bg-white border border-slate-200 shadow-sm flex items-center justify-center overflow-hidden' },
+                    React.createElement('img', { 
+                      src: 'LOGO.jpg', 
+                      className: 'w-full h-full object-cover',
+                      onError: (e) => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=0f172a&color=fff' }
+                    })
+                  ),
+                  React.createElement('div', null,
+                    React.createElement('h1', { className: 'text-[11px] font-black uppercase tracking-tighter text-slate-900 leading-none' }, 'Grey Corner'),
+                    React.createElement('p', { className: 'text-[9px] font-bold text-indigo-600 uppercase tracking-widest mt-0.5' }, 'Portail Staff')
+                  )
+                ),
+                React.createElement('div', { className: 'flex items-center gap-2' },
+                   React.createElement('span', { className: 'w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' }),
+                   React.createElement('span', { className: 'text-[10px] font-bold text-slate-500 uppercase tracking-widest' }, 'v4.5 PRO')
+                )
+              )
+            ),
 
-        <div class="footer">EDITION SPÉCIALE • ALLES LES LIONS</div>
-    </div>
+            // Intro
+            React.createElement('header', { className: 'max-w-xl w-full px-6 pt-16 pb-12' },
+              React.createElement('div', { className: 'flex items-center gap-2 mb-3' },
+                React.createElement('span', { className: 'h-px w-4 bg-slate-400' }),
+                React.createElement('span', { className: 'text-[10px] font-bold text-slate-400 uppercase tracking-widest' }, 'Calendrier Interne')
+              ),
+              React.createElement('h2', { className: 'text-3xl font-black text-slate-900 tracking-tight leading-tight' }, 'Plannings Staff'),
+              React.createElement('p', { className: 'text-slate-500 mt-2 text-sm font-medium' }, 'Consultez les horaires hebdomadaires par secteur opérationnel.')
+            ),
 
+            // Grid
+            React.createElement('main', { className: 'max-w-xl w-full px-6 space-y-3' },
+              PLANNING_DATA.map((item, idx) => 
+                React.createElement('a', {
+                  key: item.id,
+                  href: item.href,
+                  className: 'op-card group flex items-center p-5 rounded-2xl opacity-0 animate-entry shadow-[0_1px_2px_rgba(0,0,0,0.02)]',
+                  style: { animationDelay: `${idx * 100}ms` }
+                },
+                  React.createElement('div', { 
+                    className: 'w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 border border-slate-100 group-hover:border-indigo-100 transition-all shrink-0',
+                    dangerouslySetInnerHTML: { __html: item.icon }
+                  }),
+                  React.createElement('div', { className: 'ml-5' },
+                    React.createElement('h3', { className: 'text-[12px] font-bold text-slate-900 uppercase tracking-tight' }, item.title),
+                    React.createElement('p', { className: 'text-[11px] text-slate-400 font-medium mt-0.5' }, item.desc)
+                  ),
+                  React.createElement('div', { className: 'ml-auto text-slate-300 group-hover:text-indigo-600 transition-all' },
+                    React.createElement('svg', { className: 'w-4 h-4', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: '3' },
+                      React.createElement('path', { d: 'M9 18l6-6-6-6' })
+                    )
+                  )
+                )
+              )
+            ),
+
+            // Footer
+            React.createElement('footer', { className: 'mt-24 text-center opacity-40 px-6' },
+               React.createElement('p', { className: 'text-[9px] font-bold uppercase tracking-[0.4em] text-slate-500' }, 
+                 'Grey Corner Management System'
+               ),
+               React.createElement('p', { className: 'text-[8px] font-medium text-slate-400 mt-2' }, 
+                 'Accès réservé au personnel interne uniquement'
+               )
+            )
+          );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(React.createElement(App));
+    </script>
 </body>
 </html>
