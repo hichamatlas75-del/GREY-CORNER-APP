@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Grey Corner • Plannings Opérationnels</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,71 +22,63 @@
             background-color: var(--slate-50);
             color: var(--slate-900);
             -webkit-font-smoothing: antialiased;
+            overscroll-behavior-y: contain;
         }
         
         .glass-nav {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--slate-200);
         }
 
         .op-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
             border-width: 1px;
             border-style: solid;
         }
 
-        .op-card:hover {
-            transform: translateY(-4px) scale(1.01);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        .op-card:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        @media (min-width: 768px) {
+            .op-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.05);
+            }
         }
 
         /* Module Colors */
-        .module-bar {
-            background: #f5f3ff;
-            border-color: #ddd6fe;
-        }
-        .module-bar .accent-line { background: #6366f1; }
+        .module-bar { background: #f5f3ff; border-color: #ddd6fe; }
         .module-bar .icon-container { background: #6366f1; color: white; }
         .module-bar .title-text { color: #4338ca; }
         .module-bar .tag { background: #e0e7ff; color: #4338ca; }
 
-        .module-service {
-            background: #ecfdf5;
-            border-color: #d1fae5;
-        }
-        .module-service .accent-line { background: #10b981; }
+        .module-service { background: #ecfdf5; border-color: #d1fae5; }
         .module-service .icon-container { background: #10b981; color: white; }
         .module-service .title-text { color: #047857; }
         .module-service .tag { background: #d1fae5; color: #047857; }
 
-        .module-cuisine {
-            background: #fffbeb;
-            border-color: #fef3c7;
-        }
-        .module-cuisine .accent-line { background: #f59e0b; }
+        .module-cuisine { background: #fffbeb; border-color: #fef3c7; }
         .module-cuisine .icon-container { background: #f59e0b; color: white; }
         .module-cuisine .title-text { color: #b45309; }
         .module-cuisine .tag { background: #fef3c7; color: #b45309; }
 
         .bg-pattern {
             background-image: radial-gradient(var(--slate-200) 0.5px, transparent 0.5px);
-            background-size: 24px 24px;
+            background-size: 20px 20px;
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .animate-slide {
-            animation: slideIn 0.5s ease-out forwards;
-        }
-
-        .header-glow {
-            background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.05), transparent);
+            animation: slideIn 0.4s ease-out forwards;
         }
     </style>
 
@@ -99,7 +91,7 @@
     }
     </script>
 </head>
-<body class="bg-pattern min-h-screen header-glow">
+<body class="bg-pattern min-h-screen">
     <div id="root"></div>
 
     <script type="module">
@@ -110,8 +102,8 @@
           {
             id: 'bar',
             title: 'Planning Bar',
-            tag: 'Boissons & Cocktails',
-            desc: 'Gestion des rotations et stocks hebdomadaires.',
+            tag: 'Bar & Stock',
+            desc: 'Consultez vos horaires et la rotation bar.',
             href: 'bar.html',
             styleClass: 'module-bar',
             icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 2h-3L4.83 12l1.27 1.27L12 7.44V22h2V7.44l5.9 5.83L21.17 12z"/></svg>`
@@ -119,8 +111,8 @@
           {
             id: 'service',
             title: 'Planning Service',
-            tag: 'Salle & Terrasses',
-            desc: 'Coordination des zones et accueil clientèle.',
+            tag: 'Salle & Zones',
+            desc: 'Coordination salle et accueil clients.',
             href: 'service.html',
             styleClass: 'module-service',
             icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 8v8"/></svg>`
@@ -128,8 +120,8 @@
           {
             id: 'cuisine',
             title: 'Planning Cuisine',
-            tag: 'Production & Brigade',
-            desc: 'Standard de préparation et fiches de poste.',
+            tag: 'Cuisine & Brigade',
+            desc: 'Standards de production et horaires cuisine.',
             href: 'Cuisine.html',
             styleClass: 'module-cuisine',
             icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><line x1="6" x2="18" y1="17" y2="17"/></svg>`
@@ -137,65 +129,65 @@
         ];
 
         const App = () => {
-          return React.createElement('div', { className: 'flex flex-col items-center pb-20' },
+          return React.createElement('div', { className: 'flex flex-col items-center pb-12' },
             // Navigation
-            React.createElement('nav', { className: 'w-full glass-nav sticky top-0 z-50 px-6 py-4 flex justify-center' },
+            React.createElement('nav', { className: 'w-full glass-nav sticky top-0 z-50 px-4 py-3 flex justify-center' },
               React.createElement('div', { className: 'max-w-xl w-full flex items-center justify-between' },
-                React.createElement('div', { className: 'flex items-center gap-3' },
-                  React.createElement('div', { className: 'w-9 h-9 rounded-lg bg-white border border-slate-200 shadow-sm flex items-center justify-center overflow-hidden p-1' },
+                React.createElement('div', { className: 'flex items-center gap-2.5' },
+                  React.createElement('div', { className: 'w-8 h-8 rounded-lg bg-white border border-slate-200 shadow-sm flex items-center justify-center overflow-hidden p-1' },
                     React.createElement('img', { 
                       src: 'LOGO.jpg', 
-                      className: 'w-full h-full object-contain rounded-sm',
+                      className: 'w-full h-full object-contain',
                       onError: (e) => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=0f172a&color=fff' }
                     })
                   ),
                   React.createElement('div', null,
-                    React.createElement('h1', { className: 'text-[12px] font-black uppercase tracking-tighter text-slate-900 leading-none' }, 'Grey Corner'),
-                    React.createElement('p', { className: 'text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1' }, 'Operational Dashboard')
+                    React.createElement('h1', { className: 'text-[11px] font-black uppercase tracking-tighter text-slate-900 leading-none' }, 'Grey Corner'),
+                    React.createElement('p', { className: 'text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5' }, 'Portail Staff')
                   )
                 ),
-                React.createElement('div', { className: 'flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-full shadow-sm' },
-                   React.createElement('span', { className: 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse' }),
-                   React.createElement('span', { className: 'text-[10px] font-bold text-slate-600 uppercase tracking-widest' }, 'PRO v4.5')
+                React.createElement('div', { className: 'flex items-center gap-1.5 px-2.5 py-1 bg-white border border-slate-200 rounded-full' },
+                   React.createElement('span', { className: 'w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse' }),
+                   React.createElement('span', { className: 'text-[9px] font-bold text-slate-600 uppercase tracking-widest' }, 'v4.5')
                 )
               )
             ),
 
-            // Main Header
-            React.createElement('header', { className: 'max-w-xl w-full px-6 pt-16 pb-12' },
-              React.createElement('div', { className: 'flex items-center gap-3 mb-5' },
-                React.createElement('div', { className: 'h-1.5 w-8 bg-indigo-600 rounded-full' }),
-                React.createElement('span', { className: 'text-[11px] font-black text-slate-900 uppercase tracking-[0.3em]' }, 'Espace Planning')
+            // Header - Optimisé Mobile
+            React.createElement('header', { className: 'max-w-xl w-full px-6 pt-8 pb-8 md:pt-14 md:pb-12' },
+              React.createElement('div', { className: 'flex items-center gap-2 mb-3' },
+                React.createElement('div', { className: 'h-1 w-6 bg-slate-900 rounded-full' }),
+                React.createElement('span', { className: 'text-[10px] font-black text-slate-900 uppercase tracking-[0.2em]' }, 'Espace Interne')
               ),
-              React.createElement('h2', { className: 'text-4xl font-black text-slate-900 tracking-tight leading-none mb-4' }, 'Gestion des Plannings'),
-              React.createElement('p', { className: 'text-slate-500 text-sm font-medium leading-relaxed max-w-sm' }, 
-                'Choisissez votre unité pour consulter les horaires et les affectations de la semaine.'
+              React.createElement('h2', { className: 'text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-none mb-3' }, 'Plannings'),
+              React.createElement('p', { className: 'text-slate-500 text-xs md:text-sm font-medium leading-relaxed max-w-xs' }, 
+                'Accédez instantanément à vos horaires de la semaine.'
               )
             ),
 
-            // Modules Grid
-            React.createElement('main', { className: 'max-w-xl w-full px-6 space-y-5' },
+            // Modules Grid - Densifié Mobile
+            React.createElement('main', { className: 'max-w-xl w-full px-4 space-y-3.5' },
               PLANNING_DATA.map((item, idx) => 
                 React.createElement('a', {
                   key: item.id,
                   href: item.href,
-                  className: `op-card group flex flex-col p-6 rounded-3xl opacity-0 animate-slide ${item.styleClass}`,
-                  style: { animationDelay: `${idx * 150}ms` }
+                  className: `op-card group flex flex-col p-5 md:p-6 rounded-2xl md:rounded-3xl opacity-0 animate-slide ${item.styleClass}`,
+                  style: { animationDelay: `${idx * 100}ms` }
                 },
-                  React.createElement('div', { className: 'flex items-start justify-between mb-4' },
+                  React.createElement('div', { className: 'flex items-start justify-between mb-3' },
                     React.createElement('div', { 
-                      className: 'icon-container w-14 h-14 flex items-center justify-center rounded-2xl shadow-lg transition-transform group-hover:scale-110',
+                      className: 'icon-container w-11 h-11 md:w-14 md:h-14 flex items-center justify-center rounded-xl md:rounded-2xl shadow-md transition-transform md:group-hover:scale-105',
                       dangerouslySetInnerHTML: { __html: item.icon }
                     }),
-                    React.createElement('span', { className: 'tag text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest' }, 
+                    React.createElement('span', { className: 'tag text-[8px] md:text-[9px] font-black px-2.5 py-0.5 md:py-1 rounded-full uppercase tracking-widest' }, 
                       item.tag
                     )
                   ),
                   React.createElement('div', { className: 'relative' },
-                    React.createElement('h3', { className: 'title-text text-xl font-black uppercase tracking-tight' }, item.title),
-                    React.createElement('p', { className: 'text-slate-500 text-[13px] font-medium mt-1 pr-8 leading-relaxed' }, item.desc),
-                    React.createElement('div', { className: 'absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-sm text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all' },
-                      React.createElement('svg', { className: 'w-5 h-5', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: '3' },
+                    React.createElement('h3', { className: 'title-text text-lg md:text-xl font-black uppercase tracking-tight' }, item.title),
+                    React.createElement('p', { className: 'text-slate-500 text-[11px] md:text-[13px] font-medium mt-0.5 leading-snug' }, item.desc),
+                    React.createElement('div', { className: 'absolute bottom-0 right-0 text-slate-300 md:group-hover:text-slate-500 md:group-hover:translate-x-1 transition-all' },
+                      React.createElement('svg', { className: 'w-4 h-4 md:w-5 md:h-5', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: '3' },
                         React.createElement('path', { d: 'M9 18l6-6-6-6' })
                       )
                     )
@@ -204,23 +196,13 @@
               )
             ),
 
-            // Footer
-            React.createElement('footer', { className: 'mt-24 text-center px-6 w-full max-w-xl' },
-               React.createElement('div', { className: 'bg-slate-900 rounded-3xl p-10 text-white shadow-xl' },
-                 React.createElement('p', { className: 'text-[10px] font-black uppercase tracking-[0.5em] text-slate-400 mb-6' }, 
-                   'Grey Corner Executive'
-                 ),
-                 React.createElement('div', { className: 'grid grid-cols-2 gap-6 text-[10px] font-bold text-slate-300 uppercase tracking-widest text-left border-t border-slate-800 pt-8' },
-                   React.createElement('div', null, 
-                      React.createElement('p', { className: 'text-slate-500 mb-1 font-medium' }, 'Sécurité'),
-                      React.createElement('p', null, 'Auth SSL Active')
-                   ),
-                   React.createElement('div', null, 
-                      React.createElement('p', { className: 'text-slate-500 mb-1 font-medium' }, 'Statut'),
-                      React.createElement('p', null, 'Opérationnel')
-                   )
-                 ),
-                 React.createElement('p', { className: 'text-[9px] text-slate-500 mt-8 font-medium' }, 'Accès strictement réservé au personnel autorisé.')
+            // Footer Simple & Pro
+            React.createElement('footer', { className: 'mt-16 text-center opacity-30 px-6' },
+               React.createElement('p', { className: 'text-[9px] font-black uppercase tracking-[0.4em] text-slate-900' }, 
+                 'Grey Corner Executive Portal'
+               ),
+               React.createElement('p', { className: 'text-[8px] font-medium text-slate-500 mt-1.5' }, 
+                 'Accès réservé au personnel'
                )
             )
           );
