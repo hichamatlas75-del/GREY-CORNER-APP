@@ -1,213 +1,48 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planning Cuisine Couleur</title>
+    <title>Cuisine Pro | Planning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-body: #f0f2f5;
-            --card-bg: #ffffff;
-            --femme: #e91e63;
-            --homme: #0288d1;
-            --off-bg: #ffebee;
-            --off-text: #c62828;
-            --fs-color: #546e7a;
-            --header-bg: #455a64;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-body);
-            margin: 0;
-            padding: 10px;
-            /* Ajout d'une marge en bas pour permettre au dernier jour de monter en haut de l'écran */
-            padding-bottom: 80vh; 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            scroll-behavior: smooth;
+            background: radial-gradient(at top left, #f8fafc, #f1f5f9);
         }
-
-        h1 {
-            text-align: center;
-            color: #263238;
-            font-size: 1.4rem;
-            margin-bottom: 15px;
-            text-transform: uppercase;
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-width: 500px;
-            margin: 0 auto;
+        /* Masquer la barre de défilement mais garder le scroll */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
         }
-
-        .day-card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            overflow: hidden;
-            border-left: 6px solid var(--header-bg);
-            transition: transform 0.3s;
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
-
-        /* Style pour mettre en évidence le jour actuel */
-        .today-highlight {
-            border: 2px solid #2196f3;
-            box-shadow: 0 0 15px rgba(33, 150, 243, 0.4);
-        }
-
-        .day-header {
-            background-color: var(--header-bg);
-            color: white;
-            padding: 10px 15px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .staff-list { padding: 5px 0; }
-
-        .staff-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 15px;
-            border-bottom: 1px solid #f0f0f0;
-            align-items: center;
-        }
-
-        .femme { color: var(--femme); font-weight: 700; }
-        .homme { color: var(--homme); font-weight: 700; }
-
-        .time-badge {
-            font-family: 'monospace';
-            font-size: 0.95rem;
-            background: #f8f9fa;
-            padding: 4px 10px;
-            border-radius: 20px;
-            border: 1px solid #ddd;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .status-off { background-color: var(--off-bg); color: var(--off-text); border-color: #ffcdd2; }
-        .status-fs { color: var(--fs-color); font-style: italic; }
     </style>
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
 </head>
-<body>
-
-    <h1>📅 Planning Cuisine</h1>
-
-    <div class="container">
-        <div id="day-1" class="day-card" style="border-left-color: #ff9800;">
-            <div class="day-header" style="background-color: #ff9800;"><span>LUNDI</span> 👨‍🍳</div>
-            <div class="staff-list">
-                <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 14</span></div>
-                <div class="staff-row"><span class="femme">Fatima</span><span class="time-badge">6 / 14</span></div>
-                <div class="staff-row"><span class="femme">Jihane</span><span class="time-badge">12 / 20</span></div>
-                <div class="staff-row"><span class="femme">Imane</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="homme">Anass</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="homme">Jawad</span><span class="time-badge status-off">OFF</span></div>
-                <div class="staff-row"><span class="homme">Saâd</span><span class="time-badge">13 / <span class="status-fs">F.S</span></span></div>
-            </div>
-        </div>
-
-        <div id="day-2" class="day-card" style="border-left-color: #4caf50;">
-            <div class="day-header" style="background-color: #4caf50;"><span>MARDI</span> 👨‍🍳</div>
-            <div class="staff-list">
-                <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 14</span></div>
-                <div class="staff-row"><span class="femme">Fatima</span><span class="time-badge">6 / 14</span></div>
-                <div class="staff-row"><span class="femme">Jihane</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="femme">Imane</span><span class="time-badge status-off">OFF</span></div>
-                <div class="staff-row"><span class="homme">Anass</span><span class="time-badge status-off">OFF</span></div>
-                <div class="staff-row"><span class="homme">Jawad</span><span class="time-badge">12 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="homme">Saâd</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
-            </div>
-        </div>
-
-        <div id="day-3" class="day-card" style="border-left-color: #2196f3;">
-            <div class="day-header" style="background-color: #2196f3;"><span>MERCREDI</span> 👨‍🍳</div>
-            <div class="staff-list">
-                <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 14</span></div>
-                <div class="staff-row"><span class="femme">Fatima</span><span class="time-badge status-off">OFF</span></div>
-                <div class="staff-row"><span class="femme">Jihane</span><span class="time-badge">13 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="femme">Imane</span><span class="time-badge">6 / 14</span></div>
-                <div class="staff-row"><span class="homme">Anass</span><span class="time-badge">12 / 21</span></div>
-                <div class="staff-row"><span class="homme">Jawad</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="homme">Saâd</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
-            </div>
-        </div>
-
-        <div id="day-4" class="day-card" style="border-left-color: #9c27b0;">
-            <div class="day-header" style="background-color: #9c27b0;"><span>JEUDI</span> 👨‍🍳</div>
-            <div class="staff-list">
-                <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 14</span></div>
-                <div class="staff-row"><span class="femme">Fatima</span><span class="time-badge">6 / 14</span></div>
-                <div class="staff-row"><span class="femme">Jihane</span><span class="time-badge status-off">OFF</span></div>
-                <div class="staff-row"><span class="femme">Imane</span><span class="time-badge">12 / 20</span></div>
-                <div class="staff-row"><span class="homme">Anass</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="homme">Jawad</span><span class="time-badge">12 / 21</span></div>
-                <div class="staff-row"><span class="homme">Saâd</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
-            </div>
-        </div>
-
-        <div id="day-5" class="day-card" style="border-left-color: #f44336;">
-            <div class="day-header" style="background-color: #f44336;"><span>VENDREDI</span> 👨‍🍳</div>
-            <div class="staff-list">
-                <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge status-off">OFF</span></div>
-                <div class="staff-row"><span class="femme">Fatima</span><span class="time-badge">6 / 14</span></div>
-                <div class="staff-row"><span class="femme">Jihane</span><span class="time-badge">12 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="femme">Imane</span><span class="time-badge">6 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="homme">Anass</span><span class="time-badge">13 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="homme">Jawad</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="homme">Saâd</span><span class="time-badge status-off">OFF</span></div>
-            </div>
-        </div>
-
-        <div id="day-6" class="day-card" style="border-left-color: #795548;">
-            <div class="day-header" style="background-color: #795548;"><span>SAMEDI</span> 👨‍🍳</div>
-            <div class="staff-list">
-                <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 15</span></div>
-                <div class="staff-row"><span class="femme">Fatima</span><span class="time-badge">6 / 15</span></div>
-                <div class="staff-row"><span class="femme">Jihane</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="femme">Imane</span><span class="time-badge">10 / 18</span></div>
-                <div class="staff-row"><span class="homme">Anass</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="homme">Jawad</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="homme">Saâd</span><span class="time-badge">13 / <span class="status-fs">F.S</span></span></div>
-            </div>
-        </div>
-
-        <div id="day-0" class="day-card" style="border-left-color: #009688;">
-            <div class="day-header" style="background-color: #009688;"><span>DIMANCHE</span> 👨‍🍳</div>
-            <div class="staff-list">
-                <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 15</span></div>
-                <div class="staff-row"><span class="femme">Fatima</span><span class="time-badge">6 / 15</span></div>
-                <div class="staff-row"><span class="femme">Jihane</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="femme">Imane</span><span class="time-badge">12 / 20</span></div>
-                <div class="staff-row"><span class="homme">Anass</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="homme">Jawad</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
-                <div class="staff-row"><span class="homme">Saâd</span><span class="time-badge">13 / 21</span></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        window.onload = function() {
-            // 1. On récupère le numéro du jour actuel (0 pour dimanche, 1 pour lundi, etc.)
-            const today = new Date().getDay();
-            
-            // 2. On cible l'élément HTML correspondant à l'ID
-            const todayElement = document.getElementById('day-' + today);
-
-            if (todayElement) {
-                // 3. On fait défiler la page doucement vers cet élément
-                todayElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                
-                // 4. Optionnel : on ajoute une petite bordure pour bien le voir
-                todayElement.classList.add('today-highlight');
-            }
-        };
-    </script>
-
+<body class="text-slate-900 antialiased">
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
 </body>
 </html>
