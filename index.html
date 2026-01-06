@@ -2,208 +2,211 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Grey Corner • Plannings Opérationnels</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grey Corner • Plannings Fêtes</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --slate-50: #f8fafc;
-            --slate-100: #f1f5f9;
-            --slate-200: #e2e8f0;
-            --slate-900: #0f172a;
+            --bg-color: #1a0505;
+            --accent-gold: #FFD700;
         }
-
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--slate-50);
-            color: var(--slate-900);
-            -webkit-font-smoothing: antialiased;
-            overscroll-behavior-y: contain;
+            font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            overflow-x: hidden;
         }
-        
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--slate-200);
-        }
-
-        .op-card {
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            border-width: 1px;
-            border-style: solid;
-        }
-
-        .op-card:active {
-            transform: scale(0.98);
-            opacity: 0.9;
-        }
-
-        @media (min-width: 768px) {
-            .op-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.05);
-            }
-        }
-
-        /* Module Colors */
-        .module-bar { background: #f5f3ff; border-color: #ddd6fe; }
-        .module-bar .icon-container { background: #6366f1; color: white; }
-        .module-bar .title-text { color: #4338ca; }
-        .module-bar .tag { background: #e0e7ff; color: #4338ca; }
-
-        .module-service { background: #ecfdf5; border-color: #d1fae5; }
-        .module-service .icon-container { background: #10b981; color: white; }
-        .module-service .title-text { color: #047857; }
-        .module-service .tag { background: #d1fae5; color: #047857; }
-
-        .module-cuisine { background: #fffbeb; border-color: #fef3c7; }
-        .module-cuisine .icon-container { background: #f59e0b; color: white; }
-        .module-cuisine .title-text { color: #b45309; }
-        .module-cuisine .tag { background: #fef3c7; color: #b45309; }
-
-        .bg-pattern {
-            background-image: radial-gradient(var(--slate-200) 0.5px, transparent 0.5px);
-            background-size: 20px 20px;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        .animate-slide {
-            animation: slideIn 0.4s ease-out forwards;
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        .snowflake {
+            position: fixed;
+            top: -10%;
+            z-index: 1;
+            user-select: none;
+            cursor: default;
+            animation-name: fall;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            color: white;
+            pointer-events: none;
+        }
+        @keyframes fall {
+            0% { top: -10%; transform: translateX(0); }
+            100% { top: 110%; transform: translateX(20px); }
+        }
+        .glass-card {
+            background: rgba(30, 30, 30, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 215, 0, 0.25);
         }
     </style>
-
     <script type="importmap">
-    {
-      "imports": {
-        "react": "https://esm.sh/react@19.0.0",
-        "react-dom/client": "https://esm.sh/react-dom@19.0.0/client"
-      }
-    }
-    </script>
+{
+  "imports": {
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
 </head>
-<body class="bg-pattern min-h-screen">
+<body>
     <div id="root"></div>
 
     <script type="module">
-        import React from 'react';
+        import React, { useState, useEffect } from 'react';
         import { createRoot } from 'react-dom/client';
 
-        const PLANNING_DATA = [
+        // --- Constants ---
+        const NAV_LINKS = [
           {
-            id: 'bar',
-            title: 'Planning Bar',
-            tag: 'Bar & Stock',
-            desc: 'Consultez vos horaires et la rotation bar.',
-            href: 'bar.html',
-            styleClass: 'module-bar',
-            icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22h8"/><path d="M12 11V22"/><path d="m19 3-7 8-7-8Z"/></svg>`
+            title: "PLANNING BAR",
+            subtitle: "Bar & Stock • Horaires et rotation",
+            href: "bar.html",
+            icon: "🍸",
+            tag: "BAR"
           },
           {
-            id: 'service',
-            title: 'Planning Service',
-            tag: 'Salle & Zones',
-            desc: 'Coordination salle et accueil clients.',
-            href: 'service.html',
-            styleClass: 'module-service',
-            icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h20"/><path d="M5 18v-1a7 7 0 0 1 14 0v1"/><path d="M12 10V7"/><circle cx="12" cy="5" r="1"/></svg>`
+            title: "PLANNING SERVICE",
+            subtitle: "Salle & Zones • Coordination accueil",
+            href: "service.html",
+            icon: "🍽️",
+            tag: "SERVICE"
           },
           {
-            id: 'cuisine',
-            title: 'Planning Cuisine',
-            tag: 'Cuisine & Brigade',
-            desc: 'Standards de production et horaires cuisine.',
-            href: 'Cuisine.html',
-            styleClass: 'module-cuisine',
-            icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><line x1="6" x2="18" y1="17" y2="17"/></svg>`
+            title: "PLANNING CUISINE",
+            subtitle: "Cuisine & Brigade • Standards production",
+            href: "Cuisine.html",
+            icon: "👨‍🍳",
+            tag: "CUISINE"
           }
         ];
 
-        const App = () => {
-          return React.createElement('div', { className: 'flex flex-col items-center pb-12' },
-            // Navigation
-            React.createElement('nav', { className: 'w-full glass-nav sticky top-0 z-50 px-4 py-3 flex justify-center' },
-              React.createElement('div', { className: 'max-w-xl w-full flex items-center justify-between' },
-                React.createElement('div', { className: 'flex items-center gap-2.5' },
-                  React.createElement('div', { className: 'w-8 h-8 rounded-lg bg-white border border-slate-200 shadow-sm flex items-center justify-center overflow-hidden p-1' },
-                    React.createElement('img', { 
-                      src: 'LOGO.jpg', 
-                      className: 'w-full h-full object-contain',
-                      onError: (e) => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=0f172a&color=fff' }
-                    })
-                  ),
-                  React.createElement('div', null,
-                    React.createElement('h1', { className: 'text-[11px] font-black uppercase tracking-tighter text-slate-900 leading-none' }, 'Grey Corner'),
-                    React.createElement('p', { className: 'text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5' }, 'Portail Staff')
-                  )
-                ),
-                React.createElement('div', { className: 'flex items-center gap-1.5 px-2.5 py-1 bg-white border border-slate-200 rounded-full' },
-                   React.createElement('span', { className: 'w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse' }),
-                   React.createElement('span', { className: 'text-[9px] font-bold text-slate-600 uppercase tracking-widest' }, 'v4.5')
-                )
+        // --- Components ---
+
+        const SnowEffect = () => {
+          const [flakes, setFlakes] = useState([]);
+          useEffect(() => {
+            const flakesCount = 35;
+            const newFlakes = Array.from({ length: flakesCount }).map((_, i) => ({
+              id: i,
+              left: `${Math.random() * 100}vw`,
+              fontSize: `${Math.random() * 10 + 10}px`,
+              duration: `${Math.random() * 5 + 5}s`,
+              delay: `${Math.random() * 5}s`
+            }));
+            setFlakes(newFlakes);
+          }, []);
+
+          return React.createElement('div', { className: 'fixed inset-0 pointer-events-none overflow-hidden z-0' },
+            flakes.map(flake => React.createElement('div', {
+              key: flake.id,
+              className: 'snowflake opacity-60',
+              style: {
+                left: flake.left,
+                fontSize: flake.fontSize,
+                animationDuration: flake.duration,
+                animationDelay: flake.delay
+              }
+            }, '❄'))
+          );
+        };
+
+        const Header = ({ title, badge }) => {
+          return React.createElement('div', { 
+            className: 'text-center mb-10 animate-fade-in opacity-0',
+            style: { animationDelay: '0s' }
+          },
+            React.createElement('div', { className: 'inline-block relative mb-6' },
+              React.createElement('img', { 
+                src: 'LOGO.jpg', 
+                className: 'w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-[#FFD700] shadow-[0_0_25px_rgba(255,215,0,0.4)] bg-white object-contain p-2',
+                onError: (e) => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=0f172a&color=fff' }
+              }),
+              badge && React.createElement('div', { 
+                className: 'absolute -bottom-2 left-1/2 -translate-x-1/2 bg-white border border-[#FFD700] px-3 py-1 rounded-full shadow-lg' 
+              },
+                React.createElement('span', { className: 'text-[9px] font-black text-slate-900 uppercase tracking-widest whitespace-nowrap' }, badge)
               )
             ),
+            React.createElement('div', { className: 'mt-4' },
+              React.createElement('h1', { 
+                className: 'font-black tracking-[3px] uppercase text-xl md:text-2xl text-white border-b-2 border-[#FFD700] pb-4 inline-block drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]' 
+              }, title)
+            )
+          );
+        };
 
-            // Header - Optimisé Mobile
-            React.createElement('header', { className: 'max-w-xl w-full px-6 pt-8 pb-8 md:pt-14 md:pb-12' },
-              React.createElement('div', { className: 'flex items-center gap-2 mb-3' },
-                React.createElement('div', { className: 'h-1 w-6 bg-slate-900 rounded-full' }),
-                React.createElement('span', { className: 'text-[10px] font-black text-slate-900 uppercase tracking-[0.2em]' }, 'Espace Interne')
+        const NavLinkCard = ({ href, icon, title, subtitle, delay, tag }) => {
+          return React.createElement('a', {
+            href: href,
+            className: 'group flex items-center glass-card p-5 md:p-6 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:border-[#FFD700] hover:bg-[rgba(50,50,50,0.95)] hover:shadow-[0_0_20px_rgba(255,215,0,0.15)] relative overflow-hidden animate-fade-in opacity-0 shadow-xl',
+            style: { animationDelay: delay }
+          },
+            // Premium golden accent strip
+            React.createElement('div', { className: 'absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-[#FFD700] via-[#ffd900] to-[#b8860b]' }),
+            
+            React.createElement('div', { className: 'text-3xl mr-6 w-12 flex items-center justify-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] group-hover:scale-110 transition-transform duration-300' }, icon),
+            
+            React.createElement('div', { className: 'flex flex-col flex-grow' },
+              React.createElement('div', { className: 'flex items-center justify-between gap-2' },
+                React.createElement('span', { className: 'text-base md:text-lg font-black tracking-wide text-white uppercase' }, title),
+                tag && React.createElement('span', { className: 'hidden md:inline-block bg-[rgba(255,215,0,0.1)] border border-[rgba(255,215,0,0.3)] text-[#FFD700] text-[8px] font-black px-2 py-0.5 rounded-full tracking-widest uppercase' }, tag)
               ),
-              React.createElement('h2', { className: 'text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-none mb-3' }, 'Plannings'),
-              React.createElement('p', { className: 'text-slate-500 text-xs md:text-sm font-medium leading-relaxed max-w-xs' }, 
-                'Accédez instantanément à vos horaires de la semaine.'
-              )
+              React.createElement('span', { className: 'text-xs md:text-sm text-[#FFD700] opacity-80 mt-1 font-medium italic' }, subtitle)
             ),
 
-            // Modules Grid - Densifié Mobile
-            React.createElement('main', { className: 'max-w-xl w-full px-4 space-y-3.5' },
-              PLANNING_DATA.map((item, idx) => 
-                React.createElement('a', {
-                  key: item.id,
-                  href: item.href,
-                  className: `op-card group flex flex-col p-5 md:p-6 rounded-2xl md:rounded-3xl opacity-0 animate-slide ${item.styleClass}`,
-                  style: { animationDelay: `${idx * 100}ms` }
+            React.createElement('div', { className: 'ml-4 text-[#FFD700] opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300' },
+              React.createElement('svg', { className: 'w-5 h-5', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: '3' },
+                React.createElement('path', { d: 'M9 18l6-6-6-6', strokeLinecap: 'round', strokeLinejoin: 'round' })
+              )
+            )
+          );
+        };
+
+        const Footer = ({ text }) => {
+          return React.createElement('footer', { className: 'mt-12 text-center text-white/40 text-xs uppercase tracking-[1px] z-10' }, text);
+        };
+
+        const App = () => {
+          return React.createElement('div', { 
+            className: 'min-h-screen relative flex flex-col items-center py-10 px-5 bg-[radial-gradient(circle_at_top,_#6e0000_0%,_#0f0f0f_80%)]' 
+          },
+            React.createElement(SnowEffect),
+            
+            React.createElement('div', { className: 'w-full max-w-[600px] flex flex-col gap-5 z-10 relative' },
+              React.createElement(Header, { title: 'Plannings Opérationnels', badge: 'Portail Staff v4.5' }),
+
+              React.createElement('div', { className: 'flex flex-col gap-4' },
+                React.createElement('div', { 
+                  className: 'flex items-center gap-2 mb-2 ml-2 animate-fade-in opacity-0',
+                  style: { animationDelay: '100ms' }
                 },
-                  React.createElement('div', { className: 'flex items-start justify-between mb-3' },
-                    React.createElement('div', { 
-                      className: 'icon-container w-11 h-11 md:w-14 md:h-14 flex items-center justify-center rounded-xl md:rounded-2xl shadow-md transition-transform md:group-hover:scale-105',
-                      dangerouslySetInnerHTML: { __html: item.icon }
-                    }),
-                    React.createElement('span', { className: 'tag text-[8px] md:text-[9px] font-black px-2.5 py-0.5 md:py-1 rounded-full uppercase tracking-widest' }, 
-                      item.tag
-                    )
-                  ),
-                  React.createElement('div', { className: 'relative' },
-                    React.createElement('h3', { className: 'title-text text-lg md:text-xl font-black uppercase tracking-tight' }, item.title),
-                    React.createElement('p', { className: 'text-slate-500 text-[11px] md:text-[13px] font-medium mt-0.5 leading-snug' }, item.desc),
-                    React.createElement('div', { className: 'absolute bottom-0 right-0 text-slate-300 md:group-hover:text-slate-500 md:group-hover:translate-x-1 transition-all' },
-                      React.createElement('svg', { className: 'w-4 h-4 md:w-5 md:h-5', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: '3' },
-                        React.createElement('path', { d: 'M9 18l6-6-6-6' })
-                      )
-                    )
-                  )
+                  React.createElement('div', { className: 'h-1 w-6 bg-[#FFD700] rounded-full shadow-[0_0_10px_rgba(255,215,0,0.5)]' }),
+                  React.createElement('span', { className: 'text-[10px] font-black text-white uppercase tracking-[0.2em]' }, 'Espace Interne')
+                ),
+                
+                NAV_LINKS.map((link, index) => 
+                  React.createElement(NavLinkCard, {
+                    key: link.title,
+                    href: link.href,
+                    icon: link.icon,
+                    title: link.title,
+                    subtitle: link.subtitle,
+                    tag: link.tag,
+                    delay: `${(index + 2) * 150}ms`
+                  })
                 )
-              )
-            ),
+              ),
 
-            // Footer Simple & Pro
-            React.createElement('footer', { className: 'mt-16 text-center opacity-30 px-6' },
-               React.createElement('p', { className: 'text-[9px] font-black uppercase tracking-[0.4em] text-slate-900' }, 
-                 'Grey Corner Executive Portal'
-               ),
-               React.createElement('p', { className: 'text-[8px] font-medium text-slate-500 mt-1.5' }, 
-                 'Accès réservé au personnel'
-               )
+              React.createElement(Footer, { text: 'Grey Corner Executive Portal • Accès Réservé' })
             )
           );
         };
