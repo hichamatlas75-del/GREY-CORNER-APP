@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuisine Pro | Planning Unique</title>
+    <title>Grey Corner | Planning Brigade</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,19 +12,27 @@
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             scroll-behavior: smooth;
-            background: radial-gradient(at top left, #f8fafc, #f1f5f9);
+            background: #f1f5f9;
         }
         .glass {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        /* Animation pour le scroll automatique */
+        @keyframes highlight {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        .today-card {
+            animation: highlight 2s ease-in-out infinite;
         }
     </style>
     <script type="importmap">
     {
       "imports": {
         "react": "https://esm.sh/react@19.0.0",
-        "react-dom": "https://esm.sh/react-dom@19.0.0",
         "react-dom/client": "https://esm.sh/react-dom@19.0.0/client"
       }
     }
@@ -38,116 +45,101 @@
         import React, { useEffect, useMemo } from 'react';
         import { createRoot } from 'react-dom/client';
 
-        // --- DONNÉES DU PLANNING ---
+        // --- DONNÉES ---
         const SCHEDULE_DATA = [
-            {
-                id: 1, dayName: 'LUNDI', colorClass: 'from-orange-500 to-amber-600',
-                staff: [
-                    { name: 'Khaoula', gender: 'female', time: '6 / 14' },
-                    { name: 'Fatima', gender: 'female', time: '6 / 14' },
-                    { name: 'Jihane', gender: 'female', time: '12 / 20' },
-                    { name: 'Imane', gender: 'female', time: '14 / FS', isFS: true },
-                    { name: 'Anass', gender: 'male', time: '14 / FS', isFS: true },
-                    { name: 'Jawad', gender: 'male', time: 'OFF', isOff: true },
-                    { name: 'Saâd', gender: 'male', time: '13 / FS', isFS: true },
-                ]
-            },
-            {
-                id: 2, dayName: 'MARDI', colorClass: 'from-emerald-500 to-teal-600',
-                staff: [
-                    { name: 'Khaoula', gender: 'female', time: '6 / 14' },
-                    { name: 'Fatima', gender: 'female', time: '6 / 14' },
-                    { name: 'Jihane', gender: 'female', time: '14 / FS', isFS: true },
-                    { name: 'Imane', gender: 'female', time: 'OFF', isOff: true },
-                    { name: 'Anass', gender: 'male', time: 'OFF', isOff: true },
-                    { name: 'Jawad', gender: 'male', time: '12 / FS', isFS: true },
-                    { name: 'Saâd', gender: 'male', time: '14 / FS', isFS: true },
-                ]
-            },
-            {
-                id: 3, dayName: 'MERCREDI', colorClass: 'from-sky-500 to-blue-600',
-                staff: [
-                    { name: 'Khaoula', gender: 'female', time: '6 / 14' },
-                    { name: 'Fatima', gender: 'female', time: 'OFF', isOff: true },
-                    { name: 'Jihane', gender: 'female', time: '13 / FS', isFS: true },
-                    { name: 'Imane', gender: 'female', time: '6 / 14' },
-                    { name: 'Anass', gender: 'male', time: '12 / 21' },
-                    { name: 'Jawad', gender: 'male', time: '14 / FS', isFS: true },
-                    { name: 'Saâd', gender: 'male', time: '14 / FS', isFS: true },
-                ]
-            },
-            {
-                id: 4, dayName: 'JEUDI', colorClass: 'from-indigo-500 to-violet-600',
-                staff: [
-                    { name: 'Khaoula', gender: 'female', time: '6 / 14' },
-                    { name: 'Fatima', gender: 'female', time: '6 / 14' },
-                    { name: 'Jihane', gender: 'female', time: 'OFF', isOff: true },
-                    { name: 'Imane', gender: 'female', time: '12 / 20' },
-                    { name: 'Anass', gender: 'male', time: '14 / FS', isFS: true },
-                    { name: 'Jawad', gender: 'male', time: '12 / 21' },
-                    { name: 'Saâd', gender: 'male', time: '14 / FS', isFS: true },
-                ]
-            },
-            {
-                id: 5, dayName: 'VENDREDI', colorClass: 'from-rose-500 to-red-600',
-                staff: [
-                    { name: 'Khaoula', gender: 'female', time: 'OFF', isOff: true },
-                    { name: 'Fatima', gender: 'female', time: '6 / 14' },
-                    { name: 'Jihane', gender: 'female', time: '12 / FS', isFS: true },
-                    { name: 'Imane', gender: 'female', time: '6 / FS', isFS: true },
-                    { name: 'Anass', gender: 'male', time: '13 / FS', isFS: true },
-                    { name: 'Jawad', gender: 'male', time: '14 / FS', isFS: true },
-                    { name: 'Saâd', gender: 'male', time: 'OFF', isOff: true },
-                ]
-            },
-            {
-                id: 6, dayName: 'SAMEDI', colorClass: 'from-stone-500 to-slate-700',
-                staff: [
-                    { name: 'Khaoula', gender: 'female', time: '6 / 15' },
-                    { name: 'Fatima', gender: 'female', time: '6 / 15' },
-                    { name: 'Jihane', gender: 'female', time: '14 / FS', isFS: true },
-                    { name: 'Imane', gender: 'female', time: '10 / 18' },
-                    { name: 'Anass', gender: 'male', time: '14 / FS', isFS: true },
-                    { name: 'Jawad', gender: 'male', time: '14 / FS', isFS: true },
-                    { name: 'Saâd', gender: 'male', time: '13 / FS', isFS: true },
-                ]
-            },
-            {
-                id: 0, dayName: 'DIMANCHE', colorClass: 'from-cyan-500 to-teal-600',
-                staff: [
-                    { name: 'Khaoula', gender: 'female', time: '6 / 15' },
-                    { name: 'Fatima', gender: 'female', time: '6 / 15' },
-                    { name: 'Jihane', gender: 'female', time: '14 / FS', isFS: true },
-                    { name: 'Imane', gender: 'female', time: '12 / 20' },
-                    { name: 'Anass', gender: 'male', time: '14 / FS', isFS: true },
-                    { name: 'Jawad', gender: 'male', time: '14 / FS', isFS: true },
-                    { name: 'Saâd', gender: 'male', time: '13 / 21' },
-                ]
-            }
+            { id: 1, dayName: 'LUNDI', colorClass: 'from-slate-700 to-slate-900', staff: [
+                { name: 'Khaoula', gender: 'female', time: '6 / 14' },
+                { name: 'Fatima', gender: 'female', time: '6 / 14' },
+                { name: 'Jihane', gender: 'female', time: '12 / 20' },
+                { name: 'Imane', gender: 'female', time: '14 / FS', isFS: true },
+                { name: 'Anass', gender: 'male', time: '14 / FS', isFS: true },
+                { name: 'Jawad', gender: 'male', time: 'OFF', isOff: true },
+                { name: 'Saâd', gender: 'male', time: '13 / FS', isFS: true }
+            ]},
+            { id: 2, dayName: 'MARDI', colorClass: 'from-slate-600 to-slate-800', staff: [
+                { name: 'Khaoula', gender: 'female', time: '6 / 14' },
+                { name: 'Fatima', gender: 'female', time: '6 / 14' },
+                { name: 'Jihane', gender: 'female', time: '14 / FS', isFS: true },
+                { name: 'Imane', gender: 'female', time: 'OFF', isOff: true },
+                { name: 'Anass', gender: 'male', time: 'OFF', isOff: true },
+                { name: 'Jawad', gender: 'male', time: '12 / FS', isFS: true },
+                { name: 'Saâd', gender: 'male', time: '14 / FS', isFS: true }
+            ]},
+            { id: 3, dayName: 'MERCREDI', colorClass: 'from-indigo-600 to-slate-900', staff: [
+                { name: 'Khaoula', gender: 'female', time: '6 / 14' },
+                { name: 'Fatima', gender: 'female', time: 'OFF', isOff: true },
+                { name: 'Jihane', gender: 'female', time: '13 / FS', isFS: true },
+                { name: 'Imane', gender: 'female', time: '6 / 14' },
+                { name: 'Anass', gender: 'male', time: '12 / 21' },
+                { name: 'Jawad', gender: 'male', time: '14 / FS', isFS: true },
+                { name: 'Saâd', gender: 'male', time: '14 / FS', isFS: true }
+            ]},
+            { id: 4, dayName: 'JEUDI', colorClass: 'from-slate-700 to-slate-800', staff: [
+                { name: 'Khaoula', gender: 'female', time: '6 / 14' },
+                { name: 'Fatima', gender: 'female', time: '6 / 14' },
+                { name: 'Jihane', gender: 'female', time: 'OFF', isOff: true },
+                { name: 'Imane', gender: 'female', time: '12 / 20' },
+                { name: 'Anass', gender: 'male', time: '14 / FS', isFS: true },
+                { name: 'Jawad', gender: 'male', time: '12 / 21' },
+                { name: 'Saâd', gender: 'male', time: '14 / FS', isFS: true }
+            ]},
+            { id: 5, dayName: 'VENDREDI', colorClass: 'from-indigo-700 to-slate-900', staff: [
+                { name: 'Khaoula', gender: 'female', time: 'OFF', isOff: true },
+                { name: 'Fatima', gender: 'female', time: '6 / 14' },
+                { name: 'Jihane', gender: 'female', time: '12 / FS', isFS: true },
+                { name: 'Imane', gender: 'female', time: '6 / FS', isFS: true },
+                { name: 'Anass', gender: 'male', time: '13 / FS', isFS: true },
+                { name: 'Jawad', gender: 'male', time: '14 / FS', isFS: true },
+                { name: 'Saâd', gender: 'male', time: 'OFF', isOff: true }
+            ]},
+            { id: 6, dayName: 'SAMEDI', colorClass: 'from-slate-800 to-black', staff: [
+                { name: 'Khaoula', gender: 'female', time: '6 / 15' },
+                { name: 'Fatima', gender: 'female', time: '6 / 15' },
+                { name: 'Jihane', gender: 'female', time: '14 / FS', isFS: true },
+                { name: 'Imane', gender: 'female', time: '10 / 18' },
+                { name: 'Anass', gender: 'male', time: '14 / FS', isFS: true },
+                { name: 'Jawad', gender: 'male', time: '14 / FS', isFS: true },
+                { name: 'Saâd', gender: 'male', time: '13 / FS', isFS: true }
+            ]},
+            { id: 0, dayName: 'DIMANCHE', colorClass: 'from-slate-900 to-indigo-900', staff: [
+                { name: 'Khaoula', gender: 'female', time: '6 / 15' },
+                { name: 'Fatima', gender: 'female', time: '6 / 15' },
+                { name: 'Jihane', gender: 'female', time: '14 / FS', isFS: true },
+                { name: 'Imane', gender: 'female', time: '12 / 20' },
+                { name: 'Anass', gender: 'male', time: '14 / FS', isFS: true },
+                { name: 'Jawad', gender: 'male', time: '14 / FS', isFS: true },
+                { name: 'Saâd', gender: 'male', time: '13 / 21' }
+            ]}
         ];
 
         // --- COMPOSANTS ---
 
         const Badge = ({ shift }) => {
             if (shift.isOff) {
-                return React.createElement('span', { className: "inline-flex items-center px-3 py-1 rounded-lg bg-red-100 text-red-700 text-xs font-bold border border-red-200" }, "OFF");
+                return React.createElement('span', { 
+                    className: "inline-flex items-center px-3 py-1 rounded-md bg-slate-100 text-slate-500 text-[11px] font-bold border border-slate-200" 
+                }, "OFF");
             }
             const [start, end] = shift.time.split(' / ');
-            return React.createElement('div', { className: "flex items-center gap-1.5 font-mono text-sm font-bold bg-slate-100 text-slate-700 px-3 py-1 rounded-lg border border-slate-200" },
+            return React.createElement('div', { 
+                className: "flex items-center gap-1.5 font-mono text-[13px] font-bold bg-white text-slate-700 px-3 py-1 rounded-md shadow-sm border border-slate-100" 
+            },
                 React.createElement('span', null, start),
-                React.createElement('span', { className: "text-slate-400" }, "/"),
+                React.createElement('span', { className: "text-slate-300" }, "/"),
                 shift.isFS 
-                    ? React.createElement('span', { className: "text-indigo-600 font-extrabold italic" }, "F.S")
+                    ? React.createElement('span', { className: "text-indigo-600 font-extrabold tracking-tight" }, "F.S")
                     : React.createElement('span', null, end)
             );
         };
 
         const StaffRow = ({ shift }) => {
             const isFemale = shift.gender === 'female';
-            return React.createElement('div', { className: "group flex items-center justify-between py-3.5 px-4 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors" },
+            return React.createElement('div', { 
+                className: "flex items-center justify-between py-3 px-4 border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors" 
+            },
                 React.createElement('div', { className: "flex items-center gap-3" },
-                    React.createElement('div', { className: `w-3 h-3 rounded-full shadow-sm ${isFemale ? 'bg-rose-400' : 'bg-blue-400'}` }),
-                    React.createElement('span', { className: `text-lg font-bold tracking-tight ${isFemale ? 'text-rose-600' : 'text-blue-600'}` }, shift.name)
+                    React.createElement('div', { className: `w-2 h-2 rounded-full ${isFemale ? 'bg-indigo-400' : 'bg-slate-400'}` }),
+                    React.createElement('span', { className: `text-base font-semibold tracking-tight ${isFemale ? 'text-slate-900' : 'text-slate-600'}` }, shift.name)
                 ),
                 React.createElement(Badge, { shift })
             );
@@ -156,16 +148,18 @@
         const DayCard = ({ schedule, isToday }) => {
             return React.createElement('div', { 
                 id: `day-${schedule.id}`,
-                className: `relative flex flex-col w-full max-w-lg mx-auto overflow-hidden bg-white rounded-3xl shadow-xl transition-all duration-500 ${isToday ? 'ring-4 ring-indigo-500 ring-offset-4 scale-[1.03] z-10' : 'opacity-95 border border-slate-200'}`
+                className: `relative flex flex-col w-full max-w-xl mx-auto overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-200 transition-all duration-500 ${isToday ? 'ring-2 ring-indigo-500 scale-[1.01] shadow-lg z-10' : 'opacity-90 hover:opacity-100'}`
             },
-                React.createElement('div', { className: `bg-gradient-to-r ${schedule.colorClass} p-5 flex items-center justify-between text-white` },
+                React.createElement('div', { className: `bg-gradient-to-r ${schedule.colorClass} p-4 flex items-center justify-between text-white` },
                     React.createElement('div', { className: "flex flex-col" },
-                        React.createElement('span', { className: "text-xs font-black uppercase tracking-widest opacity-80" }, "Équipe Cuisine"),
-                        React.createElement('h2', { className: "text-2xl font-black tracking-tight" }, schedule.dayName)
+                        React.createElement('span', { className: "text-[10px] font-black uppercase tracking-[0.2em] opacity-60" }, "Opérations"),
+                        React.createElement('h2', { className: "text-xl font-black tracking-tight leading-tight" }, schedule.dayName)
                     ),
-                    isToday && React.createElement('div', { className: "bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase" }, "Aujourd'hui")
+                    isToday && React.createElement('div', { 
+                        className: "bg-white text-slate-900 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl" 
+                    }, "Aujourd'hui")
                 ),
-                React.createElement('div', { className: "flex flex-col bg-white" },
+                React.createElement('div', { className: "flex flex-col" },
                     schedule.staff.map((s, idx) => React.createElement(StaffRow, { key: idx, shift: s }))
                 )
             );
@@ -173,6 +167,9 @@
 
         const App = () => {
             const todayId = useMemo(() => new Date().getDay(), []);
+            const formattedDate = useMemo(() => {
+                return new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' }).format(new Date());
+            }, []);
             
             const scrollToToday = () => {
                 const el = document.getElementById(`day-${todayId}`);
@@ -180,7 +177,7 @@
             };
 
             useEffect(() => {
-                const timer = setTimeout(scrollToToday, 500);
+                const timer = setTimeout(scrollToToday, 600);
                 return () => clearTimeout(timer);
             }, [todayId]);
 
@@ -190,28 +187,58 @@
                 return valA - valB;
             });
 
-            return React.createElement('div', { className: "min-h-screen pb-20" },
-                React.createElement('header', { className: "glass sticky top-0 z-50 border-b border-slate-200/50 px-6 py-5" },
-                    React.createElement('div', { className: "max-w-xl mx-auto flex items-center justify-between" },
-                        React.createElement('div', { className: "flex items-center gap-4" },
-                            React.createElement('div', { className: "bg-indigo-600 p-2.5 rounded-2xl shadow-lg" },
-                                React.createElement('svg', { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", className: "text-white" },
-                                    React.createElement('path', { d: "M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" }),
-                                    React.createElement('path', { d: "M3 9V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4" })
+            return React.createElement('div', { className: "min-h-screen bg-[#F1F5F9] pb-24" },
+                // HEADER PRO COLORE
+                React.createElement('header', { className: "bg-slate-900 border-b border-slate-800 px-6 py-4 shadow-xl sticky top-0 z-50" },
+                    React.createElement('div', { className: "max-w-4xl mx-auto flex items-center justify-between" },
+                        React.createElement('div', { className: "flex items-center gap-5" },
+                            React.createElement('div', { className: "relative" },
+                                React.createElement('div', { className: "absolute -inset-1 bg-indigo-500 rounded-full blur opacity-20" }),
+                                React.createElement('div', { className: "relative bg-slate-800 p-0.5 rounded-full border border-slate-700 overflow-hidden w-14 h-14 flex items-center justify-center shadow-2xl" },
+                                    React.createElement('img', { 
+                                        src: "LOGO.jpg", 
+                                        alt: "Grey Corner Logo", 
+                                        className: "w-full h-full object-cover rounded-full",
+                                        onError: (e) => { e.target.src = "https://via.placeholder.com/100/1e293b/ffffff?text=GC"; }
+                                    })
                                 )
                             ),
-                            React.createElement('div', null,
-                                React.createElement('h1', { className: "text-xl font-black text-slate-800 tracking-tighter uppercase" }, "Planning ", React.createElement('span', { className: "text-indigo-600" }, "Pro")),
-                                React.createElement('p', { className: "text-[10px] font-bold text-slate-400 uppercase tracking-widest" }, "Version Unique HTML")
+                            React.createElement('div', { className: "flex flex-col" },
+                                React.createElement('h1', { className: "text-xl font-black text-white tracking-tighter uppercase leading-none" },
+                                    "Grey ", React.createElement('span', { className: "text-indigo-400" }, "Corner")
+                                ),
+                                React.createElement('p', { className: "text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mt-1" }, "Management Suite")
                             )
                         ),
-                        React.createElement('button', { 
-                            onClick: scrollToToday,
-                            className: "bg-indigo-50 text-indigo-700 px-4 py-2 rounded-xl text-xs font-black uppercase hover:bg-indigo-100 transition-colors"
-                        }, "Aujourd'hui")
+                        React.createElement('div', { className: "flex items-center gap-6" },
+                            React.createElement('div', { className: "hidden sm:flex flex-col text-right border-r border-slate-800 pr-6" },
+                                React.createElement('span', { className: "text-[9px] font-black text-slate-500 uppercase tracking-widest" }, "Date du jour"),
+                                React.createElement('span', { className: "text-sm font-bold text-slate-300 capitalize" }, formattedDate)
+                            ),
+                            React.createElement('button', { 
+                                onClick: scrollToToday,
+                                className: "bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg active:scale-95 border border-indigo-400/20"
+                            }, "Aujourd'hui")
+                        )
                     )
                 ),
-                React.createElement('main', { className: "p-6 max-w-xl mx-auto flex flex-col gap-10 mt-6" },
+
+                // TITRE SECTION
+                React.createElement('div', { className: "bg-white border-b border-slate-200 py-6 px-6 mb-8 shadow-sm" },
+                    React.createElement('div', { className: "max-w-4xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4" },
+                        React.createElement('div', null,
+                            React.createElement('h2', { className: "text-2xl font-black text-slate-900 tracking-tight" }, "Planning Hebdomadaire"),
+                            React.createElement('p', { className: "text-slate-500 text-sm font-medium" }, "Brigade Cuisine • Affectations Centralisées")
+                        ),
+                        React.createElement('div', { className: "flex items-center gap-2" },
+                            React.createElement('span', { className: "w-2 h-2 rounded-full bg-emerald-500 animate-pulse" }),
+                            React.createElement('span', { className: "text-[10px] font-black text-slate-400 uppercase tracking-widest" }, "Système en ligne")
+                        )
+                    )
+                ),
+
+                // GRILLE PLANNING
+                React.createElement('main', { className: "px-6 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6" },
                     sortedDays.map((day) => React.createElement(DayCard, { key: day.id, schedule: day, isToday: day.id === todayId }))
                 )
             );
