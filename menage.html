@@ -3,39 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planning Ménage - Grey Corner</title>
+    <title>Planning Ménage • Grey Corner</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8fafc;
-            -webkit-print-color-adjust: exact;
         }
-        @media print {
-            .no-print { display: none !important; }
-            .print-table { display: table !important; }
-            .mobile-vignettes { display: none !important; }
+        .vignette-shadow {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         }
-        /* Pour masquer la table sur mobile mais la garder pour le PDF */
-        .print-only { display: none; }
+        .today-shadow {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useRef } = React;
+        const { useState } = React;
 
         const PLANNING_DATA = {
             S1: {
-                id: 'S1',
-                title: 'Planning ménage S1',
+                title: 'Semaine 01',
                 schedules: [
                     { day: 'lundi', matin: { staff: 'SOUAD G' }, soir: { staff: 'SOUAD M / HAKIMA' } },
                     { day: 'mardi', matin: { staff: 'SAOUAD M' }, soir: { staff: 'SOUAD G / ANISSA' } },
@@ -47,8 +42,7 @@
                 ]
             },
             S2: {
-                id: 'S2',
-                title: 'Planning ménage S2',
+                title: 'Semaine 02',
                 schedules: [
                     { day: 'lundi', matin: { staff: 'SOUAD M' }, soir: { staff: 'SOUAD G / ANISSA' } },
                     { day: 'mardi', matin: { staff: 'SAOUAD G' }, soir: { staff: 'SOUAD M / HAKIMA' } },
@@ -61,32 +55,32 @@
             }
         };
 
-        const SunIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" /></svg>);
-        const MoonIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>);
+        const SunIcon = () => (<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" /></svg>);
+        const MoonIcon = () => (<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>);
 
-        const MobileVignette = ({ row, today }) => {
+        const DayVignette = ({ row, today }) => {
             const isToday = row.day === today;
             const isWE = ['vendredi', 'samedi', 'dimanche'].includes(row.day);
             return (
-                <div className={`mb-4 overflow-hidden rounded-3xl border-2 transition-all ${isToday ? 'border-slate-900 bg-white shadow-xl scale-[1.02]' : 'border-slate-100 bg-white shadow-sm'}`}>
-                    <div className={`px-5 py-3 flex justify-between items-center ${isToday ? 'bg-slate-900 text-white' : 'bg-[#96d35f] text-slate-900'}`}>
+                <div className={`mb-4 overflow-hidden rounded-[2rem] border transition-all duration-300 ${isToday ? 'border-slate-900 bg-white today-shadow scale-[1.02]' : 'border-slate-100 bg-white vignette-shadow'}`}>
+                    <div className={`px-6 py-4 flex justify-between items-center ${isToday ? 'bg-slate-900 text-white' : 'bg-[#96d35f] text-slate-900'}`}>
                         <span className="font-black uppercase tracking-widest text-sm">{row.day}</span>
                         {isToday && <span className="text-[10px] font-bold bg-white text-slate-900 px-3 py-1 rounded-full uppercase">Aujourd'hui</span>}
                     </div>
-                    <div className="p-5 grid grid-cols-1 gap-4">
-                        <div className="flex items-start gap-4">
-                            <div className="bg-[#f48a3c]/10 p-3 rounded-2xl text-[#f48a3c]"><SunIcon /></div>
+                    <div className="p-6 grid grid-cols-1 gap-5">
+                        <div className="flex items-center gap-5">
+                            <div className="bg-orange-50 p-3 rounded-2xl text-orange-500"><SunIcon /></div>
                             <div>
-                                <span className="text-[10px] font-black text-[#f48a3c] uppercase tracking-tighter">Matin • {isWE ? '06:30 - 14:00' : '06:30 - 12:00'}</span>
-                                <p className="text-lg font-bold text-slate-900">{row.matin.staff}</p>
+                                <span className="text-[10px] font-black text-orange-400 uppercase tracking-tighter">Service Matin • {isWE ? '06:30 - 14:00' : '06:30 - 12:00'}</span>
+                                <p className="text-lg font-bold text-slate-900 leading-tight">{row.matin.staff}</p>
                             </div>
                         </div>
-                        <div className="h-[1px] bg-slate-100 w-full"></div>
-                        <div className="flex items-start gap-4">
-                            <div className="bg-[#ffb600]/10 p-3 rounded-2xl text-[#d97706]"><MoonIcon /></div>
+                        <div className="h-[1px] bg-slate-50 w-full"></div>
+                        <div className="flex items-center gap-5">
+                            <div className="bg-amber-50 p-3 rounded-2xl text-amber-600"><MoonIcon /></div>
                             <div>
-                                <span className="text-[10px] font-black text-[#d97706] uppercase tracking-tighter">Soir • {isWE ? '14:00 - Fin' : '12:00 - Fin'}</span>
-                                <p className="text-lg font-bold text-slate-900">{row.soir.staff}</p>
+                                <span className="text-[10px] font-black text-amber-500 uppercase tracking-tighter">Service Soir • {isWE ? '14:00 - Fin' : '12:00 - Fin'}</span>
+                                <p className="text-lg font-bold text-slate-900 leading-tight">{row.soir.staff}</p>
                             </div>
                         </div>
                     </div>
@@ -94,138 +88,44 @@
             );
         };
 
-        const PlanningTable = ({ planning, today }) => (
-            <div className="hidden md:block bg-white shadow-2xl rounded-[2.5rem] overflow-hidden border border-slate-200 w-full mb-10">
-                <table className="w-full text-left border-collapse">
-                    <thead>
-                        <tr className="bg-[#96d35f] text-slate-900 uppercase text-xs font-black tracking-widest">
-                            <th className="px-10 py-6 border-r border-black/5">Jour</th>
-                            <th className="px-10 py-6 border-r border-black/5 flex items-center gap-2"><SunIcon /> Matin</th>
-                            <th className="px-10 py-6 flex items-center gap-2"><MoonIcon /> Soir</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {planning.schedules.map((row) => {
-                            const isToday = row.day === today;
-                            const isWE = ['vendredi', 'samedi', 'dimanche'].includes(row.day);
-                            return (
-                                <tr key={row.day} className={isToday ? 'bg-slate-50' : ''}>
-                                    <td className="px-10 py-8 border-b border-slate-100 border-r bg-[#96d35f]/5 font-black uppercase text-slate-800 text-sm">
-                                        {row.day} {isToday && <span className="ml-2 text-[9px] bg-slate-900 text-white px-2 py-1 rounded-md">Auj.</span>}
-                                    </td>
-                                    <td className="px-10 py-8 border-b border-slate-100 border-r bg-[#f48a3c]/5">
-                                        <span className="text-xs text-[#f48a3c] font-black block mb-1 uppercase tracking-tighter">{isWE ? '06:30 - 14:00' : '06:30 - 12:00'}</span>
-                                        <span className="text-xl font-bold text-slate-900">{row.matin.staff}</span>
-                                    </td>
-                                    <td className="px-10 py-8 border-b border-slate-100 bg-[#ffb600]/5">
-                                        <span className="text-xs text-[#d97706] font-black block mb-1 uppercase tracking-tighter">{isWE ? '14:00 - Fin' : '12:00 - Fin'}</span>
-                                        <span className="text-xl font-bold text-slate-900">{row.soir.staff}</span>
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-            </div>
-        );
-
         const App = () => {
             const [activeWeek, setActiveWeek] = useState('S1');
-            const [isGenerating, setIsGenerating] = useState(false);
-            const contentRef = useRef(null);
-            
             const today = new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(new Date()).toLowerCase();
 
-            const handleDownloadFullExport = async () => {
-                setIsGenerating(true);
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: 'a4' });
-                
-                const weeks = ['S1', 'S2'];
-                for (let i = 0; i < weeks.length; i++) {
-                    setActiveWeek(weeks[i]);
-                    await new Promise(r => setTimeout(r, 400));
-                    
-                    const canvas = await html2canvas(contentRef.current, { 
-                        scale: 2, 
-                        useCORS: true, 
-                        backgroundColor: '#f8fafc',
-                        onclone: (document) => {
-                            // Force l'affichage de la table dans le clone pour le PDF
-                            const table = document.querySelector('.hidden.md\\:block');
-                            const vignettes = document.querySelector('.md\\:hidden');
-                            if(table) table.style.display = 'block';
-                            if(vignettes) vignettes.style.display = 'none';
-                        }
-                    });
-                    const imgData = canvas.toDataURL('image/png');
-                    const pdfWidth = pdf.internal.pageSize.getWidth();
-                    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                    
-                    if (i > 0) pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                }
-                
-                pdf.save(`Planning-Ménage-Complet.pdf`);
-                setIsGenerating(false);
-            };
-
             return (
-                <div className="min-h-screen bg-slate-50 flex flex-col items-center py-4 md:py-8 px-4">
-                    <header className="w-full max-w-4xl flex flex-col items-center mb-6 no-print">
-                        <div className="bg-white p-4 md:p-5 shadow-xl rounded-[2rem] border border-slate-200 flex items-center gap-4 mb-6 w-full md:w-auto">
-                            <div className="text-center border-2 border-slate-900 p-1 md:p-2">
-                                <div className="font-black text-sm md:text-lg uppercase tracking-widest text-slate-900 leading-none">Grey</div>
-                                <div className="font-black text-xs uppercase tracking-tighter text-slate-900">Corner</div>
-                            </div>
-                            <div>
-                                <h1 className="text-xl md:text-2xl font-black text-slate-900">Planning Ménage</h1>
-                                <p className="text-slate-400 text-[9px] font-bold uppercase tracking-widest leading-none">Accès Staff Opérationnel</p>
+                <div className="min-h-screen bg-slate-50 flex flex-col items-center py-6 px-4">
+                    <header className="w-full max-w-md mb-8">
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-slate-900 text-white p-2 rounded-xl font-black text-xs uppercase">GC</div>
+                                <div>
+                                    <h1 className="text-xl font-black text-slate-900 tracking-tight">Planning Ménage</h1>
+                                    <p className="text-slate-400 text-[9px] font-bold uppercase tracking-widest">Espace Interne</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="flex justify-center gap-2 w-full">
-                            <div className="inline-flex rounded-2xl shadow-md bg-white p-1 border border-slate-200 w-full max-w-xs">
-                                {['S1', 'S2'].map((w) => (
-                                    <button key={w} onClick={() => setActiveWeek(w)} className={`flex-1 py-3 text-xs font-black rounded-xl transition-all ${activeWeek === w ? 'bg-slate-900 text-white' : 'text-slate-400'}`}>
-                                        SEMAINE {w}
-                                    </button>
-                                ))}
-                            </div>
+                        <div className="flex bg-white p-1 rounded-2xl border border-slate-200 shadow-sm">
+                            {['S1', 'S2'].map((w) => (
+                                <button 
+                                    key={w} 
+                                    onClick={() => setActiveWeek(w)} 
+                                    className={`flex-1 py-3 text-xs font-black rounded-xl transition-all duration-200 ${activeWeek === w ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400'}`}
+                                >
+                                    {PLANNING_DATA[w].title}
+                                </button>
+                            ))}
                         </div>
                     </header>
 
-                    <main ref={contentRef} className="w-full max-w-5xl flex flex-col gap-6 md:p-10 bg-slate-50 rounded-3xl">
-                        <div className="text-center md:mb-4">
-                            <h2 className="text-2xl md:text-4xl font-black text-slate-900 uppercase italic leading-tight">
-                                {PLANNING_DATA[activeWeek].title}
-                            </h2>
-                            <div className="h-1.5 w-16 bg-[#96d35f] mx-auto mt-2 rounded-full"></div>
-                        </div>
-
-                        {/* Vue Mobile : Vignettes */}
-                        <div className="md:hidden block">
-                            {PLANNING_DATA[activeWeek].schedules.map((row) => (
-                                <MobileVignette key={row.day} row={row} today={today} />
-                            ))}
-                        </div>
-
-                        {/* Vue Desktop / PDF : Table */}
-                        <PlanningTable planning={PLANNING_DATA[activeWeek]} today={today} />
+                    <main className="w-full max-w-md">
+                        {PLANNING_DATA[activeWeek].schedules.map((row) => (
+                            <DayVignette key={row.day} row={row} today={today} />
+                        ))}
                     </main>
 
-                    <div className="w-full max-w-4xl mt-6 flex flex-col gap-3 no-print mb-10">
-                        <button 
-                            onClick={handleDownloadFullExport}
-                            disabled={isGenerating}
-                            className="w-full px-6 py-5 bg-slate-900 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3"
-                        >
-                            {isGenerating ? "Traitement en cours..." : "📄 Télécharger Export PDF (S1+S2)"}
-                        </button>
-                    </div>
-
-                    <footer className="mt-auto py-6 text-[9px] font-black text-slate-300 uppercase tracking-[0.3em] no-print">
-                        © {new Date().getFullYear()} Grey Corner Cafe
+                    <footer className="mt-8 mb-6 text-center">
+                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">Grey Corner Cafe</p>
                     </footer>
                 </div>
             );
