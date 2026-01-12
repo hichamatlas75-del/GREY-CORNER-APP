@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
@@ -21,19 +20,14 @@
         @media print {
             .no-print { display: none !important; }
         }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #96d35f; border-radius: 10px; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        // Importation simplifiée pour le mode standalone
-        const { useState, useMemo, useRef } = React;
+        const { useState, useRef } = React;
 
-        // --- CONSTANTES & DONNÉES ---
         const PLANNING_DATA = {
             S1: {
                 id: 'S1',
@@ -63,181 +57,145 @@
             }
         };
 
-        // --- COMPOSANTS UI ---
-        const SunIcon = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-            </svg>
-        );
+        const SunIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" /></svg>);
+        const MoonIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>);
 
-        const MoonIcon = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-            </svg>
+        // Composant de la table pour réutilisation dans le PDF
+        const PlanningTable = ({ planning, today }) => (
+            <div className="bg-white shadow-2xl rounded-[2.5rem] overflow-hidden border border-slate-200 w-full mb-10">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="bg-[#96d35f] text-slate-900 uppercase text-xs font-black tracking-widest">
+                            <th className="px-10 py-6 border-r border-black/5">Jour</th>
+                            <th className="px-10 py-6 border-r border-black/5 flex items-center gap-2"><SunIcon /> Matin</th>
+                            <th className="px-10 py-6 flex items-center gap-2"><MoonIcon /> Soir</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {planning.schedules.map((row) => {
+                            const isToday = row.day === today;
+                            const isWE = ['vendredi', 'samedi', 'dimanche'].includes(row.day);
+                            return (
+                                <tr key={row.day} className={isToday ? 'bg-indigo-50/50' : ''}>
+                                    <td className="px-10 py-8 border-b border-slate-100 border-r bg-[#96d35f]/5 font-black uppercase text-slate-800 text-sm">
+                                        {row.day} {isToday && <span className="ml-2 text-[9px] bg-indigo-600 text-white px-2 py-1 rounded-md">Auj.</span>}
+                                    </td>
+                                    <td className="px-10 py-8 border-b border-slate-100 border-r bg-[#f48a3c]/5">
+                                        <span className="text-xs text-[#f48a3c] font-black block mb-1 uppercase tracking-tighter">{isWE ? '06:30 - 14:00' : '06:30 - 12:00'}</span>
+                                        <span className="text-xl font-bold text-slate-900">{row.matin.staff}</span>
+                                    </td>
+                                    <td className="px-10 py-8 border-b border-slate-100 bg-[#ffb600]/5">
+                                        <span className="text-xs text-[#d97706] font-black block mb-1 uppercase tracking-tighter">{isWE ? '14:00 - Fin' : '12:00 - Fin'}</span>
+                                        <span className="text-xl font-bold text-slate-900">{row.soir.staff}</span>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
         );
-
-        const DayCard = ({ schedule, isToday }) => {
-            const isWeekend = ['vendredi', 'samedi', 'dimanche'].includes(schedule.day);
-            return (
-                <div className={`bg-white rounded-2xl shadow-sm overflow-hidden border-2 ${isToday ? 'border-indigo-500 ring-4 ring-indigo-50' : 'border-slate-100'}`}>
-                    <div className="bg-[#96d35f] px-4 py-3 flex justify-between items-center">
-                        <span className="font-black uppercase text-slate-900 tracking-widest text-xs">{schedule.day}</span>
-                        {isToday && <span className="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse">AUJOURD'HUI</span>}
-                    </div>
-                    <div className="grid grid-cols-2 divide-x divide-slate-100">
-                        <div className="p-4 bg-[#f48a3c]/5">
-                            <div className="flex items-center gap-1 text-[#f48a3c] mb-1"><SunIcon /><span className="text-[10px] font-black uppercase tracking-tighter">Matin</span></div>
-                            <div className="text-[10px] text-slate-400 font-bold mb-1">{isWeekend ? '06:30 - 14:00' : '06:30 - 12:00'}</div>
-                            <div className="text-sm font-bold text-slate-800 leading-tight">{schedule.matin.staff}</div>
-                        </div>
-                        <div className="p-4 bg-[#ffb600]/5">
-                            <div className="flex items-center gap-1 text-[#d97706] mb-1"><MoonIcon /><span className="text-[10px] font-black uppercase tracking-tighter">Soir</span></div>
-                            <div className="text-[10px] text-slate-400 font-bold mb-1">{isWeekend ? '14:00 - Fin' : '12:00 - Fin'}</div>
-                            <div className="text-sm font-bold text-slate-800 leading-tight">{schedule.soir.staff}</div>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
 
         const App = () => {
             const [activeWeek, setActiveWeek] = useState('S1');
             const [isGenerating, setIsGenerating] = useState(false);
-            const pdfRef = useRef(null);
-
-            const currentPlanning = PLANNING_DATA[activeWeek];
+            const contentRef = useRef(null);
+            
             const today = new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(new Date()).toLowerCase();
 
-            const handleDownloadPDF = async () => {
-                if (!pdfRef.current) return;
+            const generatePDF = async (targetElement, filename) => {
+                const canvas = await html2canvas(targetElement, { scale: 2, useCORS: true, backgroundColor: '#f8fafc' });
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: 'a4' });
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save(filename);
+            };
+
+            const handleDownloadFullExport = async () => {
                 setIsGenerating(true);
-                try {
-                    const canvas = await html2canvas(pdfRef.current, { scale: 2, useCORS: true, backgroundColor: '#f8fafc' });
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: 'a4' });
+                
+                // On boucle sur S1 et S2 pour créer les pages
+                const weeks = ['S1', 'S2'];
+                for (let i = 0; i < weeks.length; i++) {
+                    setActiveWeek(weeks[i]);
+                    // Petit délai pour laisser React faire le rendu de la nouvelle semaine
+                    await new Promise(r => setTimeout(r, 300));
+                    
+                    const canvas = await html2canvas(contentRef.current, { scale: 2, useCORS: true, backgroundColor: '#f8fafc' });
                     const imgData = canvas.toDataURL('image/png');
-                    const { jsPDF } = window.jspdf;
-                    const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: 'a4' });
                     const pdfWidth = pdf.internal.pageSize.getWidth();
                     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                    
+                    if (i > 0) pdf.addPage();
                     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                    pdf.save(`Planning-GreyCorner-${activeWeek}.pdf`);
-                } catch (e) {
-                    console.error(e);
-                    alert("Erreur lors de la génération du PDF.");
-                } finally {
-                    setIsGenerating(false);
                 }
+                
+                pdf.save(`Planning-Complet-GreyCorner.pdf`);
+                setIsGenerating(false);
             };
 
             return (
-                <div className="min-h-screen bg-slate-50 flex flex-col items-center py-8 px-4 sm:px-6">
+                <div className="min-h-screen bg-slate-50 flex flex-col items-center py-8 px-4">
                     <header className="w-full max-w-4xl flex flex-col items-center mb-8 no-print">
-                        <div className="bg-white p-5 shadow-xl rounded-3xl border border-slate-200 flex items-center gap-5 mb-8 w-full sm:w-auto transform hover:scale-105 transition-transform">
-                            <div className="text-center border-2 border-slate-900 p-2 leading-none">
-                                <div className="text-[10px] italic text-slate-500">Grey</div>
+                        <div className="bg-white p-5 shadow-xl rounded-3xl border border-slate-200 flex items-center gap-5 mb-8">
+                            <div className="text-center border-2 border-slate-900 p-2">
                                 <div className="font-black text-lg uppercase tracking-widest text-slate-900">Corner</div>
-                                <div className="text-[10px] italic text-slate-500 border-t border-slate-300">cafe</div>
                             </div>
                             <div>
-                                <h1 className="text-2xl font-black text-slate-900 leading-none mb-1">Planning Ménage</h1>
-                                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Interface de Gestion</p>
+                                <h1 className="text-2xl font-black text-slate-900">Planning Ménage</h1>
+                                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Interface Export PDF</p>
                             </div>
                         </div>
 
-                        <div className="inline-flex rounded-2xl shadow-lg bg-white p-1.5 border border-slate-200">
-                            {['S1', 'S2'].map((w) => (
-                                <button
-                                    key={w}
-                                    onClick={() => setActiveWeek(w)}
-                                    className={`px-8 sm:px-12 py-3 text-sm font-black rounded-xl transition-all ${activeWeek === w ? 'bg-slate-900 text-white shadow-md scale-105' : 'text-slate-500 hover:bg-slate-50'}`}
-                                >
-                                    Semaine {w}
-                                </button>
-                            ))}
+                        <div className="flex flex-wrap justify-center gap-4">
+                            <div className="inline-flex rounded-2xl shadow-lg bg-white p-1.5 border border-slate-200">
+                                {['S1', 'S2'].map((w) => (
+                                    <button key={w} onClick={() => setActiveWeek(w)} className={`px-8 py-3 text-sm font-black rounded-xl transition-all ${activeWeek === w ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}>
+                                        Semaine {w}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </header>
 
-                    <main ref={pdfRef} className="w-full max-w-5xl flex flex-col gap-8 p-4 bg-slate-50 rounded-3xl">
+                    <main ref={contentRef} className="w-full max-w-5xl flex flex-col gap-8 p-10 bg-slate-50">
                         <div className="text-center">
-                            <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tighter uppercase italic">{currentPlanning.title}</h2>
-                            <div className="h-2 w-32 bg-[#96d35f] mx-auto mt-4 rounded-full"></div>
+                            <h2 className="text-4xl font-black text-slate-900 uppercase italic">{PLANNING_DATA[activeWeek].title}</h2>
+                            <div className="h-2 w-24 bg-[#96d35f] mx-auto mt-4 rounded-full"></div>
                         </div>
-
-                        <div className="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-5">
-                            {currentPlanning.schedules.map(s => <DayCard key={s.day} schedule={s} isToday={s.day === today} />)}
-                        </div>
-
-                        <div className="hidden lg:block bg-white shadow-2xl rounded-[2.5rem] overflow-hidden border border-slate-200">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-[#96d35f] text-slate-900 uppercase text-xs font-black tracking-widest">
-                                        <th className="px-10 py-6 border-r border-black/5">Jour de la semaine</th>
-                                        <th className="px-10 py-6 border-r border-black/5 flex items-center gap-2"><SunIcon /> Matin (06h30)</th>
-                                        <th className="px-10 py-6"><div className="flex items-center gap-2"><MoonIcon /> Soir (Fin Service)</div></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {currentPlanning.schedules.map((row) => {
-                                        const isToday = row.day === today;
-                                        const isWE = ['vendredi', 'samedi', 'dimanche'].includes(row.day);
-                                        return (
-                                            <React.Fragment key={row.day}>
-                                                {row.day === 'vendredi' && (
-                                                    <tr className="bg-slate-900 text-white font-black text-center text-[10px] tracking-[0.3em]">
-                                                        <td className="py-2 border-r border-white/10 uppercase">HORS SEMAINE</td>
-                                                        <td className="py-2 border-r border-white/10">06:30 – 14:00</td>
-                                                        <td className="py-2">14:00 – FIN SERVICE</td>
-                                                    </tr>
-                                                )}
-                                                <tr className={`${isToday ? 'bg-indigo-50/50' : ''} group`}>
-                                                    <td className="px-10 py-8 border-b border-slate-100 border-r bg-[#96d35f]/5 font-black uppercase text-slate-800 text-sm">
-                                                        <div className="flex justify-between items-center">{row.day} {isToday && <span className="text-[9px] bg-indigo-600 text-white px-2 py-1 rounded-md">Auj.</span>}</div>
-                                                    </td>
-                                                    <td className="px-10 py-8 border-b border-slate-100 border-r bg-[#f48a3c]/5 group-hover:bg-[#f48a3c]/10 transition-colors">
-                                                        <span className="text-xs text-[#f48a3c] font-black block mb-1 uppercase tracking-tighter">{isWE ? '06:30 - 14:00' : '06:30 - 12:00'}</span>
-                                                        <span className="text-xl font-bold text-slate-900">{row.matin.staff}</span>
-                                                    </td>
-                                                    <td className="px-10 py-8 border-b border-slate-100 bg-[#ffb600]/5 group-hover:bg-[#ffb600]/10 transition-colors">
-                                                        <span className="text-xs text-[#d97706] font-black block mb-1 uppercase tracking-tighter">{isWE ? '14:00 - Fin' : '12:00 - Fin'}</span>
-                                                        <span className="text-xl font-bold text-slate-900">{row.soir.staff}</span>
-                                                    </td>
-                                                </tr>
-                                            </React.Fragment>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
+                        <PlanningTable planning={PLANNING_DATA[activeWeek]} today={today} />
                     </main>
 
-                    <div className="w-full max-w-4xl mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 no-print">
-                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                            <h4 className="text-sm font-black uppercase text-slate-900 mb-4 flex items-center gap-2"><div className="w-2 h-2 bg-indigo-500 rounded-full"></div> Horaires de référence</h4>
-                            <div className="space-y-3">
-                                <div className="flex justify-between p-3 bg-slate-50 rounded-xl"><span className="text-xs font-bold text-slate-500">Lun - Jeu</span><span className="text-xs font-black">Matin: 12h / Soir: Fin</span></div>
-                                <div className="flex justify-between p-3 bg-slate-900 text-white rounded-xl"><span className="text-xs font-bold text-slate-400">Ven - Dim</span><span className="text-xs font-black">Matin: 14h / Soir: Fin</span></div>
-                            </div>
-                        </div>
-                        <div className="bg-[#96d35f]/10 p-6 rounded-3xl border-4 border-dashed border-[#96d35f]/30 flex flex-col items-center justify-center">
-                            <button
-                                onClick={handleDownloadPDF}
-                                disabled={isGenerating}
-                                className="px-10 py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 flex items-center gap-3 disabled:opacity-50"
-                            >
-                                {isGenerating ? <div className="animate-spin h-4 w-4 border-2 border-[#96d35f] border-t-transparent rounded-full"></div> : <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#96d35f]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>}
-                                {isGenerating ? 'Traitement...' : 'Télécharger PDF'}
-                            </button>
-                            <p className="mt-4 text-[9px] text-slate-400 font-bold uppercase">Optimisé pour impression Haute Définition</p>
-                        </div>
+                    <div className="w-full max-w-4xl mt-10 flex flex-col sm:flex-row gap-4 no-print">
+                        <button 
+                            onClick={() => generatePDF(contentRef.current, `Planning-${activeWeek}.pdf`)}
+                            disabled={isGenerating}
+                            className="flex-1 px-6 py-4 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:border-slate-900 transition-all flex items-center justify-center gap-2"
+                        >
+                            ⬇️ Télécharger Semaine {activeWeek}
+                        </button>
+                        
+                        <button 
+                            onClick={handleDownloadFullExport}
+                            disabled={isGenerating}
+                            className="flex-1 px-6 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-3"
+                        >
+                            {isGenerating ? "Génération..." : "📄 Télécharger TOUTE LA SEMAINE (S1 + S2)"}
+                        </button>
                     </div>
 
                     <footer className="mt-16 text-[10px] font-black text-slate-300 uppercase tracking-widest no-print">
-                        © {new Date().getFullYear()} Grey Corner Cafe &bull; Système de gestion v2.2
+                        © {new Date().getFullYear()} Grey Corner Cafe
                     </footer>
                 </div>
             );
         };
 
-        // Rendu final
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
