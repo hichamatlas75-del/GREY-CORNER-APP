@@ -21,9 +21,6 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade-in {
-            animation: fadeIn 0.8s ease-out forwards;
-        }
         .snowflake {
             position: fixed;
             top: -10%;
@@ -45,17 +42,18 @@
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 215, 0, 0.25);
         }
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
     </style>
     <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/"
-  }
-}
-</script>
+    {
+      "imports": {
+        "react": "https://esm.sh/react@19.0.0",
+        "react-dom/client": "https://esm.sh/react-dom@19.0.0/client"
+      }
+    }
+    </script>
 </head>
 <body>
     <div id="root"></div>
@@ -64,7 +62,7 @@
         import React, { useState, useEffect } from 'react';
         import { createRoot } from 'react-dom/client';
 
-        // --- Constants ---
+        // --- Constants (MISE À JOUR ICI) ---
         const NAV_LINKS = [
           {
             title: "PLANNING BAR",
@@ -86,11 +84,17 @@
             href: "Cuisine.html",
             icon: "👨‍🍳",
             tag: "CUISINE"
+          },
+          {
+            title: "PLANNING MÉNAGE",
+            subtitle: "Entretien & Hygiène • Organisation S1/S2",
+            href: "menage.html",
+            icon: "🧹",
+            tag: "HYGIÈNE"
           }
         ];
 
         // --- Components ---
-
         const SnowEffect = () => {
           const [flakes, setFlakes] = useState([]);
           useEffect(() => {
@@ -150,11 +154,8 @@
             className: 'group flex items-center glass-card p-5 md:p-6 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:border-[#FFD700] hover:bg-[rgba(50,50,50,0.95)] hover:shadow-[0_0_20px_rgba(255,215,0,0.15)] relative overflow-hidden animate-fade-in opacity-0 shadow-xl',
             style: { animationDelay: delay }
           },
-            // Premium golden accent strip
             React.createElement('div', { className: 'absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-[#FFD700] via-[#ffd900] to-[#b8860b]' }),
-            
             React.createElement('div', { className: 'text-3xl mr-6 w-12 flex items-center justify-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] group-hover:scale-110 transition-transform duration-300' }, icon),
-            
             React.createElement('div', { className: 'flex flex-col flex-grow' },
               React.createElement('div', { className: 'flex items-center justify-between gap-2' },
                 React.createElement('span', { className: 'text-base md:text-lg font-black tracking-wide text-white uppercase' }, title),
@@ -162,7 +163,6 @@
               ),
               React.createElement('span', { className: 'text-xs md:text-sm text-[#FFD700] opacity-80 mt-1 font-medium italic' }, subtitle)
             ),
-
             React.createElement('div', { className: 'ml-4 text-[#FFD700] opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300' },
               React.createElement('svg', { className: 'w-5 h-5', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: '3' },
                 React.createElement('path', { d: 'M9 18l6-6-6-6', strokeLinecap: 'round', strokeLinejoin: 'round' })
@@ -171,19 +171,13 @@
           );
         };
 
-        const Footer = ({ text }) => {
-          return React.createElement('footer', { className: 'mt-12 text-center text-white/40 text-xs uppercase tracking-[1px] z-10' }, text);
-        };
-
         const App = () => {
           return React.createElement('div', { 
             className: 'min-h-screen relative flex flex-col items-center py-10 px-5 bg-[radial-gradient(circle_at_top,_#6e0000_0%,_#0f0f0f_80%)]' 
           },
             React.createElement(SnowEffect),
-            
             React.createElement('div', { className: 'w-full max-w-[600px] flex flex-col gap-5 z-10 relative' },
               React.createElement(Header, { title: 'Plannings Opérationnels', badge: 'Portail Staff v4.5' }),
-
               React.createElement('div', { className: 'flex flex-col gap-4' },
                 React.createElement('div', { 
                   className: 'flex items-center gap-2 mb-2 ml-2 animate-fade-in opacity-0',
@@ -192,7 +186,6 @@
                   React.createElement('div', { className: 'h-1 w-6 bg-[#FFD700] rounded-full shadow-[0_0_10px_rgba(255,215,0,0.5)]' }),
                   React.createElement('span', { className: 'text-[10px] font-black text-white uppercase tracking-[0.2em]' }, 'Espace Interne')
                 ),
-                
                 NAV_LINKS.map((link, index) => 
                   React.createElement(NavLinkCard, {
                     key: link.title,
@@ -205,8 +198,7 @@
                   })
                 )
               ),
-
-              React.createElement(Footer, { text: 'Grey Corner Executive Portal • Accès Réservé' })
+              React.createElement('footer', { className: 'mt-12 text-center text-white/40 text-xs uppercase tracking-[1px] z-10' }, 'Grey Corner Executive Portal • Accès Réservé')
             )
           );
         };
