@@ -5,41 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grey Corner • Executive Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-gradient: radial-gradient(circle at top center, #1e293b 0%, #0f172a 100%);
-            --accent-gold: #fbbf24;
-            --glass-white: rgba(255, 255, 255, 0.05);
-            --card-border: rgba(255, 255, 255, 0.1);
+            --bg-main: #0f172a;
         }
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg-gradient);
-            background-attachment: fixed;
+            background-color: var(--bg-main);
             margin: 0;
-            color: #f8fafc;
+            color: white;
+            overflow-x: hidden;
         }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .glass-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--card-border);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        .animate-card {
+            animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
-        .animate-fade-in {
-            animation: fadeInUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        .glass-effect {
+            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .logo-shadow {
-            filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.3));
-        }
-        .gold-text-gradient {
-            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .card-hover:hover {
+            transform: scale(1.02) translateX(5px);
+            filter: brightness(1.1);
         }
     </style>
     <script type="importmap">
@@ -59,48 +51,73 @@
         import { createRoot } from 'react-dom/client';
 
         const NAV_LINKS = [
-          { title: "PLANNING BAR", subtitle: "Gestion Bar & Stocks", href: "bar.html", icon: "🍸", color: "from-blue-500/20" },
-          { title: "PLANNING SERVICE", subtitle: "Coordination Salle & Accueil", href: "service.html", icon: "🍽️", color: "from-emerald-500/20" },
-          { title: "PLANNING CUISINE", subtitle: "Standards Production", href: "Cuisine.html", icon: "👨‍🍳", color: "from-orange-500/20" },
-          { title: "PLANNING MÉNAGE", subtitle: "Hygiène & Organisation", href: "menage.html", icon: "🧹", color: "from-purple-500/20" }
+          { 
+            title: "PLANNING BAR", 
+            subtitle: "Cocktails & Stocks", 
+            href: "bar.html", 
+            icon: "🍸", 
+            theme: "from-blue-600 to-indigo-700",
+            shadow: "shadow-blue-900/40"
+          },
+          { 
+            title: "PLANNING SERVICE", 
+            subtitle: "Salle & Accueil Clients", 
+            href: "service.html", 
+            icon: "🍽️", 
+            theme: "from-emerald-500 to-teal-700",
+            shadow: "shadow-emerald-900/40"
+          },
+          { 
+            title: "PLANNING CUISINE", 
+            subtitle: "Préparations & Menus", 
+            href: "Cuisine.html", 
+            icon: "👨‍🍳", 
+            theme: "from-orange-500 to-red-600",
+            shadow: "shadow-orange-900/40"
+          },
+          { 
+            title: "PLANNING MÉNAGE", 
+            subtitle: "Entretien & Hygiène", 
+            href: "menage.html", 
+            icon: "🧹", 
+            theme: "from-purple-500 to-fuchsia-700",
+            shadow: "shadow-purple-900/40"
+          }
         ];
 
         const Header = () => (
-          React.createElement('div', { className: 'text-center mb-12 animate-fade-in' },
-            React.createElement('div', { className: 'inline-block relative mb-6' },
+          React.createElement('div', { className: 'text-center mb-10 animate-card' },
+            React.createElement('div', { className: 'relative inline-block mb-6' },
+              React.createElement('div', { className: 'absolute inset-0 bg-white/20 blur-2xl rounded-full' }),
               React.createElement('img', { 
                 src: 'LOGO.jpg', 
-                className: 'w-32 h-32 md:w-36 md:h-36 rounded-3xl border-2 border-white/10 logo-shadow bg-white object-contain p-2 transition-transform hover:scale-105 duration-500',
-                onError: (e) => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=fbbf24&color=0f172a' }
+                className: 'w-28 h-28 relative rounded-3xl border border-white/20 bg-white object-contain p-2 shadow-2xl',
+                onError: (e) => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=334155&color=fff' }
               })
             ),
-            React.createElement('div', null,
-              React.createElement('h1', { 
-                className: 'font-black tracking-[6px] uppercase text-2xl md:text-3xl gold-text-gradient mb-1' 
-              }, 'GREY CORNER'),
-              React.createElement('p', { className: 'text-blue-300/50 text-[10px] font-bold uppercase tracking-[4px]' }, 'Staff Executive Portal')
-            )
+            React.createElement('h1', { className: 'text-3xl font-black tracking-tighter text-white mb-1' }, 'GREY CORNER'),
+            React.createElement('p', { className: 'text-blue-300/40 text-[10px] font-bold uppercase tracking-[0.3em]' }, 'Espace Collaborateur')
           )
         );
 
-        const NavLinkCard = ({ href, icon, title, subtitle, delay, color }) => (
+        const NavButton = ({ link, index }) => (
           React.createElement('a', {
-            href: href,
-            className: `group flex items-center glass-card p-6 rounded-2xl transition-all duration-300 hover:border-amber-400/50 hover:translate-x-2 relative overflow-hidden animate-fade-in opacity-0`,
-            style: { animationDelay: delay }
+            href: link.href,
+            className: `group flex items-center p-1 rounded-[2rem] bg-gradient-to-r ${link.theme} ${link.shadow} shadow-lg transition-all duration-300 card-hover animate-card opacity-0 mb-4`,
+            style: { animationDelay: `${index * 100}ms` }
           },
-            // Effet de couleur subtil au survol
-            React.createElement('div', { className: `absolute inset-0 bg-gradient-to-r ${color} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500` }),
+            // Icône blanche sur fond translucide
+            React.createElement('div', { className: 'w-16 h-16 flex items-center justify-center text-3xl bg-white/20 rounded-[1.8rem] mr-4 shadow-inner' }, link.icon),
             
-            React.createElement('div', { className: 'text-3xl mr-6 w-14 h-14 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 group-hover:bg-amber-400 group-hover:text-slate-900 transition-all duration-300 z-10' }, icon),
-            
-            React.createElement('div', { className: 'flex flex-col flex-grow z-10' },
-              React.createElement('span', { className: 'text-sm md:text-base font-black tracking-wide text-white group-hover:text-amber-400 transition-colors uppercase' }, title),
-              React.createElement('span', { className: 'text-[11px] text-blue-200/60 mt-0.5 font-medium' }, subtitle)
+            // Textes
+            React.createElement('div', { className: 'flex flex-col flex-grow' },
+              React.createElement('span', { className: 'text-sm font-black tracking-wide text-white uppercase italic' }, link.title),
+              React.createElement('span', { className: 'text-[11px] text-white/80 font-medium' }, link.subtitle)
             ),
             
-            React.createElement('div', { className: 'ml-4 opacity-0 group-hover:opacity-100 transition-all z-10' },
-              React.createElement('svg', { className: 'w-5 h-5 text-amber-400', fill: 'none', stroke: 'currentColor', strokeWidth: '3', viewBox: '0 0 24 24' },
+            // Flèche
+            React.createElement('div', { className: 'mr-6 bg-black/10 p-2 rounded-full group-hover:bg-white group-hover:text-slate-900 transition-colors' },
+              React.createElement('svg', { className: 'w-4 h-4 text-white group-hover:text-current', fill: 'none', stroke: 'currentColor', strokeWidth: '4', viewBox: '0 0 24 24' },
                 React.createElement('path', { d: 'M9 5l7 7-7 7', strokeLinecap: 'round', strokeLinejoin: 'round' })
               )
             )
@@ -108,21 +125,14 @@
         );
 
         const App = () => (
-          React.createElement('div', { 
-            className: 'min-h-screen flex flex-col items-center py-12 px-6' 
-          },
-            React.createElement('div', { className: 'w-full max-w-[480px] flex flex-col gap-4 z-10' },
+          React.createElement('div', { className: 'min-h-screen flex flex-col items-center py-12 px-5' },
+            React.createElement('div', { className: 'w-full max-w-[450px]' },
               React.createElement(Header),
-              NAV_LINKS.map((link, index) => 
-                React.createElement(NavLinkCard, {
-                  key: link.title,
-                  ...link,
-                  delay: `${(index + 1) * 120}ms`
-                })
+              NAV_LINKS.map((link, idx) => 
+                React.createElement(NavButton, { key: link.title, link: link, index: idx })
               ),
-              React.createElement('footer', { className: 'mt-12 text-center' },
-                React.createElement('div', { className: 'h-[1px] w-20 bg-white/10 mx-auto mb-6' }),
-                React.createElement('p', { className: 'text-blue-200/20 text-[9px] uppercase tracking-[3px] font-bold' }, 'Portail Privé • Grey Corner © 2026')
+              React.createElement('footer', { className: 'mt-12 text-center opacity-30 text-[9px] font-bold uppercase tracking-[4px]' },
+                'Grey Corner Cafe • 2026'
               )
             )
           )
