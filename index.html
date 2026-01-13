@@ -21,12 +21,15 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        /* Couleur de secours si l'image ne charge pas */
+        .bg-service-fallback { background-color: #064e3b; } 
+
         .img-overlay {
             position: absolute;
             inset: 0;
             background-size: cover;
             background-position: center;
-            opacity: 0.5; /* Opacité augmentée pour mieux voir les images */
+            opacity: 0.5;
             transition: all 0.5s ease;
         }
         .group:hover .img-overlay {
@@ -55,35 +58,36 @@
             title: "PLANNING BAR", 
             subtitle: "COCKTAILS & STOCKS", 
             href: "bar.html", 
-            img: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=800",
+            img: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800",
             accent: "border-l-blue-500"
           },
           { 
             title: "PLANNING SERVICE", 
             subtitle: "SALLE & PLATEAU", 
             href: "service.html", 
-            img: "https://images.unsplash.com/photo-1544145945-f904253d0c71?auto=format&fit=crop&q=80&w=800", 
-            accent: "border-l-emerald-500"
+            // NOUVELLE URL PLUS STABLE POUR LE SERVICE
+            img: "https://images.pexels.com/photos/1307698/pexels-photo-1307698.jpeg?auto=compress&cs=tinysrgb&w=800", 
+            accent: "border-l-emerald-500",
+            fallback: "bg-service-fallback"
           },
           { 
             title: "PLANNING CUISINE", 
             subtitle: "PRÉPARATIONS & FEU", 
             href: "Cuisine.html", 
-            img: "https://images.unsplash.com/photo-1581299894007-aaa50297cf16?auto=format&fit=crop&q=80&w=800",
+            img: "https://images.unsplash.com/photo-1581299894007-aaa50297cf16?w=800",
             accent: "border-l-orange-500"
           },
           { 
             title: "PLANNING MÉNAGE", 
             subtitle: "HYGIÈNE & ÉCLAT", 
             href: "menage.html", 
-            img: "https://images.unsplash.com/photo-1584622781564-1d987f7333c1?auto=format&fit=crop&q=80&w=800",
+            img: "https://images.unsplash.com/photo-1584622781564-1d987f7333c1?w=800",
             accent: "border-l-slate-400"
           }
         ];
 
         const App = () => {
             return React.createElement('div', { className: 'flex flex-col items-center' },
-                // Header
                 React.createElement('header', { className: 'text-center mb-12 animate-in' },
                     React.createElement('img', { 
                         src: 'LOGO.jpg', 
@@ -94,24 +98,20 @@
                     React.createElement('p', { className: 'text-blue-500 text-[9px] font-bold tracking-[0.5em] mt-2' }, 'ESPACE COLLABORATEUR')
                 ),
 
-                // Navigation List
                 React.createElement('nav', { className: 'w-full space-y-5' },
                     NAV_LINKS.map((link, i) => (
                         React.createElement('a', {
                             key: i,
                             href: link.href,
-                            className: `relative block group overflow-hidden rounded-2xl h-28 card-glass border-l-4 ${link.accent} animate-in`,
+                            className: `relative block group overflow-hidden rounded-2xl h-28 card-glass border-l-4 ${link.accent} ${link.fallback || ''} animate-in`,
                             style: { animationDelay: `${i * 0.1}s` }
                         }, [
-                            // Background Image
                             React.createElement('div', { 
                                 className: 'img-overlay',
                                 style: { backgroundImage: `url(${link.img})` }
                             }),
-                            // Gradient darken pour lisibilité
-                            React.createElement('div', { className: 'absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent' }),
+                            React.createElement('div', { className: 'absolute inset-0 bg-gradient-to-r from-black/95 via-black/40 to-transparent' }),
                             
-                            // Content
                             React.createElement('div', { className: 'relative h-full flex items-center justify-between px-8 z-10' },
                                 React.createElement('div', null,
                                     React.createElement('p', { className: 'text-[9px] font-bold tracking-[0.2em] text-blue-400 mb-1' }, link.subtitle),
@@ -127,7 +127,6 @@
                     ))
                 ),
 
-                // Footer
                 React.createElement('footer', { className: 'mt-16 text-center opacity-20 text-[8px] tracking-[5px] uppercase' }, 'Grey Corner • Business Executive')
             );
         };
