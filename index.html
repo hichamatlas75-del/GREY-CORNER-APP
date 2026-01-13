@@ -3,44 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grey Corner • Executive</title>
+    <title>Grey Corner • Executive Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
         body {
             background-color: #05070a;
             font-family: 'Inter', sans-serif;
             color: white;
             margin: 0;
+            display: flex;
+            justify-content: center;
         }
         .card-glass {
-            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .card-glass:hover {
-            border-color: rgba(255,255,255,0.3);
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border-color: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
+            background: rgba(255,255,255,0.05);
         }
         .img-overlay {
             position: absolute;
             inset: 0;
             background-size: cover;
             background-position: center;
-            opacity: 0.3;
-            mix-blend-mode: overlay;
+            opacity: 0.35;
+            transition: opacity 0.4s ease;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        .group:hover .img-overlay {
+            opacity: 0.5;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade { animation: fadeIn 0.6s ease-out forwards; }
+        .animate-in { animation: fadeInUp 0.6s ease-out forwards; }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div id="root" class="w-full max-w-md px-6 py-12"></div>
 
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -54,68 +59,74 @@
             title: "PLANNING BAR", 
             subtitle: "MIXOLOGIE & STOCKS", 
             href: "bar.html", 
-            img: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=600",
+            img: "https://images.unsplash.com/photo-1574096079513-d8259312b785?q=80&w=600",
             accent: "border-l-blue-500"
           },
           { 
             title: "PLANNING SERVICE", 
-            subtitle: "ACCUEIL & SALLE", 
+            subtitle: "SALLE & SERVICE CLIENT", 
             href: "service.html", 
-            img: "https://images.unsplash.com/photo-1550966841-3ee32c448880?q=80&w=600",
+            img: "https://images.unsplash.com/photo-1590577976322-3d2d6e213061?q=80&w=600", // Image de serveur pro
             accent: "border-l-emerald-500"
           },
           { 
             title: "PLANNING CUISINE", 
-            subtitle: "PROD & GASTRONOMIE", 
+            subtitle: "CRÉATION & PRODUCTION", 
             href: "Cuisine.html", 
-            img: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=600",
+            img: "https://images.unsplash.com/photo-1583394293214-28ded15ee548?q=80&w=600",
             accent: "border-l-orange-500"
           },
           { 
             title: "PLANNING MÉNAGE", 
-            subtitle: "HYGIÈNE & STANDARDS", 
+            subtitle: "STANDARDS D'HYGIÈNE", 
             href: "menage.html", 
-            img: "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?q=80&w=600",
+            img: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=600",
             accent: "border-l-slate-400"
           }
         ];
 
         const App = () => {
-            return React.createElement('div', { className: 'min-h-screen flex flex-col items-center py-16 px-6' },
+            return React.createElement('div', { className: 'flex flex-col items-center' },
                 // Header
-                React.createElement('div', { className: 'text-center mb-16 animate-fade' },
-                    React.createElement('img', { 
-                        src: 'LOGO.jpg', 
-                        className: 'w-20 h-20 mx-auto mb-6 rounded-2xl shadow-2xl border border-white/10',
-                        onError: (e) => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=111&color=fff' }
-                    }),
-                    React.createElement('h1', { className: 'text-3xl font-black tracking-[0.3em] uppercase' }, 'Grey Corner'),
-                    React.createElement('p', { className: 'text-blue-500 text-[10px] font-bold tracking-[0.5em] mt-2 opacity-80' }, 'PORTAIL EXÉCUTIF')
+                React.createElement('header', { className: 'text-center mb-14 animate-in' },
+                    React.createElement('div', { className: 'relative mb-6' },
+                        React.createElement('div', { className: 'absolute inset-0 bg-blue-500/20 blur-3xl rounded-full' }),
+                        React.createElement('img', { 
+                            src: 'LOGO.jpg', 
+                            className: 'w-24 h-24 mx-auto relative rounded-2xl border border-white/10 shadow-2xl',
+                            onError: (e) => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=111&color=fff' }
+                        })
+                    ),
+                    React.createElement('h1', { className: 'text-2xl font-black tracking-[0.4em] uppercase' }, 'Grey Corner'),
+                    React.createElement('p', { className: 'text-blue-400 text-[10px] font-bold tracking-[0.5em] mt-3 opacity-60' }, 'HUB COLLABORATEUR')
                 ),
 
-                // Cards Container
-                React.createElement('div', { className: 'w-full max-w-md space-y-4' },
+                // Navigation Grid
+                React.createElement('nav', { className: 'w-full space-y-4' },
                     NAV_LINKS.map((link, i) => (
                         React.createElement('a', {
                             key: i,
                             href: link.href,
-                            className: `relative block group overflow-hidden rounded-2xl h-28 card-glass border-l-4 ${link.accent} animate-fade`,
+                            className: `relative block group overflow-hidden rounded-2xl h-28 card-glass border-l-4 ${link.accent} animate-in`,
                             style: { animationDelay: `${i * 0.1}s` }
                         }, [
-                            // Background Image
+                            // Background Image Image
                             React.createElement('div', { 
-                                className: 'img-overlay group-hover:scale-110 transition-transform duration-700',
+                                className: 'img-overlay group-hover:scale-105 transition-transform duration-1000',
                                 style: { backgroundImage: `url(${link.img})` }
                             }),
+                            // Gradient darken
+                            React.createElement('div', { className: 'absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent' }),
+                            
                             // Content
                             React.createElement('div', { className: 'relative h-full flex items-center justify-between px-8 z-10' },
                                 React.createElement('div', null,
-                                    React.createElement('p', { className: 'text-[9px] font-bold tracking-[0.2em] text-white/50 mb-1' }, link.subtitle),
-                                    React.createElement('h2', { className: 'text-xl font-black tracking-tight' }, link.title)
+                                    React.createElement('p', { className: 'text-[9px] font-bold tracking-[0.2em] text-blue-400 mb-1' }, link.subtitle),
+                                    React.createElement('h2', { className: 'text-xl font-black tracking-tight uppercase' }, link.title)
                                 ),
-                                React.createElement('div', { className: 'w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all' },
-                                    React.createElement('svg', { className: 'w-5 h-5', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },
-                                        React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', strokeWidth: '2.5', d: 'M9 5l7 7-7 7' })
+                                React.createElement('div', { className: 'w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-300' },
+                                    React.createElement('svg', { className: 'w-4 h-4', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },
+                                        React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', strokeWidth: '3', d: 'M9 5l7 7-7 7' })
                                     )
                                 )
                             )
@@ -124,7 +135,9 @@
                 ),
 
                 // Footer
-                React.createElement('footer', { className: 'mt-20 opacity-30 text-[9px] tracking-[4px]' }, 'GREY CORNER © 2026')
+                React.createElement('footer', { className: 'mt-16 text-center opacity-20 text-[8px] tracking-[6px] uppercase' }, 
+                    'Excellence & Service • 2026'
+                )
             );
         };
 
