@@ -13,6 +13,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8fafc;
+            scroll-behavior: smooth; /* Pour un défilement tout doux */
         }
         .vignette-shadow {
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
@@ -26,7 +27,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState } = React;
+        const { useState, useEffect, useRef } = React;
 
         const PLANNING_DATA = {
             S1: {
@@ -58,11 +59,14 @@
         const SunIcon = () => (<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" /></svg>);
         const MoonIcon = () => (<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>);
 
-        const DayVignette = ({ row, today }) => {
+        const DayVignette = React.forwardRef(({ row, today }, ref) => {
             const isToday = row.day === today;
             const isWE = ['vendredi', 'samedi', 'dimanche'].includes(row.day);
             return (
-                <div className={`mb-4 overflow-hidden rounded-[2rem] border transition-all duration-300 ${isToday ? 'border-slate-900 bg-white today-shadow scale-[1.02]' : 'border-slate-100 bg-white vignette-shadow'}`}>
+                <div 
+                    ref={isToday ? ref : null}
+                    className={`mb-4 overflow-hidden rounded-[2rem] border transition-all duration-300 ${isToday ? 'border-slate-900 bg-white today-shadow scale-[1.02]' : 'border-slate-100 bg-white vignette-shadow'}`}
+                >
                     <div className={`px-6 py-4 flex justify-between items-center ${isToday ? 'bg-slate-900 text-white' : 'bg-[#96d35f] text-slate-900'}`}>
                         <span className="font-black uppercase tracking-widest text-sm">{row.day}</span>
                         {isToday && <span className="text-[10px] font-bold bg-white text-slate-900 px-3 py-1 rounded-full uppercase">Aujourd'hui</span>}
@@ -86,11 +90,19 @@
                     </div>
                 </div>
             );
-        };
+        });
 
         const App = () => {
             const [activeWeek, setActiveWeek] = useState('S1');
+            const todayRef = useRef(null);
             const today = new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(new Date()).toLowerCase();
+
+            // Effet pour scroller vers aujourd'hui au chargement
+            useEffect(() => {
+                if (todayRef.current) {
+                    todayRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, [activeWeek]); // Se déclenche au chargement et au changement de semaine
 
             return (
                 <div className="min-h-screen bg-slate-50 flex flex-col items-center py-6 px-4">
@@ -120,7 +132,12 @@
 
                     <main className="w-full max-w-md">
                         {PLANNING_DATA[activeWeek].schedules.map((row) => (
-                            <DayVignette key={row.day} row={row} today={today} />
+                            <DayVignette 
+                                key={row.day} 
+                                row={row} 
+                                today={today} 
+                                ref={row.day === today ? todayRef : null}
+                            />
                         ))}
                     </main>
 
