@@ -8,12 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Palette de couleurs plus vive et accueillante */
             --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            --accent-bar: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            --accent-service: linear-gradient(135deg, #10b981, #047857);
-            --accent-cuisine: linear-gradient(135deg, #f59e0b, #d97706);
-            --accent-menage: linear-gradient(135deg, #64748b, #334155);
         }
         body {
             background: var(--bg-gradient);
@@ -22,31 +17,31 @@
             margin: 0;
             display: flex;
             justify-content: center;
-            min-h-screen;
+            min-height: 100vh;
         }
         .card-vibrant {
-            background: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
         .card-vibrant:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.95);
         }
         .img-layer {
             position: absolute;
             inset: 0;
             background-size: cover;
             background-position: center;
-            opacity: 0.15; /* Image subtile pour laisser place à la couleur */
+            opacity: 0.2; /* Augmenté pour une meilleure visibilité */
             mix-blend-mode: multiply;
             transition: all 0.6s ease;
         }
         .group:hover .img-layer {
-            opacity: 0.3;
+            opacity: 0.4;
             transform: scale(1.1);
         }
         .color-banner {
@@ -78,7 +73,7 @@
             title: "Planning Bar", 
             subtitle: "COCKTAILS & STOCKS", 
             href: "bar.html", 
-            img: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=600",
+            img: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800",
             gradient: "from-blue-500 to-blue-700",
             iconColor: "text-blue-600"
           },
@@ -86,15 +81,15 @@
             title: "Planning Service", 
             subtitle: "SALLE & PLATEAU", 
             href: "service.html", 
-            img: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600", 
+            img: "https://images.pexels.com/photos/1307698/pexels-photo-1307698.jpeg?auto=compress&cs=tinysrgb&w=800", 
             gradient: "from-emerald-500 to-emerald-700",
             iconColor: "text-emerald-600"
           },
           { 
             title: "Planning Cuisine", 
-            subtitle: "CRÉATION & FEU", 
+            subtitle: "PRÉPARATION & FEU", 
             href: "Cuisine.html", 
-            img: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=600",
+            img: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800",
             gradient: "from-orange-500 to-orange-700",
             iconColor: "text-orange-600"
           },
@@ -102,18 +97,17 @@
             title: "Planning Ménage", 
             subtitle: "HYGIÈNE & ÉCLAT", 
             href: "menage.html", 
-            img: "https://images.unsplash.com/photo-1581578731522-a20478621fbc?w=600",
-            gradient: "from-slate-500 to-slate-700",
-            iconColor: "text-slate-600"
+            // Nouvelle image pour le ménage
+            img: "https://images.pexels.com/photos/4099467/pexels-photo-4099467.jpeg?auto=compress&cs=tinysrgb&w=800",
+            gradient: "from-indigo-500 to-indigo-700",
+            iconColor: "text-indigo-600"
           }
         ];
 
         const App = () => {
             return React.createElement('div', { className: 'flex flex-col items-center' },
-                // Header clair et coloré
                 React.createElement('header', { className: 'text-center mb-10' },
                     React.createElement('div', { className: 'relative mb-4 inline-block' },
-                        React.createElement('div', { className: 'absolute inset-0 bg-blue-400/20 blur-2xl rounded-full' }),
                         React.createElement('img', { 
                             src: 'LOGO.jpg', 
                             className: 'w-20 h-20 relative rounded-2xl border-4 border-white shadow-xl bg-white p-1',
@@ -124,7 +118,6 @@
                     React.createElement('p', { className: 'text-blue-600 text-[10px] font-extrabold tracking-[0.3em] uppercase' }, 'Espace Collaborateur')
                 ),
 
-                // Navigation
                 React.createElement('nav', { className: 'w-full space-y-4' },
                     NAV_LINKS.map((link, i) => (
                         React.createElement('a', {
@@ -133,23 +126,19 @@
                             className: 'relative block group h-28 rounded-3xl card-vibrant overflow-hidden animate-slide opacity-0',
                             style: { animationDelay: `${i * 0.1}s`, animationFillMode: 'forwards' }
                         }, [
-                            // Bannière de couleur en haut
                             React.createElement('div', { className: `color-banner bg-gradient-to-r ${link.gradient}` }),
-                            // Image de fond légère
                             React.createElement('div', { 
                                 className: 'img-layer',
                                 style: { backgroundImage: `url(${link.img})` }
                             }),
                             
-                            // Contenu
                             React.createElement('div', { className: 'relative h-full flex items-center justify-between px-8 z-10' },
                                 React.createElement('div', null,
                                     React.createElement('p', { className: `text-[10px] font-black tracking-widest ${link.iconColor} mb-1 opacity-80` }, link.subtitle),
                                     React.createElement('h2', { className: 'text-xl font-extrabold text-slate-800' }, link.title)
                                 ),
-                                // Bouton avec couleur d'accentuation
                                 React.createElement('div', { className: `w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center group-hover:bg-gradient-to-r ${link.gradient} group-hover:text-white transition-all duration-300` },
-                                    React.createElement('svg', { className: `w-5 h-5 transition-colors`, fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },
+                                    React.createElement('svg', { className: `w-5 h-5`, fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },
                                         React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', strokeWidth: '3', d: 'M9 5l7 7-7 7' })
                                     )
                                 )
@@ -158,7 +147,6 @@
                     ))
                 ),
 
-                // Footer
                 React.createElement('footer', { className: 'mt-12 text-center text-slate-400' },
                     React.createElement('p', { className: 'text-[9px] font-bold tracking-[0.4em] uppercase' }, 'Grey Corner • Excellence Collective')
                 )
