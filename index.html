@@ -3,70 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grey Corner • Executive Portal</title>
+    <title>Grey Corner • Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #030507;
-            --card-bg: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
+            /* Palette de couleurs plus vive et accueillante */
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --accent-bar: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            --accent-service: linear-gradient(135deg, #10b981, #047857);
+            --accent-cuisine: linear-gradient(135deg, #f59e0b, #d97706);
+            --accent-menage: linear-gradient(135deg, #64748b, #334155);
         }
         body {
-            background-color: var(--bg);
+            background: var(--bg-gradient);
             font-family: 'Plus Jakarta Sans', sans-serif;
-            color: white;
+            color: #1e293b;
             margin: 0;
             display: flex;
             justify-content: center;
-            background-image: radial-gradient(circle at 50% -20%, #1a1f2e 0%, transparent 50%);
+            min-h-screen;
         }
-        .card-premium {
-            background: var(--card-bg);
-            backdrop-filter: blur(16px) saturate(180%);
-            border: 1px solid var(--border);
+        .card-vibrant {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
             transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        .card-premium:hover {
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-5px) scale(1.01);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        .card-vibrant:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            background: rgba(255, 255, 255, 0.9);
         }
         .img-layer {
             position: absolute;
             inset: 0;
             background-size: cover;
             background-position: center;
-            opacity: 0.4;
-            filter: grayscale(20%);
+            opacity: 0.15; /* Image subtile pour laisser place à la couleur */
+            mix-blend-mode: multiply;
             transition: all 0.6s ease;
         }
         .group:hover .img-layer {
-            opacity: 0.6;
-            filter: grayscale(0%);
+            opacity: 0.3;
             transform: scale(1.1);
         }
-        .glow-line {
+        .color-banner {
             position: absolute;
-            left: 0;
             top: 0;
-            height: 100%;
-            width: 3px;
-            transition: width 0.3s ease;
+            left: 0;
+            width: 100%;
+            height: 6px;
         }
-        .group:hover .glow-line { width: 6px; }
-
-        @keyframes reveal {
-            from { opacity: 0; transform: translateY(30px); filter: blur(10px); }
-            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
-        .animate-reveal { animation: reveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .animate-slide { animation: slideIn 0.6s ease-out forwards; }
     </style>
 </head>
 <body>
-    <div id="root" class="w-full max-w-md px-6 py-12"></div>
+    <div id="root" class="w-full max-w-md px-6 py-10"></div>
 
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -78,89 +76,81 @@
         const NAV_LINKS = [
           { 
             title: "Planning Bar", 
-            subtitle: "MIXOLOGIE & STOCKS", 
+            subtitle: "COCKTAILS & STOCKS", 
             href: "bar.html", 
-            img: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80",
-            color: "#3b82f6"
+            img: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=600",
+            gradient: "from-blue-500 to-blue-700",
+            iconColor: "text-blue-600"
           },
           { 
             title: "Planning Service", 
             subtitle: "SALLE & PLATEAU", 
             href: "service.html", 
-            img: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80", 
-            color: "#10b981"
+            img: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600", 
+            gradient: "from-emerald-500 to-emerald-700",
+            iconColor: "text-emerald-600"
           },
           { 
             title: "Planning Cuisine", 
             subtitle: "CRÉATION & FEU", 
             href: "Cuisine.html", 
-            img: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=800&q=80",
-            color: "#f59e0b"
+            img: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=600",
+            gradient: "from-orange-500 to-orange-700",
+            iconColor: "text-orange-600"
           },
           { 
             title: "Planning Ménage", 
             subtitle: "HYGIÈNE & ÉCLAT", 
             href: "menage.html", 
-            img: "https://images.unsplash.com/photo-1581578731522-a20478621fbc?auto=format&fit=crop&w=800&q=80",
-            color: "#94a3b8"
+            img: "https://images.unsplash.com/photo-1581578731522-a20478621fbc?w=600",
+            gradient: "from-slate-500 to-slate-700",
+            iconColor: "text-slate-600"
           }
         ];
 
         const App = () => {
             return React.createElement('div', { className: 'flex flex-col items-center' },
-                // Header Sophistiqué
-                React.createElement('header', { className: 'text-center mb-16 animate-reveal' },
-                    React.createElement('div', { className: 'relative mb-6' },
-                        React.createElement('div', { className: 'absolute inset-0 bg-white/5 blur-3xl rounded-full' }),
+                // Header clair et coloré
+                React.createElement('header', { className: 'text-center mb-10' },
+                    React.createElement('div', { className: 'relative mb-4 inline-block' },
+                        React.createElement('div', { className: 'absolute inset-0 bg-blue-400/20 blur-2xl rounded-full' }),
                         React.createElement('img', { 
                             src: 'LOGO.jpg', 
-                            className: 'w-24 h-24 mx-auto relative rounded-3xl border border-white/10 shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500',
-                            onError: (e) => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=111&color=fff' }
+                            className: 'w-20 h-20 relative rounded-2xl border-4 border-white shadow-xl bg-white p-1',
+                            onError: (e) => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=3b82f6&color=fff' }
                         })
                     ),
-                    React.createElement('h1', { className: 'text-3xl font-extrabold tracking-tighter uppercase mb-1' }, 'Grey Corner'),
-                    React.createElement('div', { className: 'flex items-center justify-center space-x-2 opacity-50' },
-                        React.createElement('div', { className: 'h-[1px] w-4 bg-white' }),
-                        React.createElement('span', { className: 'text-[10px] font-bold tracking-[0.4em]' }, 'EXECUTIVE HUB'),
-                        React.createElement('div', { className: 'h-[1px] w-4 bg-white' })
-                    )
+                    React.createElement('h1', { className: 'text-2xl font-black tracking-tight text-slate-800' }, 'GREY CORNER'),
+                    React.createElement('p', { className: 'text-blue-600 text-[10px] font-extrabold tracking-[0.3em] uppercase' }, 'Espace Collaborateur')
                 ),
 
-                // Navigation Cards
-                React.createElement('nav', { className: 'w-full space-y-6' },
+                // Navigation
+                React.createElement('nav', { className: 'w-full space-y-4' },
                     NAV_LINKS.map((link, i) => (
                         React.createElement('a', {
                             key: i,
                             href: link.href,
-                            className: 'relative block group h-32 rounded-[2rem] card-premium animate-reveal',
-                            style: { animationDelay: `${i * 0.15}s` }
+                            className: 'relative block group h-28 rounded-3xl card-vibrant overflow-hidden animate-slide opacity-0',
+                            style: { animationDelay: `${i * 0.1}s`, animationFillMode: 'forwards' }
                         }, [
-                            // Accent line
-                            React.createElement('div', { 
-                                className: 'glow-line', 
-                                style: { backgroundColor: link.color, boxShadow: `0 0 20px ${link.color}` } 
-                            }),
-                            // Image Layer
+                            // Bannière de couleur en haut
+                            React.createElement('div', { className: `color-banner bg-gradient-to-r ${link.gradient}` }),
+                            // Image de fond légère
                             React.createElement('div', { 
                                 className: 'img-layer',
                                 style: { backgroundImage: `url(${link.img})` }
                             }),
-                            // Dark Overlay
-                            React.createElement('div', { className: 'absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent' }),
                             
-                            // Content
-                            React.createElement('div', { className: 'relative h-full flex items-center justify-between px-10 z-10' },
+                            // Contenu
+                            React.createElement('div', { className: 'relative h-full flex items-center justify-between px-8 z-10' },
                                 React.createElement('div', null,
-                                    React.createElement('p', { 
-                                        className: 'text-[10px] font-black tracking-[0.2em] mb-1 opacity-70 transition-opacity group-hover:opacity-100',
-                                        style: { color: link.color }
-                                    }, link.subtitle),
-                                    React.createElement('h2', { className: 'text-2xl font-extrabold tracking-tight' }, link.title)
+                                    React.createElement('p', { className: `text-[10px] font-black tracking-widest ${link.iconColor} mb-1 opacity-80` }, link.subtitle),
+                                    React.createElement('h2', { className: 'text-xl font-extrabold text-slate-800' }, link.title)
                                 ),
-                                // Bouton Flèche Minimaliste
-                                React.createElement('div', { className: 'w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-500 shadow-xl' },
-                                    React.createElement('svg', { className: 'w-5 h-5', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },
-                                        React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', strokeWidth: '2.5', d: 'M13 7l5 5m0 0l-5 5m5-5H6' })
+                                // Bouton avec couleur d'accentuation
+                                React.createElement('div', { className: `w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center group-hover:bg-gradient-to-r ${link.gradient} group-hover:text-white transition-all duration-300` },
+                                    React.createElement('svg', { className: `w-5 h-5 transition-colors`, fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },
+                                        React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', strokeWidth: '3', d: 'M9 5l7 7-7 7' })
                                     )
                                 )
                             )
@@ -169,11 +159,8 @@
                 ),
 
                 // Footer
-                React.createElement('footer', { className: 'mt-20 text-center' },
-                    React.createElement('p', { className: 'opacity-20 text-[9px] tracking-[0.5em] font-bold uppercase' }, 'Grey Corner Fès • High Standards Only'),
-                    React.createElement('div', { className: 'mt-4 flex justify-center space-x-1' },
-                        [1,2,3].map(i => React.createElement('div', { key:i, className: 'w-1 h-1 rounded-full bg-white/20' }))
-                    )
+                React.createElement('footer', { className: 'mt-12 text-center text-slate-400' },
+                    React.createElement('p', { className: 'text-[9px] font-bold tracking-[0.4em] uppercase' }, 'Grey Corner • Excellence Collective')
                 )
             );
         };
