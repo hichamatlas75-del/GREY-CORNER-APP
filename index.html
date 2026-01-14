@@ -5,42 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grey Corner • Executive Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #030507;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+        }
         body {
-            background-color: #05070a;
-            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            font-family: 'Plus Jakarta Sans', sans-serif;
             color: white;
             margin: 0;
             display: flex;
             justify-content: center;
+            background-image: radial-gradient(circle at 50% -20%, #1a1f2e 0%, transparent 50%);
         }
-        .card-glass {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        .card-premium {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid var(--border);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
         }
-        /* Couleur de secours si l'image ne charge pas */
-        .bg-service-fallback { background-color: #064e3b; } 
-
-        .img-overlay {
+        .card-premium:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .img-layer {
             position: absolute;
             inset: 0;
             background-size: cover;
             background-position: center;
-            opacity: 0.5;
-            transition: all 0.5s ease;
+            opacity: 0.4;
+            filter: grayscale(20%);
+            transition: all 0.6s ease;
         }
-        .group:hover .img-overlay {
-            opacity: 0.7;
-            transform: scale(1.05);
+        .group:hover .img-layer {
+            opacity: 0.6;
+            filter: grayscale(0%);
+            transform: scale(1.1);
         }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .glow-line {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            transition: width 0.3s ease;
         }
-        .animate-in { animation: fadeInUp 0.6s ease-out forwards; }
+        .group:hover .glow-line { width: 6px; }
+
+        @keyframes reveal {
+            from { opacity: 0; transform: translateY(30px); filter: blur(10px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        .animate-reveal { animation: reveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
     </style>
 </head>
 <body>
@@ -55,71 +77,90 @@
 
         const NAV_LINKS = [
           { 
-            title: "PLANNING BAR", 
-            subtitle: "COCKTAILS & STOCKS", 
+            title: "Planning Bar", 
+            subtitle: "MIXOLOGIE & STOCKS", 
             href: "bar.html", 
-            img: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800",
-            accent: "border-l-blue-500"
+            img: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80",
+            color: "#3b82f6"
           },
           { 
-            title: "PLANNING SERVICE", 
+            title: "Planning Service", 
             subtitle: "SALLE & PLATEAU", 
             href: "service.html", 
-            // NOUVELLE URL PLUS STABLE POUR LE SERVICE
-            img: "https://images.pexels.com/photos/1307698/pexels-photo-1307698.jpeg?auto=compress&cs=tinysrgb&w=800", 
-            accent: "border-l-emerald-500",
-            fallback: "bg-service-fallback"
+            img: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80", 
+            color: "#10b981"
           },
           { 
-            title: "PLANNING CUISINE", 
-            subtitle: "PRÉPARATIONS & FEU", 
+            title: "Planning Cuisine", 
+            subtitle: "CRÉATION & FEU", 
             href: "Cuisine.html", 
-            img: "https://images.unsplash.com/photo-1581299894007-aaa50297cf16?w=800",
-            accent: "border-l-orange-500"
+            img: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=800&q=80",
+            color: "#f59e0b"
           },
           { 
-            title: "PLANNING MÉNAGE", 
+            title: "Planning Ménage", 
             subtitle: "HYGIÈNE & ÉCLAT", 
             href: "menage.html", 
-            img: "https://images.unsplash.com/photo-1584622781564-1d987f7333c1?w=800",
-            accent: "border-l-slate-400"
+            img: "https://images.unsplash.com/photo-1581578731522-a20478621fbc?auto=format&fit=crop&w=800&q=80",
+            color: "#94a3b8"
           }
         ];
 
         const App = () => {
             return React.createElement('div', { className: 'flex flex-col items-center' },
-                React.createElement('header', { className: 'text-center mb-12 animate-in' },
-                    React.createElement('img', { 
-                        src: 'LOGO.jpg', 
-                        className: 'w-20 h-20 mx-auto mb-4 rounded-2xl shadow-2xl border border-white/10',
-                        onError: (e) => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=111&color=fff' }
-                    }),
-                    React.createElement('h1', { className: 'text-2xl font-black tracking-[0.3em] uppercase' }, 'Grey Corner'),
-                    React.createElement('p', { className: 'text-blue-500 text-[9px] font-bold tracking-[0.5em] mt-2' }, 'ESPACE COLLABORATEUR')
+                // Header Sophistiqué
+                React.createElement('header', { className: 'text-center mb-16 animate-reveal' },
+                    React.createElement('div', { className: 'relative mb-6' },
+                        React.createElement('div', { className: 'absolute inset-0 bg-white/5 blur-3xl rounded-full' }),
+                        React.createElement('img', { 
+                            src: 'LOGO.jpg', 
+                            className: 'w-24 h-24 mx-auto relative rounded-3xl border border-white/10 shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500',
+                            onError: (e) => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=111&color=fff' }
+                        })
+                    ),
+                    React.createElement('h1', { className: 'text-3xl font-extrabold tracking-tighter uppercase mb-1' }, 'Grey Corner'),
+                    React.createElement('div', { className: 'flex items-center justify-center space-x-2 opacity-50' },
+                        React.createElement('div', { className: 'h-[1px] w-4 bg-white' }),
+                        React.createElement('span', { className: 'text-[10px] font-bold tracking-[0.4em]' }, 'EXECUTIVE HUB'),
+                        React.createElement('div', { className: 'h-[1px] w-4 bg-white' })
+                    )
                 ),
 
-                React.createElement('nav', { className: 'w-full space-y-5' },
+                // Navigation Cards
+                React.createElement('nav', { className: 'w-full space-y-6' },
                     NAV_LINKS.map((link, i) => (
                         React.createElement('a', {
                             key: i,
                             href: link.href,
-                            className: `relative block group overflow-hidden rounded-2xl h-28 card-glass border-l-4 ${link.accent} ${link.fallback || ''} animate-in`,
-                            style: { animationDelay: `${i * 0.1}s` }
+                            className: 'relative block group h-32 rounded-[2rem] card-premium animate-reveal',
+                            style: { animationDelay: `${i * 0.15}s` }
                         }, [
+                            // Accent line
                             React.createElement('div', { 
-                                className: 'img-overlay',
+                                className: 'glow-line', 
+                                style: { backgroundColor: link.color, boxShadow: `0 0 20px ${link.color}` } 
+                            }),
+                            // Image Layer
+                            React.createElement('div', { 
+                                className: 'img-layer',
                                 style: { backgroundImage: `url(${link.img})` }
                             }),
-                            React.createElement('div', { className: 'absolute inset-0 bg-gradient-to-r from-black/95 via-black/40 to-transparent' }),
+                            // Dark Overlay
+                            React.createElement('div', { className: 'absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent' }),
                             
-                            React.createElement('div', { className: 'relative h-full flex items-center justify-between px-8 z-10' },
+                            // Content
+                            React.createElement('div', { className: 'relative h-full flex items-center justify-between px-10 z-10' },
                                 React.createElement('div', null,
-                                    React.createElement('p', { className: 'text-[9px] font-bold tracking-[0.2em] text-blue-400 mb-1' }, link.subtitle),
-                                    React.createElement('h2', { className: 'text-xl font-black tracking-tight uppercase' }, link.title)
+                                    React.createElement('p', { 
+                                        className: 'text-[10px] font-black tracking-[0.2em] mb-1 opacity-70 transition-opacity group-hover:opacity-100',
+                                        style: { color: link.color }
+                                    }, link.subtitle),
+                                    React.createElement('h2', { className: 'text-2xl font-extrabold tracking-tight' }, link.title)
                                 ),
-                                React.createElement('div', { className: 'w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all' },
+                                // Bouton Flèche Minimaliste
+                                React.createElement('div', { className: 'w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-500 shadow-xl' },
                                     React.createElement('svg', { className: 'w-5 h-5', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },
-                                        React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', strokeWidth: '3', d: 'M9 5l7 7-7 7' })
+                                        React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', strokeWidth: '2.5', d: 'M13 7l5 5m0 0l-5 5m5-5H6' })
                                     )
                                 )
                             )
@@ -127,7 +168,13 @@
                     ))
                 ),
 
-                React.createElement('footer', { className: 'mt-16 text-center opacity-20 text-[8px] tracking-[5px] uppercase' }, 'Grey Corner • Business Executive')
+                // Footer
+                React.createElement('footer', { className: 'mt-20 text-center' },
+                    React.createElement('p', { className: 'opacity-20 text-[9px] tracking-[0.5em] font-bold uppercase' }, 'Grey Corner Fès • High Standards Only'),
+                    React.createElement('div', { className: 'mt-4 flex justify-center space-x-1' },
+                        [1,2,3].map(i => React.createElement('div', { key:i, className: 'w-1 h-1 rounded-full bg-white/20' }))
+                    )
+                )
             );
         };
 
