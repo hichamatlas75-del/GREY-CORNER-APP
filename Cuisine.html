@@ -19,7 +19,6 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
-        /* Animation pour le scroll automatique */
         @keyframes highlight {
             0% { transform: scale(1); }
             50% { transform: scale(1.02); }
@@ -120,12 +119,23 @@
                     className: "inline-flex items-center px-3 py-1 rounded-md bg-slate-100 text-slate-500 text-[11px] font-bold border border-slate-200" 
                 }, "OFF");
             }
-            const [start, end] = shift.time.split(' / ');
+
+            // Fonction pour transformer "12" en "12:00"
+            const formatTime = (t) => {
+                const clean = t.trim();
+                if (isNaN(clean)) return clean; // Si c'est FS, on laisse tel quel
+                return clean.padStart(2, '0') + ":00";
+            };
+
+            const [startRaw, endRaw] = shift.time.split(' / ');
+            const start = formatTime(startRaw);
+            const end = formatTime(endRaw);
+
             return React.createElement('div', { 
-                className: "flex items-center gap-1.5 font-mono text-[13px] font-bold bg-white text-slate-700 px-3 py-1 rounded-md shadow-sm border border-slate-100" 
+                className: "flex items-center gap-1.5 font-mono text-[12px] font-bold bg-white text-slate-700 px-3 py-1 rounded-md shadow-sm border border-slate-100" 
             },
                 React.createElement('span', null, start),
-                React.createElement('span', { className: "text-slate-300" }, "/"),
+                React.createElement('span', { className: "text-slate-300 mx-0.5" }, "-"),
                 shift.isFS 
                     ? React.createElement('span', { className: "text-indigo-600 font-extrabold tracking-tight" }, "F.S")
                     : React.createElement('span', null, end)
@@ -188,7 +198,6 @@
             });
 
             return React.createElement('div', { className: "min-h-screen bg-[#F1F5F9] pb-24" },
-                // HEADER PRO COLORE
                 React.createElement('header', { className: "bg-slate-900 border-b border-slate-800 px-6 py-4 shadow-xl sticky top-0 z-50" },
                     React.createElement('div', { className: "max-w-4xl mx-auto flex items-center justify-between" },
                         React.createElement('div', { className: "flex items-center gap-5" },
@@ -223,7 +232,6 @@
                     )
                 ),
 
-                // TITRE SECTION
                 React.createElement('div', { className: "bg-white border-b border-slate-200 py-6 px-6 mb-8 shadow-sm" },
                     React.createElement('div', { className: "max-w-4xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4" },
                         React.createElement('div', null,
@@ -237,7 +245,6 @@
                     )
                 ),
 
-                // GRILLE PLANNING
                 React.createElement('main', { className: "px-6 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6" },
                     sortedDays.map((day) => React.createElement(DayCard, { key: day.id, schedule: day, isToday: day.id === todayId }))
                 )
