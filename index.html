@@ -3,63 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grey Corner • Staff Portal</title>
+    <title>Grey Corner • Ramadan Mubarak 🌙</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            /* Palette Ramadan : Bleu Nuit, Vert Profond et Or */
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #064e3b 100%);
+            --gold: #fbbf24;
         }
         body {
             background: var(--bg-gradient);
             font-family: 'Plus Jakarta Sans', sans-serif;
-            color: #1e293b;
+            color: #f8fafc;
             margin: 0;
             display: flex;
             justify-content: center;
             min-height: 100vh;
+            overflow-x: hidden;
         }
-        .card-vibrant {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+
+        /* Effet de ciel étoilé en arrière-plan */
+        .stars-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px);
+            background-size: 550px 550px;
+            opacity: 0.15;
+            z-index: -1;
         }
-        .card-vibrant:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            background: rgba(255, 255, 255, 0.95);
+
+        .card-ramadan {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
+        .card-ramadan:hover {
+            transform: translateY(-8px);
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
         .img-layer {
             position: absolute;
             inset: 0;
             background-size: cover;
             background-position: center;
-            opacity: 0.2; /* Augmenté pour une meilleure visibilité */
-            mix-blend-mode: multiply;
-            transition: all 0.6s ease;
+            opacity: 0.3;
+            mix-blend-mode: overlay;
         }
-        .group:hover .img-layer {
-            opacity: 0.4;
-            transform: scale(1.1);
+
+        .gold-glow {
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
         }
-        .color-banner {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 6px;
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
+        .floating-moon {
+            animation: float 4s ease-in-out infinite;
         }
-        .animate-slide { animation: slideIn 0.6s ease-out forwards; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade { animation: fadeIn 0.8s ease-out forwards; }
     </style>
 </head>
 <body>
-    <div id="root" class="w-full max-w-md px-6 py-10"></div>
+    <div class="stars-bg"></div>
+    <div id="root" class="w-full max-w-md px-6 py-10 relative z-10"></div>
 
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -71,74 +89,78 @@
         const NAV_LINKS = [
           { 
             title: "Planning Bar", 
-            subtitle: "COCKTAILS & STOCKS", 
+            subtitle: "RAFRAÎCHISSEMENTS FTOR", 
             href: "bar.html", 
-            img: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800",
-            gradient: "from-blue-500 to-blue-700",
-            iconColor: "text-blue-600"
+            img: "https://images.unsplash.com/photo-1544145945-f904253d0c71?w=800",
+            icon: "🥤"
           },
           { 
             title: "Planning Service", 
-            subtitle: "SALLE & PLATEAU", 
+            subtitle: "HOSPITALITÉ & PARTAGE", 
             href: "service.html", 
-            img: "https://images.pexels.com/photos/1307698/pexels-photo-1307698.jpeg?auto=compress&cs=tinysrgb&w=800", 
-            gradient: "from-emerald-500 to-emerald-700",
-            iconColor: "text-emerald-600"
+            img: "https://images.pexels.com/photos/1556691/pexels-photo-1556691.jpeg?auto=compress&cs=tinysrgb&w=800", 
+            icon: "🍽️"
           },
           { 
             title: "Planning Cuisine", 
-            subtitle: "PRÉPARATION & FEU", 
+            subtitle: "SAVEURS DU RAMADAN", 
             href: "Cuisine.html", 
-            img: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800",
-            gradient: "from-orange-500 to-orange-700",
-            iconColor: "text-orange-600"
+            img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800",
+            icon: "👨‍🍳"
           },
           { 
             title: "Planning Ménage", 
-            subtitle: "HYGIÈNE & ÉCLAT", 
+            subtitle: "PURETÉ & SÉRÉNITÉ", 
             href: "menage.html", 
-            // Nouvelle image pour le ménage
             img: "https://images.pexels.com/photos/4099467/pexels-photo-4099467.jpeg?auto=compress&cs=tinysrgb&w=800",
-            gradient: "from-indigo-500 to-indigo-700",
-            iconColor: "text-indigo-600"
+            icon: "✨"
           }
         ];
 
         const App = () => {
             return React.createElement('div', { className: 'flex flex-col items-center' },
+                // HEADER RAMADAN
                 React.createElement('header', { className: 'text-center mb-10' },
                     React.createElement('div', { className: 'relative mb-4 inline-block' },
+                        React.createElement('div', { className: 'absolute -top-6 -right-6 text-3xl floating-moon' }, '🌙'),
                         React.createElement('img', { 
                             src: 'LOGO.jpg', 
-                            className: 'w-20 h-20 relative rounded-2xl border-4 border-white shadow-xl bg-white p-1',
-                            onError: (e) => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=3b82f6&color=fff' }
+                            className: 'w-24 h-24 relative rounded-full border-4 border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.5)] bg-white p-1',
+                            onError: (e) => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=064e3b&color=fbbf24' }
                         })
                     ),
-                    React.createElement('h1', { className: 'text-2xl font-black tracking-tight text-slate-800' }, 'GREY CORNER'),
-                    React.createElement('p', { className: 'text-blue-600 text-[10px] font-extrabold tracking-[0.3em] uppercase' }, 'Espace Collaborateur')
+                    React.createElement('h1', { className: 'text-3xl font-black tracking-widest text-white gold-glow uppercase' }, 'GREY CORNER'),
+                    React.createElement('div', { className: 'flex items-center justify-center gap-2 mt-2' },
+                        React.createElement('span', { className: 'h-px w-8 bg-amber-400 opacity-50' }),
+                        React.createElement('p', { className: 'text-amber-400 text-[11px] font-extrabold tracking-[0.4em] uppercase' }, 'Ramadan Mubarak'),
+                        React.createElement('span', { className: 'h-px w-8 bg-amber-400 opacity-50' })
+                    )
                 ),
 
-                React.createElement('nav', { className: 'w-full space-y-4' },
+                // NAVIGATION
+                React.createElement('nav', { className: 'w-full space-y-5' },
                     NAV_LINKS.map((link, i) => (
                         React.createElement('a', {
                             key: i,
                             href: link.href,
-                            className: 'relative block group h-28 rounded-3xl card-vibrant overflow-hidden animate-slide opacity-0',
+                            className: 'relative block group h-28 rounded-3xl card-ramadan overflow-hidden animate-fade opacity-0',
                             style: { animationDelay: `${i * 0.1}s`, animationFillMode: 'forwards' }
                         }, [
-                            React.createElement('div', { className: `color-banner bg-gradient-to-r ${link.gradient}` }),
                             React.createElement('div', { 
-                                className: 'img-layer',
+                                className: 'img-layer transition-transform duration-700 group-hover:scale-110',
                                 style: { backgroundImage: `url(${link.img})` }
                             }),
                             
                             React.createElement('div', { className: 'relative h-full flex items-center justify-between px-8 z-10' },
                                 React.createElement('div', null,
-                                    React.createElement('p', { className: `text-[10px] font-black tracking-widest ${link.iconColor} mb-1 opacity-80` }, link.subtitle),
-                                    React.createElement('h2', { className: 'text-xl font-extrabold text-slate-800' }, link.title)
+                                    React.createElement('p', { className: 'text-[10px] font-black tracking-widest text-amber-400 mb-1 opacity-90' }, link.subtitle),
+                                    React.createElement('div', { className: 'flex items-center gap-2' },
+                                        React.createElement('span', { className: 'text-xl' }, link.icon),
+                                        React.createElement('h2', { className: 'text-xl font-extrabold text-white group-hover:text-amber-400 transition-colors' }, link.title)
+                                    )
                                 ),
-                                React.createElement('div', { className: `w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center group-hover:bg-gradient-to-r ${link.gradient} group-hover:text-white transition-all duration-300` },
-                                    React.createElement('svg', { className: `w-5 h-5`, fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },
+                                React.createElement('div', { className: 'w-10 h-10 rounded-full border border-amber-400/30 flex items-center justify-center group-hover:bg-amber-400 group-hover:text-slate-900 transition-all duration-300' },
+                                    React.createElement('svg', { className: 'w-4 h-4', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },
                                         React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', strokeWidth: '3', d: 'M9 5l7 7-7 7' })
                                     )
                                 )
@@ -147,8 +169,10 @@
                     ))
                 ),
 
-                React.createElement('footer', { className: 'mt-12 text-center text-slate-400' },
-                    React.createElement('p', { className: 'text-[9px] font-bold tracking-[0.4em] uppercase' }, 'Grey Corner • Excellence Collective')
+                // FOOTER
+                React.createElement('footer', { className: 'mt-12 text-center' },
+                    React.createElement('p', { className: 'text-[10px] font-bold tracking-[0.4em] text-white opacity-40 uppercase' }, 'Service • Respect • Spiritualité'),
+                    React.createElement('div', { className: 'mt-2 text-amber-400 text-xl' }, '🏮')
                 )
             );
         };
