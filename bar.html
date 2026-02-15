@@ -103,6 +103,15 @@
       }, 5200);
     }
 
+    function escapeHtml(str){
+      return String(str ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
     function isHtml(text){
       return /<html[\s>]/i.test(text) || /<!doctype html/i.test(text);
     }
@@ -129,13 +138,33 @@
       return { day, weekday, month };
     }
 
-    // Aujourd'hui = numéro du jour + (jour-semaine OU mois)
     function rowLooksLikeToday(label, todayInfo){
       const s = normalize(label);
       if(!s) return false;
       const hasDayNum = new RegExp(`\\b${todayInfo.day}\\b`).test(s);
       if(!hasDayNum) return false;
       return s.includes(todayInfo.weekday) || s.includes(todayInfo.month);
+    }
+
+    // Poste nettoyé (cohérent avec Service)
+    function cleanPoste(raw){
+      if(!raw) return "";
+      const p = String(raw).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+
+      if(p.includes("loge")) return "LOGE";
+      if(p.includes("ter1")) return "TER1";
+      if(p.includes("ter2")) return "TER2";
+      if(p.includes("ter3")) return "TER3";
+      if(p.includes("terrasse") || p.includes("ter")) return "TER";
+      if(p.includes("sala2")) return "SAL2";
+      if(p.includes("sala1") || p.includes("sala") || p === "sal") return "SAL";
+      if(p.includes("bar")) return "BAR";
+      if(p.includes("caisse")) return "CAIS";
+      if(p.includes("run")) return "RUN";
+      if(p.includes("acc")) return "ACC";
+      if(p.includes("deb")) return "DEB";
+
+      return String(raw).substring(0,4).toUpperCase();
     }
 
     async function init(){
@@ -156,11 +185,17 @@
           return;
         }
 
+        // ✅ Lecture A,B,C,D (D = bannière du jour)
         const all = [];
         for(let i=1;i<rows.length;i++){
           const cols = splitCsvLine(rows[i]);
           if(cols.length >= 3 && cols[0]){
-            all.push({ date: cols[0], matin: cols[1], soir: cols[2] });
+            all.push({
+              date: cols[0],
+              matin: cols[1] ?? "",
+              soir:  cols[2] ?? "",
+              msg:   cols[3] ?? ""   // colonne D
+            });
           }
         }
 
@@ -171,7 +206,15 @@
         const hasToday = startIndex >= 0;
         const data = hasToday ? all.slice(startIndex) : all;
 
-        if(!hasToday) showAlert("Aujourd'hui non trouvé (format date différent).");
+        // ✅ Bannière : colonne D de la ligne "aujourd'hui"
+        if(hasToday){
+          const banner = String(all[startIndex].msg ?? "").trim();
+          if(banner && banner !== "-"){
+            showAlert(banner);
+          }
+        }else{
+          showAlert("Aujourd'hui non trouvé (format date différent).");
+        }
 
         renderPlanning(data, hasToday);
 
@@ -196,7 +239,7 @@
         return `
           <div class="day-card ${isToday ? 'is-today' : ''}" ${isToday ? 'id="today-card"' : ''}>
             <div class="card-header">
-              <span class="day-name">${jour.date}</span>
+              <span class="day-name">${escapeHtml(jour.date)}</span>
               ${isToday ? `<div class="today-badge">AUJOURD'HUI</div>` : ``}
             </div>
             <div class="card-body">
@@ -209,7 +252,6 @@
         `;
       }).join("");
 
-      // Scroll auto (fiable)
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           const el = document.getElementById("today-card");
@@ -218,28 +260,55 @@
       });
     }
 
+    // ✅ Supporte:
+    // - POSTE: NOM
+    // - NOM (POSTE)
     function parseStaff(text){
       if(!text || text === '-' || text.trim() === ''){
         return '<div style="text-align:center; opacity:0.3; font-size:0.8rem; padding:10px;">REPOS</div>';
       }
+
       return text.split(',').map(s => {
-        let nom = s.trim(), poste = "BAR";
-        if (s.includes(':')) {
+        s = s.trim();
+        let nom = "";
+        let poste = "BAR";
+
+        // FORMAT 1 : POSTE: NOM
+        if(s.includes(':')){
           const p = s.split(':');
-          poste = (p[0] || '').trim();
+          poste = cleanPoste((p[0] || '').trim()) || "BAR";
           nom = (p.slice(1).join(':') || '').trim();
         }
-        return `<div class="staff-row"><div class="poste-badge">${poste}</div><div class="staff-name">${nom}</div></div>`;
+        // FORMAT 2 : NOM (POSTE)
+        else if(s.includes('(') && s.includes(')')){
+          nom = s.substring(0, s.indexOf('(')).trim();
+          poste = cleanPoste(s.substring(s.indexOf('(')+1, s.lastIndexOf(')'))) || "BAR";
+        }
+        // FORMAT 3 : NOM seul
+        else{
+          nom = s.trim();
+          poste = "BAR";
+        }
+
+        return `<div class="staff-row">
+          <div class="poste-badge">${escapeHtml(poste)}</div>
+          <div class="staff-name">${escapeHtml(nom)}</div>
+        </div>`;
       }).join('');
     }
 
     function downloadPlanning(){
-      html2canvas(document.getElementById("capture-zone"), { scale: 2, backgroundColor: "#0B0E14" }).then(canvas => {
+      html2canvas(document.getElementById("capture-zone"), {
+        scale: 2,
+        backgroundColor: "#0B0E14",
+        useCORS: true,
+        allowTaint: false
+      }).then(canvas => {
         const link = document.createElement('a');
         link.download = 'Planning-Bar.png';
         link.href = canvas.toDataURL("image/png");
         link.click();
-      });
+      }).catch(() => showAlert("Capture impossible (CORS / images externes)."));
     }
 
     init();
