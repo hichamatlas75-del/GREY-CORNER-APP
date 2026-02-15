@@ -114,62 +114,44 @@
       letter-spacing: .8px;
     }
 
+    /* --- LIGNES STAFF: NOM JAUNE / POSTE GRIS --- */
     .staff-row{
       display:flex;
-      margin-bottom: 8px;
-      border-radius: 12px;
+      margin-bottom:8px;
+      border-radius:12px;
       overflow:hidden;
-      border:1px solid rgba(255,255,255,0.06);
-      min-height: 44px;
+      border:1px solid rgba(255,255,255,0.08);
+      min-height:44px;
     }
 
-    /* zone poste: contient un carré */
-    .poste-badge{
-      width: 36%;
-      background: transparent;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: 6px;
-    }
-
-    .poste-square{
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight: 900;
-      font-size: 0.70rem;
-      letter-spacing: .5px;
-      color:#000;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
-      user-select: none;
-    }
-
-    /* Couleurs postes */
-    .p-loge{ background:#f1c40f; }
-    .p-ter1{ background:#2ecc71; }
-    .p-ter2{ background:#27ae60; }
-    .p-sala1{ background:#3498db; color:#fff; }
-    .p-sala2{ background:#2980b9; color:#fff; }
-    .p-bar{ background:#e67e22; }
-    .p-caisse{ background:#9b59b6; color:#fff; }
-    .p-runner{ background:#1abc9c; }
-    .p-accueil{ background:#e84393; color:#fff; }
-    .p-default{ background:#bdc3c7; }
-
+    /* NOM (jaune à gauche) */
     .staff-name{
-      background: rgba(255,255,255,0.08);
-      color:#fff;
-      width: 64%;
+      width:65%;
+      background:var(--gold);
+      color:#000;
+      font-weight:900;
+      text-transform:uppercase;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:0.92rem;
+      letter-spacing:.5px;
       padding: 10px 8px;
-      font-weight: 900;
-      text-align:center;
-      text-transform: uppercase;
-      font-size: 0.88rem;
-      display:flex; align-items:center; justify-content:center;
+    }
+
+    /* POSTE (gris à droite) */
+    .staff-poste{
+      width:35%;
+      background:rgba(255,255,255,0.12);
+      color:#fff;
+      font-weight:900;
+      text-transform:uppercase;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:0.78rem;
+      letter-spacing:.6px;
+      padding: 10px 8px;
     }
 
     .fab-btn{
@@ -194,8 +176,8 @@
       .logo-img{ width:54px; height:54px; }
       h1{ font-size: 1.05rem; }
       .day-name{ font-size: 1.08rem; }
-      .poste-badge{ width: 38%; }
-      .staff-name{ width: 62%; font-size: 0.86rem; }
+      .staff-name{ width:66%; font-size:0.90rem; }
+      .staff-poste{ width:34%; font-size:0.76rem; }
       .fab-btn{ width:54px; height:54px; right:14px; bottom:14px; }
     }
   </style>
@@ -264,7 +246,7 @@
       return { day, weekday, month };
     }
 
-    // détecte la première ligne qui correspond à aujourd'hui
+    // détecte la première ligne qui correspond à aujourd'hui (jour+ (jour-semaine OU mois))
     function rowLooksLikeToday(label, todayInfo){
       const s = normalize(label);
       if(!s) return false;
@@ -284,29 +266,23 @@
         .map(c => c.replace(/^"|"$/g,"").trim());
     }
 
-    // --- Postes -> carré (classe + label)
-    function normalizePoste(p){
-      return String(p||"")
-        .toLowerCase()
-        .replace(/\s+/g,"")
-        .normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-    }
+    // POSTE -> code court (LOGE, SAL, TER...)
+    function cleanPoste(raw){
+      if(!raw) return "";
+      const p = String(raw).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
 
-    function getPosteInfo(raw){
-      const p = normalizePoste(raw);
+      if(p.includes("loge")) return "LOGE";
+      if(p.includes("ter1")) return "TER1";
+      if(p.includes("ter2")) return "TER2";
+      if(p.includes("terrasse") || p.includes("ter")) return "TER";
+      if(p.includes("sala2")) return "SAL2";
+      if(p.includes("sala1") || p.includes("sala") || p === "sal") return "SAL";
+      if(p.includes("bar")) return "BAR";
+      if(p.includes("caisse")) return "CAIS";
+      if(p.includes("run")) return "RUN";
+      if(p.includes("acc")) return "ACC";
 
-      if(p.includes("loge")) return {cls:"p-loge", label:"LOGE"};
-      if(p.includes("ter1")) return {cls:"p-ter1", label:"TER1"};
-      if(p.includes("ter2")) return {cls:"p-ter2", label:"TER2"};
-      if(p.includes("sala1") || p === "sala") return {cls:"p-sala1", label:"S1"};
-      if(p.includes("sala2")) return {cls:"p-sala2", label:"S2"};
-      if(p.includes("bar")) return {cls:"p-bar", label:"BAR"};
-      if(p.includes("caisse")) return {cls:"p-caisse", label:"CAI"};
-      if(p.includes("run")) return {cls:"p-runner", label:"RUN"};
-      if(p.includes("acc")) return {cls:"p-accueil", label:"ACC"};
-
-      const fallback = String(raw||"").trim().substring(0,4).toUpperCase() || "SERV";
-      return {cls:"p-default", label:fallback};
+      return String(raw).substring(0,4).toUpperCase();
     }
 
     async function init(){
@@ -341,7 +317,7 @@
           }
         }
 
-        // ✅ MASQUAGE: on affiche à partir de la première ligne "aujourd'hui"
+        // ✅ Masquage: on coupe à partir de "aujourd'hui"
         const startIndex = all.findIndex(r => rowLooksLikeToday(r.date, todayInfo));
         let data = all;
         let hasToday = false;
@@ -390,7 +366,7 @@
         `;
       }).join("");
 
-      // ✅ SCROLL fiable vers aujourd'hui
+      // ✅ Scroll fiable vers aujourd'hui
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           const el = document.getElementById("today-card");
@@ -407,23 +383,22 @@
         return `<div style="text-align:center; opacity:0.35; font-size:0.85rem; padding:10px; font-weight:900;">REPOS</div>`;
       }
 
+      // Format attendu: "POSTE: NOM, POSTE: NOM, ..."
+      // Si pas de ":", alors poste vide (case grise vide).
       return t.split(",").map(s => {
-        let n = s.trim(), p = "SERVICE";
+        let name = s.trim();
+        let poste = "";
 
         if(s.includes(":")){
           const parts = s.split(":");
-          p = (parts[0] || "").trim();
-          n = (parts.slice(1).join(":") || "").trim();
+          poste = cleanPoste(parts[0]);
+          name = parts.slice(1).join(":").trim();
         }
-
-        const poste = getPosteInfo(p);
 
         return `
           <div class="staff-row">
-            <div class="poste-badge">
-              <div class="poste-square ${poste.cls}">${escapeHtml(poste.label)}</div>
-            </div>
-            <div class="staff-name">${escapeHtml(n)}</div>
+            <div class="staff-name">${escapeHtml(name)}</div>
+            <div class="staff-poste">${escapeHtml(poste)}</div>
           </div>
         `;
       }).join("");
