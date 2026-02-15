@@ -71,11 +71,15 @@
     .is-today{ border:2px solid var(--gold); box-shadow:0 5px 20px rgba(212,175,55,0.2); }
 
     .card-body{ padding:15px; }
+
+    /* ✅ Header shift + horaire */
     .shift-header{
-      color:var(--gold); font-size:0.8rem; font-weight:bold; text-align:center;
+      color:var(--gold); font-size:0.8rem; font-weight:900; text-align:center;
       padding:8px; border:1px solid rgba(212,175,55,0.2); border-radius:5px; margin-bottom:10px;
       background: rgba(212,175,55,0.05); text-transform:uppercase;
+      display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
     }
+    .shift-time{ opacity:.78; font-weight:900; letter-spacing:.3px; }
 
     .staff-row{ display:flex; margin-bottom:8px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.05); }
     .poste-badge{ background:var(--gold); color:#000; width:35%; padding:10px; font-size:0.65rem; font-weight:900; text-align:center; display:flex; align-items:center; justify-content:center; }
@@ -115,6 +119,10 @@
   <script>
     const SHEET_URL = "https://docs.google.com/spreadsheets/d/1mfwB4zNHS79YsNH4vTMUGOdWeQwC3htMgPtDWsrMbWg/gviz/tq?tqx=out:csv&gid=294813093";
 
+    /* ✅ Par défaut si E/F vides */
+    const DEFAULT_H_MATIN = "09:00 - 16:00";
+    const DEFAULT_H_SOIR  = "16:00 - Fin service";
+
     function showAlert(msg){
       const box = document.getElementById("alert-box");
       const textEl = document.getElementById("alert-text");
@@ -122,7 +130,7 @@
       textEl.textContent = msg;
       box.style.display = "block";
       document.body.classList.add("has-alert");
-      /* ✅ pas de setTimeout => ne disparaît pas */
+      /* pas de setTimeout => ne disparaît pas */
     }
 
     function hideAlert(){
@@ -195,6 +203,11 @@
       return String(raw).substring(0,4).toUpperCase();
     }
 
+    function pickTime(raw, fallback){
+      const t = String(raw ?? "").trim();
+      return (t && t !== "-") ? t : fallback;
+    }
+
     async function init(){
       const loadingEl = document.getElementById("loading");
       try{
@@ -215,7 +228,7 @@
 
         const todayInfo = getTodayInfo();
 
-        /* ✅ MÊME LOGIQUE QUE SERVICE : BANNIÈRE FIXE = D2 */
+        /* ✅ BANNIÈRE FIXE = D2 */
         let bannerD2 = "";
         if (rows.length >= 2) {
           const colsRow2 = splitCsvLine(rows[1]);      // rows[0]=header, rows[1]=ligne 2
@@ -223,11 +236,19 @@
         }
         if (bannerD2 && bannerD2 !== "-") showAlert(bannerD2);
 
+        /* ✅ Lecture A,B,C,D,E,F  (E=horaire matin, F=horaire soir) */
         const all = [];
         for(let i=1;i<rows.length;i++){
           const cols = splitCsvLine(rows[i]);
           if(cols.length >= 3 && cols[0]){
-            all.push({ date: cols[0], matin: cols[1] ?? "", soir: cols[2] ?? "" });
+            all.push({
+              date: cols[0],
+              matin: cols[1] ?? "",
+              soir:  cols[2] ?? "",
+              msg:   cols[3] ?? "",
+              hMatin: cols[4] ?? "",  // colonne E
+              hSoir:  cols[5] ?? ""   // colonne F
+            });
           }
         }
 
@@ -259,6 +280,10 @@
 
       container.innerHTML = data.map((jour, idx) => {
         const isToday = hasToday && idx === 0;
+
+        const hMatin = pickTime(jour.hMatin, DEFAULT_H_MATIN);
+        const hSoir  = pickTime(jour.hSoir,  DEFAULT_H_SOIR); // ✅ 16:00 - Fin service si vide
+
         return `
           <div class="day-card ${isToday ? 'is-today' : ''}" ${isToday ? 'id="today-card"' : ''}>
             <div class="card-header">
@@ -266,9 +291,14 @@
               ${isToday ? `<div class="today-badge">AUJOURD'HUI</div>` : ``}
             </div>
             <div class="card-body">
-              <div class="shift-header">MATIN</div>
+              <div class="shift-header">
+                MATIN <span class="shift-time">(${escapeHtml(hMatin)})</span>
+              </div>
               ${parseStaff(jour.matin)}
-              <div class="shift-header" style="margin-top:20px;">SOIR</div>
+
+              <div class="shift-header" style="margin-top:20px;">
+                SOIR <span class="shift-time">(${escapeHtml(hSoir)})</span>
+              </div>
               ${parseStaff(jour.soir)}
             </div>
           </div>
