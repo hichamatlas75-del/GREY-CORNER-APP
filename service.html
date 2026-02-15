@@ -31,16 +31,18 @@
     }
     body.has-alert{ padding-top:45px; }
 
+    /* ✅ HEADER NON STICKY (pas fixé) */
     header{
       padding: 18px 12px;
       text-align:center;
       border-bottom: 1px solid rgba(212,175,55,0.35);
       background: rgba(0,0,0,0.18);
-      position: sticky;
-      top:0;
-      z-index: 50;
-      backdrop-filter: blur(10px);
+      position: relative;   /* <-- plus sticky */
+      top: auto;
+      z-index: 1;
+      backdrop-filter: none; /* optionnel */
     }
+
     .logo-img{ width:58px; height:58px; border-radius:50%; border:2px solid var(--gold); margin-bottom:8px; }
     h1{
       font-family:'Playfair Display',serif;
@@ -70,7 +72,7 @@
       border-radius: 14px;
       border: 1px solid rgba(212,175,55,0.18);
       overflow:hidden;
-      scroll-margin-top: 96px;
+      scroll-margin-top: 0; /* ✅ plus besoin (header non sticky) */
     }
     .card-header{
       background: rgba(255,255,255,0.03);
@@ -114,7 +116,6 @@
       letter-spacing: .8px;
     }
 
-    /* --- STAFF: 2 BLOCS SÉPARÉS (NOM) (POSTE) --- */
     .staff-row{
       display:flex;
       gap:10px;
@@ -310,7 +311,7 @@
 
         const todayInfo = getTodayInfo();
 
-        // ✅ Lecture A,B,C,D (D = bannière du jour)
+        // ✅ Lecture A,B,C,D (D = bannière)
         const all = [];
         for(let i=1;i<rows.length;i++){
           const cols = splitCsvLine(rows[i]);
@@ -326,13 +327,18 @@
 
         const startIndex = all.findIndex(r => rowLooksLikeToday(r.date, todayInfo));
 
-        // ✅ Affiche la bannière si colonne D remplie (sur la ligne "aujourd'hui")
+        // ✅ Bannière ROBUSTE : msg du jour sinon 1er msg non vide
+        let banner = "";
         if(startIndex >= 0){
-          const banner = String(all[startIndex].msg ?? "").trim();
-          if(banner && banner !== "-"){
-            showAlert(banner);
-          }
+          banner = String(all[startIndex].msg ?? "").trim();
+        }else{
+          const firstWithMsg = all.find(r => {
+            const m = String(r.msg ?? "").trim();
+            return m && m !== "-";
+          });
+          if(firstWithMsg) banner = String(firstWithMsg.msg ?? "").trim();
         }
+        if(banner) showAlert(banner);
 
         let data = all;
         let hasToday = false;
@@ -386,7 +392,6 @@
           const el = document.getElementById("today-card");
           if(el){
             el.scrollIntoView({ behavior:"smooth", block:"start" });
-            setTimeout(() => window.scrollBy({ top: -10, left: 0, behavior: "smooth" }), 250);
           }
         });
       });
@@ -402,19 +407,14 @@
         let poste = "";
         s = s.trim();
 
-        // FORMAT 1 : POSTE: NOM
         if(s.includes(":")){
           const parts = s.split(":");
           poste = cleanPoste(parts[0]);
           name = parts.slice(1).join(":").trim();
-        }
-        // FORMAT 2 : NOM (POSTE)
-        else if(s.includes("(") && s.includes(")")){
+        }else if(s.includes("(") && s.includes(")")){
           name = s.substring(0, s.indexOf("(")).trim();
           poste = cleanPoste(s.substring(s.indexOf("(")+1, s.lastIndexOf(")")));
-        }
-        // FORMAT 3 : NOM seul
-        else{
+        }else{
           name = s;
           poste = "";
         }
