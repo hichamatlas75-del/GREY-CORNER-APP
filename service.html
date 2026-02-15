@@ -70,7 +70,7 @@
       border-radius: 14px;
       border: 1px solid rgba(212,175,55,0.18);
       overflow:hidden;
-      scroll-margin-top: 96px; /* pour scroll sous header sticky */
+      scroll-margin-top: 96px;
     }
     .card-header{
       background: rgba(255,255,255,0.03);
@@ -114,19 +114,17 @@
       letter-spacing: .8px;
     }
 
-    /* --- LIGNES STAFF: NOM JAUNE / POSTE GRIS --- */
+    /* --- STAFF: 2 BLOCS SÉPARÉS (NOM) (POSTE) --- */
     .staff-row{
       display:flex;
-      margin-bottom:8px;
-      border-radius:12px;
-      overflow:hidden;
-      border:1px solid rgba(255,255,255,0.08);
-      min-height:44px;
+      gap:10px;               /* séparation visible entre les 2 carrés */
+      margin-bottom:10px;
+      align-items:stretch;
     }
 
-    /* NOM (jaune à gauche) */
+    /* NOM (carré jaune) */
     .staff-name{
-      width:65%;
+      flex: 1 1 auto;
       background:var(--gold);
       color:#000;
       font-weight:900;
@@ -136,12 +134,14 @@
       justify-content:center;
       font-size:0.92rem;
       letter-spacing:.5px;
-      padding: 10px 8px;
+      padding: 12px 10px;
+      border-radius: 12px;    /* carré/arrondi */
+      min-height:46px;
     }
 
-    /* POSTE (gris à droite) */
+    /* POSTE (carré gris) */
     .staff-poste{
-      width:35%;
+      flex: 0 0 110px;        /* largeur fixe => vrai “bloc” */
       background:rgba(255,255,255,0.12);
       color:#fff;
       font-weight:900;
@@ -151,7 +151,10 @@
       justify-content:center;
       font-size:0.78rem;
       letter-spacing:.6px;
-      padding: 10px 8px;
+      padding: 12px 10px;
+      border-radius: 12px;    /* carré/arrondi */
+      min-height:46px;
+      border:1px solid rgba(255,255,255,0.10);
     }
 
     .fab-btn{
@@ -176,8 +179,8 @@
       .logo-img{ width:54px; height:54px; }
       h1{ font-size: 1.05rem; }
       .day-name{ font-size: 1.08rem; }
-      .staff-name{ width:66%; font-size:0.90rem; }
-      .staff-poste{ width:34%; font-size:0.76rem; }
+      .staff-name{ font-size:0.90rem; }
+      .staff-poste{ flex-basis: 104px; font-size:0.76rem; }
       .fab-btn{ width:54px; height:54px; right:14px; bottom:14px; }
     }
   </style>
@@ -246,7 +249,6 @@
       return { day, weekday, month };
     }
 
-    // détecte la première ligne qui correspond à aujourd'hui (jour+ (jour-semaine OU mois))
     function rowLooksLikeToday(label, todayInfo){
       const s = normalize(label);
       if(!s) return false;
@@ -266,7 +268,6 @@
         .map(c => c.replace(/^"|"$/g,"").trim());
     }
 
-    // POSTE -> code court (LOGE, SAL, TER...)
     function cleanPoste(raw){
       if(!raw) return "";
       const p = String(raw).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
@@ -317,7 +318,6 @@
           }
         }
 
-        // ✅ Masquage: on coupe à partir de "aujourd'hui"
         const startIndex = all.findIndex(r => rowLooksLikeToday(r.date, todayInfo));
         let data = all;
         let hasToday = false;
@@ -349,7 +349,7 @@
       }
 
       container.innerHTML = data.map((j, idx) => {
-        const isToday = hasToday && idx === 0; // après slicing, aujourd'hui = 1ère carte
+        const isToday = hasToday && idx === 0;
         return `
           <div class="day-card ${isToday ? 'is-today' : ''}" ${isToday ? 'id="today-card"' : ''}>
             <div class="card-header">
@@ -366,7 +366,6 @@
         `;
       }).join("");
 
-      // ✅ Scroll fiable vers aujourd'hui
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           const el = document.getElementById("today-card");
@@ -383,8 +382,6 @@
         return `<div style="text-align:center; opacity:0.35; font-size:0.85rem; padding:10px; font-weight:900;">REPOS</div>`;
       }
 
-      // Format attendu: "POSTE: NOM, POSTE: NOM, ..."
-      // Si pas de ":", alors poste vide (case grise vide).
       return t.split(",").map(s => {
         let name = s.trim();
         let poste = "";
