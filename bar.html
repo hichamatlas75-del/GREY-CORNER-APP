@@ -10,19 +10,15 @@
 
   <style>
     :root { --gold:#D4AF37; --night:#0B0E14; --card-bg:#1A1F26; }
-
     body{
       font-family:'Roboto',sans-serif;
-      background: radial-gradient(circle at top, #1a2a6c 0%, var(--night) 100%);
+      background: radial-gradient(circle at top,#1a2a6c 0%, var(--night) 100%);
       background-attachment: fixed;
-      margin:0; padding:0; color:#fff; padding-bottom:80px;
-      overflow-x:hidden;
-      -webkit-overflow-scrolling: touch;
+      margin:0; color:#fff; padding-bottom:80px;
+      overflow-x:hidden; -webkit-overflow-scrolling: touch;
     }
-
     #alert-box{
-      display:none;
-      background: linear-gradient(to right, #d4af37, #f1c40f);
+      display:none; background: linear-gradient(to right, #d4af37, #f1c40f);
       color:#000; text-align:center; padding:12px; font-weight:800;
       position:fixed; top:0; left:0; width:100%; z-index:9999;
     }
@@ -30,32 +26,26 @@
 
     header{
       padding:40px 15px; text-align:center; border-bottom:2px solid var(--gold);
-      position:relative; background: rgba(0,0,0,0.2);
+      background: rgba(0,0,0,0.2);
     }
-
     .logo-img{ width:85px; height:85px; border-radius:50%; border:2px solid var(--gold); margin-bottom:10px; }
     h1{ font-family:'Playfair Display',serif; margin:0; font-size:1.5rem; color:var(--gold); letter-spacing:2px; text-transform:uppercase; }
 
     .container{ width:100%; max-width:500px; margin:0 auto; padding:20px 15px; }
 
     .day-card{
-      background: var(--card-bg); margin-bottom:25px; border-radius:15px;
+      background:var(--card-bg); margin-bottom:25px; border-radius:15px;
       border:1px solid rgba(212,175,55,0.2); overflow:hidden;
-      scroll-margin-top: 20px;
     }
-
     .card-header{ background: rgba(255,255,255,0.03); padding:15px; text-align:center; border-bottom:1px solid rgba(212,175,55,0.1); }
     .day-name{ font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--gold); display:block; text-transform:capitalize; }
-
     .today-badge{
       background: var(--gold); color:#000; font-size:0.7rem; font-weight:900;
       padding:4px 12px; border-radius:4px; margin-top:8px; display:inline-block;
     }
-
     .is-today{ border:2px solid var(--gold); box-shadow:0 5px 20px rgba(212,175,55,0.2); }
 
     .card-body{ padding:15px; }
-
     .shift-header{
       color:var(--gold); font-size:0.8rem; font-weight:bold; text-align:center;
       padding:8px; border:1px solid rgba(212,175,55,0.2); border-radius:5px; margin-bottom:10px;
@@ -71,7 +61,6 @@
       width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center;
       box-shadow:0 5px 20px rgba(0,0,0,0.5); font-size:24px; cursor:pointer; z-index:100; border:none;
     }
-
     .back-btn{ display:inline-block; margin-top:15px; color:var(--gold); text-decoration:none; font-size:0.8rem; border:1px solid var(--gold); padding:8px 15px; border-radius:20px; }
     #loading{ text-align:center; padding:50px; color:var(--gold); font-family:'Playfair Display',serif; }
   </style>
@@ -94,8 +83,7 @@
   </div>
 
   <script>
-    const SHEET_ID = "1mfwB4zNHS79YsNH4vTMUGOdWeQwC3htMgPtDWsrMbWg";
-    const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/1mfwB4zNHS79YsNH4vTMUGOdWeQwC3htMgPtDWsrMbWg/gviz/tq?tqx=out:csv";
 
     function showAlert(msg){
       const box = document.getElementById("alert-box");
@@ -106,7 +94,17 @@
       setTimeout(() => {
         box.style.display = "none";
         document.body.classList.remove("has-alert");
-      }, 4200);
+      }, 5200);
+    }
+
+    function isHtml(text){
+      return /<html[\s>]/i.test(text) || /<!doctype html/i.test(text);
+    }
+
+    function splitCsvLine(line){
+      return line
+        .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+        .map(c => c.replace(/^"|"$/g, '').trim());
     }
 
     function normalize(str){
@@ -117,10 +115,6 @@
         .trim();
     }
 
-    function isHtml(text){
-      return /<html[\s>]/i.test(text) || /<!doctype html/i.test(text);
-    }
-
     function getTodayInfo(){
       const now = new Date();
       const day = now.getDate();
@@ -129,68 +123,56 @@
       return { day, weekday, month };
     }
 
-    // Aujourd'hui = présence du numéro du jour + (jour-semaine OU mois)
     function rowLooksLikeToday(label, todayInfo){
       const s = normalize(label);
       if(!s) return false;
-
       const hasDayNum = new RegExp(`\\b${todayInfo.day}\\b`).test(s);
       if(!hasDayNum) return false;
-
       return s.includes(todayInfo.weekday) || s.includes(todayInfo.month);
-    }
-
-    function splitCsvLine(line){
-      return line
-        .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
-        .map(c => c.replace(/^"|"$/g, "").trim());
     }
 
     async function init(){
       const loadingEl = document.getElementById("loading");
       try{
-        const response = await fetch(SHEET_URL, { cache:"no-store" });
-        const text = await response.text();
+        const resp = await fetch(SHEET_URL, { cache:"no-store" });
+        const text = await resp.text();
 
         if(isHtml(text)){
-          if(loadingEl) loadingEl.innerText = "Vérifiez le partage du fichier Google Sheets";
-          showAlert("Feuille non publique (mettre 'toute personne avec le lien').");
+          if(loadingEl) loadingEl.innerText = "Accès refusé (pas de CSV).";
+          showAlert("Gérer l’accès → Toute personne avec le lien (Lecteur).");
           return;
         }
 
-        const rows = text
-          .split(/\r?\n/)
-          .map(r => r.replace(/\r/g,"").trim())
-          .filter(r => r.length);
+        const rows = text.split(/\r?\n/).map(r => r.trim()).filter(r => r);
+        if(rows.length <= 1){
+          if(loadingEl) loadingEl.innerText = "CSV vide (onglet 1 vide ou mauvais onglet).";
+          showAlert("Si l’onglet planning n’est pas le 1er onglet, il faut le gid.");
+          return;
+        }
 
         const all = [];
         for(let i=1;i<rows.length;i++){
           const cols = splitCsvLine(rows[i]);
-          if(cols.length >= 3 && cols[0] !== ""){
+          if(cols.length >= 3 && cols[0]){
             all.push({ date: cols[0], matin: cols[1], soir: cols[2] });
           }
         }
 
         const todayInfo = getTodayInfo();
-
-        // ✅ MASQUAGE ROBUSTE: on affiche à partir de la ligne "aujourd'hui"
         const startIndex = all.findIndex(r => rowLooksLikeToday(r.date, todayInfo));
         const hasToday = startIndex >= 0;
         const data = hasToday ? all.slice(startIndex) : all;
 
-        if(!hasToday) showAlert("Aujourd'hui non trouvé dans la feuille (format date différent).");
-
         renderPlanning(data, hasToday);
 
       }catch(e){
-        if(loadingEl) loadingEl.innerText = "Vérifiez le partage du fichier Google Sheets";
+        if(loadingEl) loadingEl.innerText = "Erreur réseau / page en local file://";
+        showAlert("Héberge la page en HTTPS (Firebase/Netlify) si tu l’ouvres en file://.");
       }
     }
 
     function renderPlanning(data, hasToday){
       const container = document.getElementById("planning-container");
-
-      // ✅ on retire loading proprement (sans crash)
       const loadingEl = document.getElementById("loading");
       if(loadingEl) loadingEl.remove();
 
@@ -200,7 +182,7 @@
       }
 
       container.innerHTML = data.map((jour, idx) => {
-        const isToday = hasToday && idx === 0; // après slicing, aujourd'hui est la 1ère carte
+        const isToday = hasToday && idx === 0;
         return `
           <div class="day-card ${isToday ? 'is-today' : ''}" ${isToday ? 'id="today-card"' : ''}>
             <div class="card-header">
@@ -217,7 +199,6 @@
         `;
       }).join("");
 
-      // ✅ Scroll auto fiable vers aujourd'hui
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           const el = document.getElementById("today-card");
@@ -230,7 +211,6 @@
       if(!text || text === '-' || text.trim() === ''){
         return '<div style="text-align:center; opacity:0.3; font-size:0.8rem; padding:10px;">REPOS</div>';
       }
-
       return text.split(',').map(s => {
         let nom = s.trim(), poste = "BAR";
         if (s.includes(':')) {
