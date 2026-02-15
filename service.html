@@ -31,16 +31,16 @@
     }
     body.has-alert{ padding-top:45px; }
 
-    /* ✅ HEADER NON STICKY (pas fixé) */
+    /* ✅ HEADER NON STICKY */
     header{
       padding: 18px 12px;
       text-align:center;
       border-bottom: 1px solid rgba(212,175,55,0.35);
       background: rgba(0,0,0,0.18);
-      position: relative;   /* <-- plus sticky */
+      position: relative;
       top: auto;
       z-index: 1;
-      backdrop-filter: none; /* optionnel */
+      backdrop-filter: none;
     }
 
     .logo-img{ width:58px; height:58px; border-radius:50%; border:2px solid var(--gold); margin-bottom:8px; }
@@ -72,7 +72,7 @@
       border-radius: 14px;
       border: 1px solid rgba(212,175,55,0.18);
       overflow:hidden;
-      scroll-margin-top: 0; /* ✅ plus besoin (header non sticky) */
+      scroll-margin-top: 0; /* header non sticky */
     }
     .card-header{
       background: rgba(255,255,255,0.03);
@@ -311,7 +311,15 @@
 
         const todayInfo = getTodayInfo();
 
-        // ✅ Lecture A,B,C,D (D = bannière)
+        /* ✅ BANNIÈRE FIXE = D2 (ligne 2, colonne D) */
+        let bannerD2 = "";
+        if (rows.length >= 2) {
+          const colsRow2 = splitCsvLine(rows[1]);     // rows[0]=header, rows[1]=ligne 2
+          bannerD2 = String(colsRow2[3] ?? "").trim(); // colonne D
+        }
+        if (bannerD2 && bannerD2 !== "-") showAlert(bannerD2);
+
+        // ✅ Lecture A,B,C,D (D = msg stocké, au cas où tu veux l'utiliser plus tard)
         const all = [];
         for(let i=1;i<rows.length;i++){
           const cols = splitCsvLine(rows[i]);
@@ -320,26 +328,12 @@
               date: cols[0],
               matin: cols[1] ?? "",
               soir:  cols[2] ?? "",
-              msg:   cols[3] ?? ""  // colonne D
+              msg:   cols[3] ?? ""
             });
           }
         }
 
         const startIndex = all.findIndex(r => rowLooksLikeToday(r.date, todayInfo));
-
-        // ✅ Bannière ROBUSTE : msg du jour sinon 1er msg non vide
-        let banner = "";
-        if(startIndex >= 0){
-          banner = String(all[startIndex].msg ?? "").trim();
-        }else{
-          const firstWithMsg = all.find(r => {
-            const m = String(r.msg ?? "").trim();
-            return m && m !== "-";
-          });
-          if(firstWithMsg) banner = String(firstWithMsg.msg ?? "").trim();
-        }
-        if(banner) showAlert(banner);
-
         let data = all;
         let hasToday = false;
 
