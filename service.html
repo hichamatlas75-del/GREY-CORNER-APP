@@ -117,12 +117,11 @@
     /* --- STAFF: 2 BLOCS SÉPARÉS (NOM) (POSTE) --- */
     .staff-row{
       display:flex;
-      gap:10px;               /* séparation visible entre les 2 carrés */
+      gap:10px;
       margin-bottom:10px;
       align-items:stretch;
     }
 
-    /* NOM (carré jaune) */
     .staff-name{
       flex: 1 1 auto;
       background:var(--gold);
@@ -135,13 +134,12 @@
       font-size:0.92rem;
       letter-spacing:.5px;
       padding: 12px 10px;
-      border-radius: 12px;    /* carré/arrondi */
+      border-radius: 12px;
       min-height:46px;
     }
 
-    /* POSTE (carré gris) */
     .staff-poste{
-      flex: 0 0 110px;        /* largeur fixe => vrai “bloc” */
+      flex: 0 0 110px;
       background:rgba(255,255,255,0.12);
       color:#fff;
       font-weight:900;
@@ -152,7 +150,7 @@
       font-size:0.78rem;
       letter-spacing:.6px;
       padding: 12px 10px;
-      border-radius: 12px;    /* carré/arrondi */
+      border-radius: 12px;
       min-height:46px;
       border:1px solid rgba(255,255,255,0.10);
     }
@@ -275,6 +273,7 @@
       if(p.includes("loge")) return "LOGE";
       if(p.includes("ter1")) return "TER1";
       if(p.includes("ter2")) return "TER2";
+      if(p.includes("ter3")) return "TER3";
       if(p.includes("terrasse") || p.includes("ter")) return "TER";
       if(p.includes("sala2")) return "SAL2";
       if(p.includes("sala1") || p.includes("sala") || p === "sal") return "SAL";
@@ -282,6 +281,7 @@
       if(p.includes("caisse")) return "CAIS";
       if(p.includes("run")) return "RUN";
       if(p.includes("acc")) return "ACC";
+      if(p.includes("deb")) return "DEB";
 
       return String(raw).substring(0,4).toUpperCase();
     }
@@ -310,15 +310,30 @@
 
         const todayInfo = getTodayInfo();
 
+        // ✅ Lecture A,B,C,D (D = bannière du jour)
         const all = [];
         for(let i=1;i<rows.length;i++){
           const cols = splitCsvLine(rows[i]);
           if(cols.length >= 3 && cols[0] !== ""){
-            all.push({ date: cols[0], matin: cols[1], soir: cols[2] });
+            all.push({
+              date: cols[0],
+              matin: cols[1] ?? "",
+              soir:  cols[2] ?? "",
+              msg:   cols[3] ?? ""  // colonne D
+            });
           }
         }
 
         const startIndex = all.findIndex(r => rowLooksLikeToday(r.date, todayInfo));
+
+        // ✅ Affiche la bannière si colonne D remplie (sur la ligne "aujourd'hui")
+        if(startIndex >= 0){
+          const banner = String(all[startIndex].msg ?? "").trim();
+          if(banner && banner !== "-"){
+            showAlert(banner);
+          }
+        }
+
         let data = all;
         let hasToday = false;
 
@@ -378,46 +393,40 @@
     }
 
     function parseStaff(t){
-  if(!t || t === "-" || t.trim() === ""){
-    return `<div style="text-align:center; opacity:0.35; font-size:0.85rem; padding:10px; font-weight:900;">REPOS</div>`;
-  }
+      if(!t || t === "-" || t.trim() === ""){
+        return `<div style="text-align:center; opacity:0.35; font-size:0.85rem; padding:10px; font-weight:900;">REPOS</div>`;
+      }
 
-  return t.split(",").map(s => {
+      return t.split(",").map(s => {
+        let name = "";
+        let poste = "";
+        s = s.trim();
 
-    let name = "";
-    let poste = "";
+        // FORMAT 1 : POSTE: NOM
+        if(s.includes(":")){
+          const parts = s.split(":");
+          poste = cleanPoste(parts[0]);
+          name = parts.slice(1).join(":").trim();
+        }
+        // FORMAT 2 : NOM (POSTE)
+        else if(s.includes("(") && s.includes(")")){
+          name = s.substring(0, s.indexOf("(")).trim();
+          poste = cleanPoste(s.substring(s.indexOf("(")+1, s.lastIndexOf(")")));
+        }
+        // FORMAT 3 : NOM seul
+        else{
+          name = s;
+          poste = "";
+        }
 
-    s = s.trim();
-
-    // FORMAT 1 : POSTE: NOM
-    if(s.includes(":")){
-      const parts = s.split(":");
-      poste = cleanPoste(parts[0]);
-      name = parts.slice(1).join(":").trim();
+        return `
+          <div class="staff-row">
+            <div class="staff-name">${escapeHtml(name)}</div>
+            <div class="staff-poste">${escapeHtml(poste)}</div>
+          </div>
+        `;
+      }).join("");
     }
-
-    // FORMAT 2 : NOM (POSTE)
-    else if(s.includes("(") && s.includes(")")){
-      name = s.substring(0, s.indexOf("(")).trim();
-      poste = cleanPoste(
-        s.substring(s.indexOf("(")+1, s.lastIndexOf(")"))
-      );
-    }
-
-    // FORMAT 3 : NOM seul
-    else{
-      name = s;
-      poste = "";
-    }
-
-    return `
-      <div class="staff-row">
-        <div class="staff-name">${escapeHtml(name)}</div>
-        <div class="staff-poste">${escapeHtml(poste)}</div>
-      </div>
-    `;
-  }).join("");
-}
 
     function downloadPlanning(){
       html2canvas(document.getElementById("capture-zone"), {
