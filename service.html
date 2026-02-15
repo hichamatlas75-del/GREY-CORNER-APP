@@ -23,11 +23,13 @@
       -webkit-overflow-scrolling: touch;
     }
 
-    /* ✅ BANNIÈRE FIXE (TOUJOURS VISIBLE) */
+    /* ✅ BANNIÈRE FIXE */
     #alert-box{
       display:none;
       background: linear-gradient(to right, #d4af37, #f1c40f);
-      color:#000; text-align:center; padding:12px 48px 12px 12px;
+      color:#000;
+      text-align:center;
+      padding:12px 48px 12px 12px;
       font-weight:900;
       position:fixed; top:0; left:0; width:100%;
       z-index:9999;
@@ -35,7 +37,6 @@
     }
     body.has-alert{ padding-top:52px; }
 
-    /* bouton fermer */
     #alert-close{
       position:absolute;
       right:10px;
@@ -50,6 +51,7 @@
       cursor:pointer;
     }
 
+    /* ✅ HEADER NON STICKY */
     header{
       padding: 18px 12px;
       text-align:center;
@@ -58,6 +60,7 @@
       position: relative;
       z-index: 1;
     }
+
     .logo-img{ width:58px; height:58px; border-radius:50%; border:2px solid var(--gold); margin-bottom:8px; }
     h1{
       font-family:'Playfair Display',serif;
@@ -117,6 +120,7 @@
     }
 
     .card-body{ padding: 12px; }
+
     .shift-header{
       color: var(--gold);
       font-size: 0.78rem;
@@ -129,6 +133,16 @@
       background: rgba(212,175,55,0.05);
       text-transform: uppercase;
       letter-spacing: .8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .shift-time{
+      opacity:.78;
+      font-weight:900;
+      letter-spacing:.4px;
     }
 
     .staff-row{
@@ -226,15 +240,17 @@
     const SHEET_ID = "1aKrmu7Hdf1tb4_0QFCGC6VYjUVlRKeDJYLYs9qIM6Aw";
     const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
 
+    /* ✅ Par défaut si E/F vides */
+    const DEFAULT_H_MATIN = "09:00 - 16:00";
+    const DEFAULT_H_SOIR  = "16:00 - Fin service";
+
     function showAlert(msg){
       const box = document.getElementById("alert-box");
       const textEl = document.getElementById("alert-text");
       if(!box || !textEl) return;
-
       textEl.textContent = msg;
       box.style.display = "block";
       document.body.classList.add("has-alert");
-      // ✅ PLUS DE setTimeout => ne disparaît plus
     }
 
     function hideAlert(){
@@ -280,10 +296,7 @@
       const hasDayNum = new RegExp(`\\b${todayInfo.day}\\b`).test(s);
       if(!hasDayNum) return false;
 
-      const hasWeekday = s.includes(todayInfo.weekday);
-      const hasMonth   = s.includes(todayInfo.month);
-
-      return hasWeekday || hasMonth;
+      return s.includes(todayInfo.weekday) || s.includes(todayInfo.month);
     }
 
     function splitCsvLine(line){
@@ -312,6 +325,11 @@
       return String(raw).substring(0,4).toUpperCase();
     }
 
+    function pickTime(raw, fallback){
+      const t = String(raw ?? "").trim();
+      return (t && t !== "-") ? t : fallback;
+    }
+
     async function init(){
       const loadingEl = document.getElementById("loading");
       try{
@@ -338,12 +356,13 @@
 
         /* ✅ BANNIÈRE FIXE = D2 */
         let bannerD2 = "";
-        if (rows.length >= 2) {
-          const colsRow2 = splitCsvLine(rows[1]);
+        if(rows.length >= 2){
+          const colsRow2 = splitCsvLine(rows[1]); // header=rows[0], ligne2=rows[1]
           bannerD2 = String(colsRow2[3] ?? "").trim();
         }
-        if (bannerD2 && bannerD2 !== "-") showAlert(bannerD2);
+        if(bannerD2 && bannerD2 !== "-") showAlert(bannerD2);
 
+        /* ✅ Lecture: A,B,C,D,E,F  (E=horaire matin, F=horaire soir) */
         const all = [];
         for(let i=1;i<rows.length;i++){
           const cols = splitCsvLine(rows[i]);
@@ -351,7 +370,10 @@
             all.push({
               date: cols[0],
               matin: cols[1] ?? "",
-              soir:  cols[2] ?? ""
+              soir:  cols[2] ?? "",
+              msg:   cols[3] ?? "",
+              hMatin: cols[4] ?? "",  // colonne E
+              hSoir:  cols[5] ?? ""   // colonne F
             });
           }
         }
@@ -364,7 +386,6 @@
           data = all.slice(startIndex);
           hasToday = true;
         }else{
-          // info seulement si pas déjà de bannière
           if(!bannerD2) showAlert("Aujourd'hui non trouvé dans la feuille (format date différent).");
         }
 
@@ -389,6 +410,10 @@
 
       container.innerHTML = data.map((j, idx) => {
         const isToday = hasToday && idx === 0;
+
+        const hMatin = pickTime(j.hMatin, DEFAULT_H_MATIN);
+        const hSoir  = pickTime(j.hSoir,  DEFAULT_H_SOIR); // ✅ 16:00 - Fin service (si vide)
+
         return `
           <div class="day-card ${isToday ? 'is-today' : ''}" ${isToday ? 'id="today-card"' : ''}>
             <div class="card-header">
@@ -396,9 +421,13 @@
               ${isToday ? `<div class="today-badge">AUJOURD'HUI</div>` : ``}
             </div>
             <div class="card-body">
-              <div class="shift-header">MATIN</div>
+              <div class="shift-header">
+                MATIN <span class="shift-time">(${escapeHtml(hMatin)})</span>
+              </div>
               ${parseStaff(j.matin)}
-              <div class="shift-header" style="margin-top:16px;">SOIR</div>
+              <div class="shift-header" style="margin-top:16px;">
+                SOIR <span class="shift-time">(${escapeHtml(hSoir)})</span>
+              </div>
               ${parseStaff(j.soir)}
             </div>
           </div>
