@@ -23,26 +23,41 @@
       -webkit-overflow-scrolling: touch;
     }
 
+    /* ✅ BANNIÈRE FIXE (TOUJOURS VISIBLE) */
     #alert-box{
       display:none;
       background: linear-gradient(to right, #d4af37, #f1c40f);
-      color:#000; text-align:center; padding:12px; font-weight:900;
-      position:fixed; top:0; left:0; width:100%; z-index:9999;
+      color:#000; text-align:center; padding:12px 48px 12px 12px;
+      font-weight:900;
+      position:fixed; top:0; left:0; width:100%;
+      z-index:9999;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.35);
     }
-    body.has-alert{ padding-top:45px; }
+    body.has-alert{ padding-top:52px; }
 
-    /* ✅ HEADER NON STICKY */
+    /* bouton fermer */
+    #alert-close{
+      position:absolute;
+      right:10px;
+      top:50%;
+      transform: translateY(-50%);
+      border:none;
+      background: rgba(0,0,0,0.18);
+      color:#000;
+      font-weight:900;
+      width:30px; height:30px;
+      border-radius: 999px;
+      cursor:pointer;
+    }
+
     header{
       padding: 18px 12px;
       text-align:center;
       border-bottom: 1px solid rgba(212,175,55,0.35);
       background: rgba(0,0,0,0.18);
       position: relative;
-      top: auto;
       z-index: 1;
-      backdrop-filter: none;
     }
-
     .logo-img{ width:58px; height:58px; border-radius:50%; border:2px solid var(--gold); margin-bottom:8px; }
     h1{
       font-family:'Playfair Display',serif;
@@ -72,7 +87,7 @@
       border-radius: 14px;
       border: 1px solid rgba(212,175,55,0.18);
       overflow:hidden;
-      scroll-margin-top: 0; /* header non sticky */
+      scroll-margin-top: 0;
     }
     .card-header{
       background: rgba(255,255,255,0.03);
@@ -186,7 +201,11 @@
 </head>
 
 <body>
-  <div id="alert-box"></div>
+  <div id="alert-box">
+    <span id="alert-text"></span>
+    <button id="alert-close" type="button" onclick="hideAlert()">✕</button>
+  </div>
+
   <button class="fab-btn" onclick="downloadPlanning()">📸</button>
 
   <div id="capture-zone">
@@ -209,14 +228,20 @@
 
     function showAlert(msg){
       const box = document.getElementById("alert-box");
-      if(!box) return;
-      box.textContent = msg;
+      const textEl = document.getElementById("alert-text");
+      if(!box || !textEl) return;
+
+      textEl.textContent = msg;
       box.style.display = "block";
       document.body.classList.add("has-alert");
-      setTimeout(() => {
-        box.style.display = "none";
-        document.body.classList.remove("has-alert");
-      }, 4200);
+      // ✅ PLUS DE setTimeout => ne disparaît plus
+    }
+
+    function hideAlert(){
+      const box = document.getElementById("alert-box");
+      if(!box) return;
+      box.style.display = "none";
+      document.body.classList.remove("has-alert");
     }
 
     function escapeHtml(str){
@@ -311,15 +336,14 @@
 
         const todayInfo = getTodayInfo();
 
-        /* ✅ BANNIÈRE FIXE = D2 (ligne 2, colonne D) */
+        /* ✅ BANNIÈRE FIXE = D2 */
         let bannerD2 = "";
         if (rows.length >= 2) {
-          const colsRow2 = splitCsvLine(rows[1]);     // rows[0]=header, rows[1]=ligne 2
-          bannerD2 = String(colsRow2[3] ?? "").trim(); // colonne D
+          const colsRow2 = splitCsvLine(rows[1]);
+          bannerD2 = String(colsRow2[3] ?? "").trim();
         }
         if (bannerD2 && bannerD2 !== "-") showAlert(bannerD2);
 
-        // ✅ Lecture A,B,C,D (D = msg stocké, au cas où tu veux l'utiliser plus tard)
         const all = [];
         for(let i=1;i<rows.length;i++){
           const cols = splitCsvLine(rows[i]);
@@ -327,8 +351,7 @@
             all.push({
               date: cols[0],
               matin: cols[1] ?? "",
-              soir:  cols[2] ?? "",
-              msg:   cols[3] ?? ""
+              soir:  cols[2] ?? ""
             });
           }
         }
@@ -341,7 +364,8 @@
           data = all.slice(startIndex);
           hasToday = true;
         }else{
-          showAlert("Aujourd'hui non trouvé dans la feuille (format date différent).");
+          // info seulement si pas déjà de bannière
+          if(!bannerD2) showAlert("Aujourd'hui non trouvé dans la feuille (format date différent).");
         }
 
         render(data, hasToday);
@@ -384,9 +408,7 @@
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           const el = document.getElementById("today-card");
-          if(el){
-            el.scrollIntoView({ behavior:"smooth", block:"start" });
-          }
+          if(el) el.scrollIntoView({ behavior:"smooth", block:"start" });
         });
       });
     }
