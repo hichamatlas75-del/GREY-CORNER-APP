@@ -35,13 +35,18 @@
             <h1>PLANNING BAR</h1>
             <a href="index.html" class="back-btn" data-html2canvas-ignore="true">⬅ Retour Menu</a>
         </header>
-        <div class="container" id="planning-container"><div id="loading" style="text-align:center; padding:50px; color:var(--gold);">Chargement...</div></div>
+        <div class="container" id="planning-container"><div id="loading" style="text-align:center; padding:50px; color:var(--gold);">Chargement du bar...</div></div>
     </div>
 
     <script>
-        // Utilisation de l'export CSV forcé pour éviter l'erreur Visualization Query
         const SHEET_ID = "1mfwB4zNHS79YsNH4vTMUGOdWeQwC3htMgPtDWsrMbWg"; 
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+
+        // Fonction pour extraire le numéro du jour (ex: "Lundi 15" -> 15)
+        function getDayNumber(dateStr) {
+            const match = dateStr.match(/\d+/);
+            return match ? parseInt(match[0]) : null;
+        }
 
         async function init() {
             try {
@@ -49,22 +54,31 @@
                 const text = await response.text();
                 const rows = text.split('\n').map(r => r.trim()).filter(r => r);
                 const data = [];
+                
+                const now = new Date();
+                const currentDayNum = now.getDate();
+
                 for (let i = 1; i < rows.length; i++) {
-                    const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
+                    const cols = rows[i].split(/,(?=(?:(?:[^\"*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
                     if (cols.length >= 3 && cols[0] !== "") {
-                        data.push({ date: cols[0], matin: cols[1], soir: cols[2] });
+                        const rowDayNum = getDayNumber(cols[0]);
+
+                        // MASQUAGE DES JOURS PASSÉS
+                        if (rowDayNum !== null && rowDayNum < currentDayNum) continue;
+
+                        data.push({ date: cols[0], matin: cols[1], soir: cols[2], dayNum: rowDayNum });
                     }
                 }
-                render(data);
+                render(data, currentDayNum);
             } catch (e) { document.getElementById('loading').innerText = "Erreur de chargement"; }
         }
 
-        function render(data) {
+        function render(data, currentDayNum) {
             const container = document.getElementById('planning-container');
             container.innerHTML = '';
-            const dayNum = new Date().getDate().toString();
+            
             data.forEach(j => {
-                const isToday = j.date.includes(dayNum) && dayNum !== "";
+                const isToday = j.dayNum === currentDayNum;
                 container.innerHTML += `
                     <div class="day-card ${isToday ? 'is-today' : ''}">
                         <div class="card-header">
@@ -80,7 +94,12 @@
                     </div>`;
             });
             document.getElementById('loading').style.display = 'none';
-            if(document.querySelector('.is-today')) setTimeout(() => document.querySelector('.is-today').scrollIntoView({behavior:'smooth', block:'center'}), 500);
+
+            // SCROLL AUTOMATIQUE VERS AUJOURD'HUI
+            setTimeout(() => {
+                const active = document.querySelector('.is-today');
+                if(active) active.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 600);
         }
 
         function parseStaff(t) {
