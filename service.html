@@ -26,7 +26,7 @@
     #alert-box{
       display:none;
       background: linear-gradient(to right, #d4af37, #f1c40f);
-      color:#000; text-align:center; padding:12px; font-weight:800;
+      color:#000; text-align:center; padding:12px; font-weight:900;
       position:fixed; top:0; left:0; width:100%; z-index:9999;
     }
     body.has-alert{ padding-top:45px; }
@@ -70,7 +70,7 @@
       border-radius: 14px;
       border: 1px solid rgba(212,175,55,0.18);
       overflow:hidden;
-      scroll-margin-top: 96px; /* important pour scroll sous header sticky */
+      scroll-margin-top: 96px; /* pour scroll sous header sticky */
     }
     .card-header{
       background: rgba(255,255,255,0.03);
@@ -103,7 +103,7 @@
     .shift-header{
       color: var(--gold);
       font-size: 0.78rem;
-      font-weight: 800;
+      font-weight: 900;
       text-align:center;
       padding: 8px;
       border: 1px solid rgba(212,175,55,0.20);
@@ -113,30 +113,59 @@
       text-transform: uppercase;
       letter-spacing: .8px;
     }
+
     .staff-row{
       display:flex;
       margin-bottom: 8px;
       border-radius: 12px;
       overflow:hidden;
       border:1px solid rgba(255,255,255,0.06);
-      min-height: 44px; /* cible tactile */
+      min-height: 44px;
     }
+
+    /* zone poste: contient un carré */
     .poste-badge{
-      background: var(--gold);
-      color:#000;
       width: 36%;
-      padding: 10px 8px;
-      font-size: 0.68rem;
-      font-weight: 900;
-      text-align:center;
-      display:flex; align-items:center; justify-content:center;
+      background: transparent;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 6px;
     }
+
+    .poste-square{
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 900;
+      font-size: 0.70rem;
+      letter-spacing: .5px;
+      color:#000;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
+      user-select: none;
+    }
+
+    /* Couleurs postes */
+    .p-loge{ background:#f1c40f; }
+    .p-ter1{ background:#2ecc71; }
+    .p-ter2{ background:#27ae60; }
+    .p-sala1{ background:#3498db; color:#fff; }
+    .p-sala2{ background:#2980b9; color:#fff; }
+    .p-bar{ background:#e67e22; }
+    .p-caisse{ background:#9b59b6; color:#fff; }
+    .p-runner{ background:#1abc9c; }
+    .p-accueil{ background:#e84393; color:#fff; }
+    .p-default{ background:#bdc3c7; }
+
     .staff-name{
       background: rgba(255,255,255,0.08);
       color:#fff;
       width: 64%;
       padding: 10px 8px;
-      font-weight: 800;
+      font-weight: 900;
       text-align:center;
       text-transform: uppercase;
       font-size: 0.88rem;
@@ -184,7 +213,7 @@
     </header>
 
     <div class="container" id="planning-container">
-      <div id="loading" style="text-align:center; padding:34px 10px; color:var(--gold); font-weight:800;">
+      <div id="loading" style="text-align:center; padding:34px 10px; color:var(--gold); font-weight:900;">
         Mise à jour du service...
       </div>
     </div>
@@ -218,7 +247,7 @@
     function normalize(str){
       return String(str ?? "")
         .toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g,"")  // enlève accents
+        .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
         .replace(/\s+/g," ")
         .trim();
     }
@@ -227,12 +256,15 @@
       return /<html[\s>]/i.test(text) || /<!doctype html/i.test(text);
     }
 
-    // Cette détection marche même si ta colonne date n'a PAS le mois.
-    // On cherche une ligne qui contient:
-    // - le numéro du jour (ex: "15")
-    // ET au moins un des 2:
-    // - le nom du jour (ex: "lundi")
-    // - le nom du mois (ex: "mars")
+    function getTodayInfo(){
+      const now = new Date();
+      const day = now.getDate();
+      const weekday = normalize(new Intl.DateTimeFormat("fr-FR", { weekday: "long" }).format(now));
+      const month   = normalize(new Intl.DateTimeFormat("fr-FR", { month: "long" }).format(now));
+      return { day, weekday, month };
+    }
+
+    // détecte la première ligne qui correspond à aujourd'hui
     function rowLooksLikeToday(label, todayInfo){
       const s = normalize(label);
       if(!s) return false;
@@ -246,21 +278,35 @@
       return hasWeekday || hasMonth;
     }
 
-    function getTodayInfo(){
-      const now = new Date();
-      const day = now.getDate();
-
-      const weekday = normalize(new Intl.DateTimeFormat("fr-FR", { weekday: "long" }).format(now));
-      const month   = normalize(new Intl.DateTimeFormat("fr-FR", { month: "long" }).format(now));
-
-      return { day, weekday, month };
-    }
-
     function splitCsvLine(line){
-      // virgules hors guillemets
       return line
         .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
         .map(c => c.replace(/^"|"$/g,"").trim());
+    }
+
+    // --- Postes -> carré (classe + label)
+    function normalizePoste(p){
+      return String(p||"")
+        .toLowerCase()
+        .replace(/\s+/g,"")
+        .normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+    }
+
+    function getPosteInfo(raw){
+      const p = normalizePoste(raw);
+
+      if(p.includes("loge")) return {cls:"p-loge", label:"LOGE"};
+      if(p.includes("ter1")) return {cls:"p-ter1", label:"TER1"};
+      if(p.includes("ter2")) return {cls:"p-ter2", label:"TER2"};
+      if(p.includes("sala1") || p === "sala") return {cls:"p-sala1", label:"S1"};
+      if(p.includes("sala2")) return {cls:"p-sala2", label:"S2"};
+      if(p.includes("bar")) return {cls:"p-bar", label:"BAR"};
+      if(p.includes("caisse")) return {cls:"p-caisse", label:"CAI"};
+      if(p.includes("run")) return {cls:"p-runner", label:"RUN"};
+      if(p.includes("acc")) return {cls:"p-accueil", label:"ACC"};
+
+      const fallback = String(raw||"").trim().substring(0,4).toUpperCase() || "SERV";
+      return {cls:"p-default", label:fallback};
     }
 
     async function init(){
@@ -287,34 +333,27 @@
 
         const todayInfo = getTodayInfo();
 
-        // On lit toutes les lignes data (on saute l'en-tête)
         const all = [];
         for(let i=1;i<rows.length;i++){
           const cols = splitCsvLine(rows[i]);
           if(cols.length >= 3 && cols[0] !== ""){
-            all.push({
-              date: cols[0],
-              matin: cols[1],
-              soir: cols[2]
-            });
+            all.push({ date: cols[0], matin: cols[1], soir: cols[2] });
           }
         }
 
-        // ✅ MASQUAGE DES JOURS PRÉCÉDENTS (robuste):
-        // On coupe la liste à partir de la première ligne qui ressemble à aujourd'hui.
-        let startIndex = all.findIndex(r => rowLooksLikeToday(r.date, todayInfo));
-        let data;
+        // ✅ MASQUAGE: on affiche à partir de la première ligne "aujourd'hui"
+        const startIndex = all.findIndex(r => rowLooksLikeToday(r.date, todayInfo));
+        let data = all;
+        let hasToday = false;
 
         if(startIndex >= 0){
           data = all.slice(startIndex);
+          hasToday = true;
         }else{
-          // fallback: si pas trouvé (aujourd'hui pas dans la sheet), on n'efface rien
-          // (sinon tu risques de masquer n'importe quoi)
-          data = all;
           showAlert("Aujourd'hui non trouvé dans la feuille (format date différent).");
         }
 
-        render(data, startIndex >= 0);
+        render(data, hasToday);
 
       }catch(e){
         if(loadingEl) loadingEl.innerText = "Erreur de chargement";
@@ -327,16 +366,14 @@
       if(loadingEl) loadingEl.remove();
 
       if(!data.length){
-        container.innerHTML = `<div style="text-align:center; opacity:0.85; padding:28px 10px; color:var(--gold); font-weight:800;">
+        container.innerHTML = `<div style="text-align:center; opacity:0.9; padding:28px 10px; color:var(--gold); font-weight:900;">
           Aucun jour à afficher.
         </div>`;
         return;
       }
 
-      const todayInfo = getTodayInfo();
-
       container.innerHTML = data.map((j, idx) => {
-        const isToday = hasToday && idx === 0; // après slicing, aujourd'hui est la première carte
+        const isToday = hasToday && idx === 0; // après slicing, aujourd'hui = 1ère carte
         return `
           <div class="day-card ${isToday ? 'is-today' : ''}" ${isToday ? 'id="today-card"' : ''}>
             <div class="card-header">
@@ -353,9 +390,7 @@
         `;
       }).join("");
 
-      // ✅ SCROLL FIABLE:
-      // - attend layout
-      // - scroll vers #today-card si existe, sinon reste en haut
+      // ✅ SCROLL fiable vers aujourd'hui
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           const el = document.getElementById("today-card");
@@ -369,20 +404,25 @@
 
     function parseStaff(t){
       if(!t || t === "-" || t.trim() === ""){
-        return `<div style="text-align:center; opacity:0.35; font-size:0.85rem; padding:10px; font-weight:800;">REPOS</div>`;
+        return `<div style="text-align:center; opacity:0.35; font-size:0.85rem; padding:10px; font-weight:900;">REPOS</div>`;
       }
 
-      // séparateur personnes = virgule (change en ';' si besoin)
       return t.split(",").map(s => {
         let n = s.trim(), p = "SERVICE";
+
         if(s.includes(":")){
           const parts = s.split(":");
           p = (parts[0] || "").trim();
           n = (parts.slice(1).join(":") || "").trim();
         }
+
+        const poste = getPosteInfo(p);
+
         return `
           <div class="staff-row">
-            <div class="poste-badge">${escapeHtml(p)}</div>
+            <div class="poste-badge">
+              <div class="poste-square ${poste.cls}">${escapeHtml(poste.label)}</div>
+            </div>
             <div class="staff-name">${escapeHtml(n)}</div>
           </div>
         `;
