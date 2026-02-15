@@ -19,13 +19,33 @@
       overflow-x:hidden; -webkit-overflow-scrolling: touch;
     }
 
+    /* ✅ BANNIÈRE FIXE (TOUJOURS VISIBLE) */
     #alert-box{
       display:none;
       background: linear-gradient(to right, #d4af37, #f1c40f);
-      color:#000; text-align:center; padding:12px; font-weight:800;
-      position:fixed; top:0; left:0; width:100%; z-index:9999;
+      color:#000;
+      text-align:center;
+      padding:12px 48px 12px 12px;
+      font-weight:900;
+      position:fixed; top:0; left:0; width:100%;
+      z-index:9999;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.35);
     }
-    body.has-alert{ padding-top:45px; }
+    body.has-alert{ padding-top:52px; }
+
+    #alert-close{
+      position:absolute;
+      right:10px;
+      top:50%;
+      transform: translateY(-50%);
+      border:none;
+      background: rgba(0,0,0,0.18);
+      color:#000;
+      font-weight:900;
+      width:30px; height:30px;
+      border-radius: 999px;
+      cursor:pointer;
+    }
 
     header{
       padding:40px 15px; text-align:center; border-bottom:2px solid var(--gold);
@@ -39,7 +59,7 @@
     .day-card{
       background:var(--card-bg); margin-bottom:25px; border-radius:15px;
       border:1px solid rgba(212,175,55,0.2); overflow:hidden;
-      scroll-margin-top: 20px;
+      scroll-margin-top: 0; /* bannière fixe */
     }
 
     .card-header{ background: rgba(255,255,255,0.03); padding:15px; text-align:center; border-bottom:1px solid rgba(212,175,55,0.1); }
@@ -73,7 +93,11 @@
 </head>
 
 <body>
-  <div id="alert-box"></div>
+  <div id="alert-box">
+    <span id="alert-text"></span>
+    <button id="alert-close" type="button" onclick="hideAlert()">✕</button>
+  </div>
+
   <button class="fab-btn" onclick="downloadPlanning()">📸</button>
 
   <div id="capture-zone">
@@ -93,14 +117,19 @@
 
     function showAlert(msg){
       const box = document.getElementById("alert-box");
-      if(!box) return;
-      box.textContent = msg;
+      const textEl = document.getElementById("alert-text");
+      if(!box || !textEl) return;
+      textEl.textContent = msg;
       box.style.display = "block";
       document.body.classList.add("has-alert");
-      setTimeout(() => {
-        box.style.display = "none";
-        document.body.classList.remove("has-alert");
-      }, 5200);
+      /* ✅ pas de setTimeout => ne disparaît pas */
+    }
+
+    function hideAlert(){
+      const box = document.getElementById("alert-box");
+      if(!box) return;
+      box.style.display = "none";
+      document.body.classList.remove("has-alert");
     }
 
     function escapeHtml(str){
@@ -146,7 +175,6 @@
       return s.includes(todayInfo.weekday) || s.includes(todayInfo.month);
     }
 
-    // Poste nettoyé (cohérent avec Service)
     function cleanPoste(raw){
       if(!raw) return "";
       const p = String(raw).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
@@ -185,34 +213,29 @@
           return;
         }
 
-        // ✅ Lecture A,B,C,D (D = bannière du jour)
+        const todayInfo = getTodayInfo();
+
+        /* ✅ MÊME LOGIQUE QUE SERVICE : BANNIÈRE FIXE = D2 */
+        let bannerD2 = "";
+        if (rows.length >= 2) {
+          const colsRow2 = splitCsvLine(rows[1]);      // rows[0]=header, rows[1]=ligne 2
+          bannerD2 = String(colsRow2[3] ?? "").trim(); // colonne D
+        }
+        if (bannerD2 && bannerD2 !== "-") showAlert(bannerD2);
+
         const all = [];
         for(let i=1;i<rows.length;i++){
           const cols = splitCsvLine(rows[i]);
           if(cols.length >= 3 && cols[0]){
-            all.push({
-              date: cols[0],
-              matin: cols[1] ?? "",
-              soir:  cols[2] ?? "",
-              msg:   cols[3] ?? ""   // colonne D
-            });
+            all.push({ date: cols[0], matin: cols[1] ?? "", soir: cols[2] ?? "" });
           }
         }
 
-        const todayInfo = getTodayInfo();
-
-        // Masquage robuste : afficher à partir de la ligne "aujourd'hui"
         const startIndex = all.findIndex(r => rowLooksLikeToday(r.date, todayInfo));
         const hasToday = startIndex >= 0;
         const data = hasToday ? all.slice(startIndex) : all;
 
-        // ✅ Bannière : colonne D de la ligne "aujourd'hui"
-        if(hasToday){
-          const banner = String(all[startIndex].msg ?? "").trim();
-          if(banner && banner !== "-"){
-            showAlert(banner);
-          }
-        }else{
+        if(!hasToday && !bannerD2){
           showAlert("Aujourd'hui non trouvé (format date différent).");
         }
 
@@ -260,9 +283,6 @@
       });
     }
 
-    // ✅ Supporte:
-    // - POSTE: NOM
-    // - NOM (POSTE)
     function parseStaff(text){
       if(!text || text === '-' || text.trim() === ''){
         return '<div style="text-align:center; opacity:0.3; font-size:0.8rem; padding:10px;">REPOS</div>';
@@ -273,19 +293,14 @@
         let nom = "";
         let poste = "BAR";
 
-        // FORMAT 1 : POSTE: NOM
         if(s.includes(':')){
           const p = s.split(':');
           poste = cleanPoste((p[0] || '').trim()) || "BAR";
           nom = (p.slice(1).join(':') || '').trim();
-        }
-        // FORMAT 2 : NOM (POSTE)
-        else if(s.includes('(') && s.includes(')')){
+        }else if(s.includes('(') && s.includes(')')){
           nom = s.substring(0, s.indexOf('(')).trim();
           poste = cleanPoste(s.substring(s.indexOf('(')+1, s.lastIndexOf(')'))) || "BAR";
-        }
-        // FORMAT 3 : NOM seul
-        else{
+        }else{
           nom = s.trim();
           poste = "BAR";
         }
