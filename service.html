@@ -1,143 +1,305 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Planning Service - Grey Corner</title>
-    <link rel="icon" type="image/jpeg" href="LOGO.jpg">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Planning Service - Grey Corner</title>
+  <link rel="icon" type="image/jpeg" href="LOGO.jpg" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    <style>
-        :root { --gold: #D4AF37; --night: #0B0E14; --card-bg: #1A1F26; }
-        body { 
-            font-family: 'Roboto', sans-serif; 
-            background: radial-gradient(circle at top, #1a2a6c 0%, var(--night) 100%);
-            background-attachment: fixed; margin: 0; color: white; padding-bottom: 80px; 
-        }
-        
-        #alert-box { 
-            display: none; background: linear-gradient(to right, #d4af37, #f1c40f); 
-            color: #000; text-align: center; padding: 12px; font-weight: 800; 
-            position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; 
-        }
-        body.has-alert { padding-top: 45px; }
+  <style>
+    :root { --gold:#D4AF37; --night:#0B0E14; --card-bg:#1A1F26; }
+    body{
+      font-family:'Roboto',sans-serif;
+      background: radial-gradient(circle at top,#1a2a6c 0%, var(--night) 100%);
+      background-attachment: fixed;
+      margin:0; color:#fff; padding-bottom:80px;
+    }
 
-        header { 
-            padding: 40px 15px; text-align: center; border-bottom: 2px solid var(--gold);
-            position: relative; background: rgba(0,0,0,0.2);
-        }
-        .logo-img { width: 85px; height: 85px; border-radius: 50%; border: 2px solid var(--gold); margin-bottom: 10px; }
-        h1 { font-family: 'Playfair Display', serif; margin: 0; font-size: 1.5rem; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; }
+    #alert-box{
+      display:none;
+      background: linear-gradient(to right, #d4af37, #f1c40f);
+      color:#000; text-align:center; padding:12px; font-weight:800;
+      position:fixed; top:0; left:0; width:100%; z-index:9999;
+    }
+    body.has-alert{ padding-top:45px; }
 
-        .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 20px 15px; }
-        .day-card { background: var(--card-bg); margin-bottom: 25px; border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.2); overflow: hidden; }
-        .card-header { background: rgba(255,255,255,0.03); padding: 15px; text-align: center; border-bottom: 1px solid rgba(212, 175, 55, 0.1); }
-        .day-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--gold); display: block; }
-        .today-badge { background: var(--gold); color: black; font-size: 0.7rem; font-weight: 900; padding: 4px 12px; border-radius: 4px; margin-top: 8px; display: inline-block; }
-        .is-today { border: 2px solid var(--gold); box-shadow: 0 5px 20px rgba(212, 175, 55, 0.2); }
+    header{
+      padding:40px 15px; text-align:center; border-bottom:2px solid var(--gold);
+      position:relative; background: rgba(0,0,0,0.2);
+    }
+    .logo-img{ width:85px; height:85px; border-radius:50%; border:2px solid var(--gold); margin-bottom:10px; }
+    h1{
+      font-family:'Playfair Display',serif;
+      margin:0; font-size:1.5rem; color:var(--gold);
+      letter-spacing:2px; text-transform:uppercase;
+    }
 
-        .card-body { padding: 15px; }
-        .shift-header { color: var(--gold); font-size: 0.8rem; font-weight: bold; text-align: center; padding: 8px; border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 5px; margin-bottom: 10px; background: rgba(212, 175, 55, 0.05); text-transform: uppercase; }
-        .staff-row { display: flex; margin-bottom: 8px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
-        .poste-badge { background: var(--gold); color: black; width: 35%; padding: 10px; font-size: 0.65rem; font-weight: 900; text-align: center; display: flex; align-items: center; justify-content: center; }
-        .staff-name { background: rgba(255,255,255,0.08); color: white; width: 65%; padding: 10px; font-weight: bold; text-align: center; text-transform: uppercase; font-size: 0.9rem; }
+    .container{ width:100%; max-width:500px; margin:0 auto; padding:20px 15px; }
+    .day-card{
+      background:var(--card-bg); margin-bottom:25px; border-radius:15px;
+      border:1px solid rgba(212,175,55,0.2); overflow:hidden;
+    }
+    .card-header{
+      background:rgba(255,255,255,0.03); padding:15px; text-align:center;
+      border-bottom:1px solid rgba(212,175,55,0.1);
+    }
+    .day-name{ font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--gold); display:block; }
+    .today-badge{
+      background:var(--gold); color:#000; font-size:0.7rem; font-weight:900;
+      padding:4px 12px; border-radius:4px; margin-top:8px; display:inline-block;
+    }
+    .is-today{ border:2px solid var(--gold); box-shadow:0 5px 20px rgba(212,175,55,0.2); }
 
-        .fab-btn { position: fixed; bottom: 20px; right: 20px; background: var(--gold); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 20px rgba(0,0,0,0.5); font-size: 24px; cursor: pointer; z-index: 100; border: none; }
-        .back-btn { display: inline-block; margin-top: 15px; color: var(--gold); text-decoration: none; font-size: 0.8rem; border: 1px solid var(--gold); padding: 8px 15px; border-radius: 20px; }
-    </style>
+    .card-body{ padding:15px; }
+    .shift-header{
+      color:var(--gold); font-size:0.8rem; font-weight:bold; text-align:center;
+      padding:8px; border:1px solid rgba(212,175,55,0.2); border-radius:5px;
+      margin-bottom:10px; background:rgba(212,175,55,0.05); text-transform:uppercase;
+    }
+    .staff-row{
+      display:flex; margin-bottom:8px; border-radius:8px; overflow:hidden;
+      border:1px solid rgba(255,255,255,0.05);
+    }
+    .poste-badge{
+      background:var(--gold); color:#000; width:35%; padding:10px; font-size:0.65rem;
+      font-weight:900; text-align:center; display:flex; align-items:center; justify-content:center;
+    }
+    .staff-name{
+      background:rgba(255,255,255,0.08); color:#fff; width:65%; padding:10px; font-weight:bold;
+      text-align:center; text-transform:uppercase; font-size:0.9rem;
+    }
+
+    .fab-btn{
+      position:fixed; bottom:20px; right:20px; background:var(--gold);
+      width:60px; height:60px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 5px 20px rgba(0,0,0,0.5);
+      font-size:24px; cursor:pointer; z-index:100; border:none;
+    }
+    .back-btn{
+      display:inline-block; margin-top:15px; color:var(--gold); text-decoration:none;
+      font-size:0.8rem; border:1px solid var(--gold); padding:8px 15px; border-radius:20px;
+    }
+  </style>
 </head>
+
 <body>
-    <div id="alert-box"></div>
-    <button class="fab-btn" onclick="downloadPlanning()">📸</button>
-    <div id="capture-zone">
-        <header>
-            <img src="LOGO.jpg" class="logo-img" onerror="this.src='https://via.placeholder.com/90?text=GC'">
-            <h1>PLANNING SERVICE</h1>
-            <a href="index.html" class="back-btn" data-html2canvas-ignore="true">⬅ Retour Menu</a>
-        </header>
-        <div class="container" id="planning-container"><div id="loading" style="text-align:center; padding:50px; color:var(--gold);">Mise à jour du service...</div></div>
+  <div id="alert-box"></div>
+
+  <button class="fab-btn" onclick="downloadPlanning()">📸</button>
+
+  <div id="capture-zone">
+    <header>
+      <img src="LOGO.jpg" class="logo-img" onerror="this.src='https://via.placeholder.com/90?text=GC'" />
+      <h1>PLANNING SERVICE</h1>
+      <a href="index.html" class="back-btn" data-html2canvas-ignore="true">⬅ Retour Menu</a>
+    </header>
+
+    <div class="container" id="planning-container">
+      <div id="loading" style="text-align:center; padding:50px; color:var(--gold);">Mise à jour du service...</div>
     </div>
+  </div>
 
-    <script>
-        const SHEET_ID = "1aKrmu7Hdf1tb4_0QFCGC6VYjUVlRKeDJYLYs9qIM6Aw"; 
-        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+  <script>
+    const SHEET_ID = "1aKrmu7Hdf1tb4_0QFCGC6VYjUVlRKeDJYLYs9qIM6Aw";
+    const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
 
-        // Fonction pour extraire le numéro du jour d'une chaîne (ex: "Lundi 15 Mars" -> 15)
-        function getDayNumber(dateStr) {
-            const match = dateStr.match(/\d+/);
-            return match ? parseInt(match[0]) : null;
+    // Mois FR -> index JS
+    const MONTHS_FR = {
+      janvier:0, fevrier:1, février:1, mars:2, avril:3, mai:4, juin:5,
+      juillet:6, aout:7, août:7, septembre:8, octobre:9, novembre:10, decembre:11, décembre:11
+    };
+
+    function showAlert(msg){
+      const box = document.getElementById("alert-box");
+      if(!box) return;
+      box.textContent = msg;
+      box.style.display = "block";
+      document.body.classList.add("has-alert");
+      setTimeout(() => {
+        box.style.display = "none";
+        document.body.classList.remove("has-alert");
+      }, 4200);
+    }
+
+    function escapeHtml(str){
+      return String(str ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // Ex: "Lundi 15 Mars" -> Date(année courante, mars, 15)
+    // Retourne null si impossible à parser.
+    function parseFrenchDateLabel(label){
+      if(!label) return null;
+      const s = label.toLowerCase().replace(/\s+/g," ").trim();
+
+      const dayMatch = s.match(/\b(\d{1,2})\b/);
+      if(!dayMatch) return null;
+      const day = parseInt(dayMatch[1],10);
+
+      const monthKey = Object.keys(MONTHS_FR).find(m => s.includes(m));
+      if(!monthKey) return null;
+
+      const month = MONTHS_FR[monthKey];
+
+      // Année: si ton planning traverse l'année, ajuste (solution parfaite = colonne ISO dans la sheet)
+      const year = new Date().getFullYear();
+
+      const d = new Date(year, month, day);
+      if(Number.isNaN(d.getTime())) return null;
+      return d;
+    }
+
+    function isHtml(text){
+      return /<html[\s>]/i.test(text) || /<!doctype html/i.test(text);
+    }
+
+    async function init(){
+      const loadingEl = document.getElementById("loading");
+      try{
+        const resp = await fetch(SHEET_URL, { cache:"no-store" });
+        const text = await resp.text();
+
+        if(isHtml(text)){
+          if(loadingEl) loadingEl.innerText = "Accès refusé : la feuille n'est pas publique.";
+          showAlert("Vérifie le partage Google Sheet (publique ou 'toute personne avec le lien').");
+          return;
         }
 
-        async function init() {
-            try {
-                const response = await fetch(SHEET_URL);
-                const text = await response.text();
-                const rows = text.split('\n').map(r => r.trim()).filter(r => r);
-                const data = [];
+        const rows = text
+          .split(/\r?\n/)
+          .map(r => r.replace(/\r/g,"").trim())
+          .filter(r => r.length);
 
-                const now = new Date();
-                const currentDayNum = now.getDate();
-
-                for (let i = 1; i < rows.length; i++) {
-                    const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
-                    if (cols.length >= 3 && cols[0] !== "") {
-                        const rowDayNum = getDayNumber(cols[0]);
-                        
-                        // MASQUAGE DES JOURS PRÉCÉDENTS (on garde à partir d'aujourd'hui)
-                        if (rowDayNum !== null && rowDayNum < currentDayNum) continue;
-
-                        data.push({ date: cols[0], matin: cols[1], soir: cols[2], dayNum: rowDayNum });
-                    }
-                }
-                render(data, currentDayNum);
-            } catch (e) { document.getElementById('loading').innerText = "Erreur de chargement"; }
+        if(rows.length <= 1){
+          if(loadingEl) loadingEl.innerText = "Aucune donnée trouvée.";
+          return;
         }
 
-        function render(data, currentDayNum) {
-            const container = document.getElementById('planning-container');
-            container.innerHTML = '';
-            
-            data.forEach(j => {
-                const isToday = j.dayNum === currentDayNum;
-                container.innerHTML += `
-                    <div class="day-card ${isToday ? 'is-today' : ''}">
-                        <div class="card-header">
-                            <span class="day-name">${j.date}</span>
-                            ${isToday ? '<div class="today-badge">AUJOURD\'HUI</div>' : ''}
-                        </div>
-                        <div class="card-body">
-                            <div class="shift-header">MATIN</div>
-                            ${parseStaff(j.matin)}
-                            <div class="shift-header" style="margin-top:20px;">SOIR</div>
-                            ${parseStaff(j.soir)}
-                        </div>
-                    </div>`;
-            });
-            document.getElementById('loading').style.display = 'none';
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-            // SCROLL AUTOMATIQUE
-            setTimeout(() => {
-                const active = document.querySelector('.is-today');
-                if(active) active.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 600);
+        const data = [];
+
+        for(let i=1;i<rows.length;i++){
+          const cols = rows[i]
+            .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/) // virgules hors guillemets
+            .map(c => c.replace(/^"|"$/g,"").trim());
+
+          if(cols.length >= 3 && cols[0] !== ""){
+            const rowDate = parseFrenchDateLabel(cols[0]); // null si non parsable
+
+            // Enlève les jours précédents (fiable seulement si rowDate parsable)
+            if(rowDate && rowDate < today) continue;
+
+            data.push({ date: cols[0], matin: cols[1], soir: cols[2], rowDate });
+          }
         }
 
-        function parseStaff(t) {
-            if (!t || t === '-' || t === '') return '<div style="text-align:center; opacity:0.3; font-size:0.8rem; padding:10px;">REPOS</div>';
-            return t.split(',').map(s => {
-                let n = s.trim(), p = "SERVICE";
-                if (s.includes(':')) { let parts = s.split(':'); p = parts[0].trim(); n = parts[1].trim(); }
-                return `<div class="staff-row"><div class="poste-badge">${p}</div><div class="staff-name">${n}</div></div>`;
-            }).join('');
-        }
+        render(data, today);
 
-        function downloadPlanning() {
-            html2canvas(document.getElementById("capture-zone"), { scale: 2, backgroundColor: "#0B0E14" }).then(canvas => {
-                const link = document.createElement('a'); link.download = 'Planning-Service.png'; link.href = canvas.toDataURL(); link.click();
-            });
+      }catch(e){
+        if(loadingEl) loadingEl.innerText = "Erreur de chargement";
+      }
+    }
+
+    function render(data, today){
+      const container = document.getElementById("planning-container");
+      const loadingEl = document.getElementById("loading");
+      if(loadingEl) loadingEl.remove();
+
+      if(!data.length){
+        container.innerHTML = `<div style="text-align:center; opacity:0.8; padding:30px; color:var(--gold);">
+          Aucun jour à afficher (ou dates non reconnues).
+        </div>`;
+        return;
+      }
+
+      const todayTime = today.getTime();
+
+      container.innerHTML = data.map(j => {
+        const isToday = j.rowDate ? (j.rowDate.getTime() === todayTime) : false;
+
+        return `
+          <div class="day-card ${isToday ? 'is-today' : ''}" ${isToday ? 'id="today-card"' : ''}>
+            <div class="card-header">
+              <span class="day-name">${escapeHtml(j.date)}</span>
+              ${isToday ? `<div class="today-badge">AUJOURD'HUI</div>` : ``}
+            </div>
+            <div class="card-body">
+              <div class="shift-header">MATIN</div>
+              ${parseStaff(j.matin)}
+              <div class="shift-header" style="margin-top:20px;">SOIR</div>
+              ${parseStaff(j.soir)}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // Scroll fiable vers aujourd'hui :
+      // - attend 2 frames pour être sûr que le layout est calculé
+      // - offset header via block:'start' + petit scroll
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const active = document.getElementById("today-card") || document.querySelector(".is-today");
+
+          if(active){
+            active.scrollIntoView({ behavior:"smooth", block:"start" });
+            // petit offset pour laisser respirer sous le header
+            setTimeout(() => window.scrollBy({ top: -15, left: 0, behavior: "smooth" }), 250);
+          } else {
+            // Si aucune carte "today" trouvée, on reste en haut
+            // (souvent causé par date non parsée ou today absent de la sheet)
+          }
+        });
+      });
+    }
+
+    function parseStaff(t){
+      if(!t || t === "-" || t.trim() === ""){
+        return `<div style="text-align:center; opacity:0.3; font-size:0.8rem; padding:10px;">REPOS</div>`;
+      }
+
+      // Séparateur personnes = virgule (change en ';' si tu utilises ; dans la sheet)
+      return t.split(",").map(s => {
+        let n = s.trim(), p = "SERVICE";
+        if(s.includes(":")){
+          const parts = s.split(":");
+          p = (parts[0] || "").trim();
+          n = (parts.slice(1).join(":") || "").trim();
         }
-        init();
-    </script>
+        return `
+          <div class="staff-row">
+            <div class="poste-badge">${escapeHtml(p)}</div>
+            <div class="staff-name">${escapeHtml(n)}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function downloadPlanning(){
+      html2canvas(document.getElementById("capture-zone"), {
+        scale: 2,
+        backgroundColor: "#0B0E14",
+        useCORS: true,
+        allowTaint: false
+      }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "Planning-Service.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      }).catch(() => {
+        showAlert("Capture impossible (images externes/CORS).");
+      });
+    }
+
+    init();
+  </script>
 </body>
 </html>
