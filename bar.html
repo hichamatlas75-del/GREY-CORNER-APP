@@ -19,6 +19,7 @@
       overflow-x:hidden; -webkit-overflow-scrolling: touch;
     }
 
+    /* ✅ BANNIÈRE FIXE */
     #alert-box{
       display:none;
       background: linear-gradient(to right, #d4af37, #f1c40f);
@@ -92,8 +93,8 @@
       opacity:.78;
       font-weight:900;
       letter-spacing:.3px;
-      white-space:normal; /* ✅ affiche tout */
-      word-break:break-word;
+      word-break: break-word;
+      white-space: normal;
     }
 
     .staff-row{ display:flex; margin-bottom:8px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.05); }
@@ -134,8 +135,8 @@
   <script>
     const SHEET_URL = "https://docs.google.com/spreadsheets/d/1mfwB4zNHS79YsNH4vTMUGOdWeQwC3htMgPtDWsrMbWg/gviz/tq?tqx=out:csv&gid=294813093";
 
-    const DEFAULT_H_MATIN = "09:00 - 16:00";
-    const DEFAULT_H_SOIR  = "16:00 - Fin service";
+    const DEFAULT_H_MATIN = "06:30 - 14:30";
+    const DEFAULT_H_SOIR  = "14:15 - Fin service";
 
     function showAlert(msg){
       const box = document.getElementById("alert-box");
@@ -173,7 +174,7 @@
         .trim();
     }
 
-    /* ✅ CSV ROBUSTE (évite décalage E/F) */
+    /* ✅ CSV robuste */
     function parseCsvLine(line){
       const out = [];
       let cur = "";
@@ -183,22 +184,15 @@
         const ch = line[i];
 
         if(ch === '"'){
-          // double quote inside quotes => "
-          if(inQuotes && line[i+1] === '"'){
-            cur += '"';
-            i++;
-          }else{
-            inQuotes = !inQuotes;
-          }
+          if(inQuotes && line[i+1] === '"'){ cur += '"'; i++; }
+          else inQuotes = !inQuotes;
           continue;
         }
-
         if(ch === ',' && !inQuotes){
           out.push(cur.trim());
           cur = "";
           continue;
         }
-
         cur += ch;
       }
       out.push(cur.trim());
@@ -208,17 +202,32 @@
     function getTodayInfo(){
       const now = new Date();
       const day = now.getDate();
-      const weekday = normalize(new Intl.DateTimeFormat("fr-FR", { weekday:"long" }).format(now));
-      const month   = normalize(new Intl.DateTimeFormat("fr-FR", { month:"long" }).format(now));
-      return { day, weekday, month };
+      const month = normalize(new Intl.DateTimeFormat("fr-FR", { month:"long" }).format(now));
+      return { day, month };
     }
 
+    /* ✅ Corrigé: accepte "févr." / "sept." etc */
     function rowLooksLikeToday(label, todayInfo){
-      const s = normalize(label);
-      if(!s) return false;
-      const hasDayNum = new RegExp(`\\b${todayInfo.day}\\b`).test(s);
-      if(!hasDayNum) return false;
-      return s.includes(todayInfo.weekday) || s.includes(todayInfo.month);
+      if(!label) return false;
+
+      const dayMatch = String(label).match(/\b(\d{1,2})\b/);
+      if(!dayMatch) return false;
+      const day = parseInt(dayMatch[1], 10);
+      if(day !== todayInfo.day) return false;
+
+      const s = normalize(label)
+        .replace("janv","janvier")
+        .replace("fevr","fevrier")
+        .replace("févr","fevrier")
+        .replace("avr","avril")
+        .replace("juil","juillet")
+        .replace("sept","septembre")
+        .replace("oct","octobre")
+        .replace("nov","novembre")
+        .replace("dec","decembre")
+        .replace("déc","decembre");
+
+      return s.includes(todayInfo.month);
     }
 
     function cleanPoste(raw){
@@ -237,6 +246,7 @@
       if(p.includes("run")) return "RUN";
       if(p.includes("acc")) return "ACC";
       if(p.includes("deb")) return "DEB";
+
       return String(raw).substring(0,4).toUpperCase();
     }
 
@@ -269,16 +279,16 @@
         let bannerD2 = "";
         if(rows.length >= 2){
           const colsRow2 = parseCsvLine(rows[1]);
-          while(colsRow2.length < 6) colsRow2.push(""); // ✅ padding
+          while(colsRow2.length < 6) colsRow2.push("");
           bannerD2 = String(colsRow2[3] ?? "").trim();
         }
         if(bannerD2 && bannerD2 !== "-") showAlert(bannerD2);
 
-        /* ✅ Lecture A,B,C,D,E,F (padding pour garantir E/F) */
+        /* ✅ Lecture A,B,C,D,E,F */
         const all = [];
         for(let i=1;i<rows.length;i++){
           const cols = parseCsvLine(rows[i]);
-          while(cols.length < 6) cols.push(""); // ✅ très important
+          while(cols.length < 6) cols.push("");
 
           if((cols[0] ?? "").trim()){
             all.push({
@@ -292,6 +302,7 @@
           }
         }
 
+        /* ✅ Start à partir d'aujourd'hui */
         const startIndex = all.findIndex(r => rowLooksLikeToday(r.date, todayInfo));
         const hasToday = startIndex >= 0;
         const data = hasToday ? all.slice(startIndex) : all;
