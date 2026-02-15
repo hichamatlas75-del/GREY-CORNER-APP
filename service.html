@@ -9,18 +9,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        :root { 
-            --gold: #D4AF37;
-            --night: #0B0E14;
-            --card-bg: #1A1F26;
-        }
-
+        :root { --gold: #D4AF37; --night: #0B0E14; --card-bg: #1A1F26; }
         body { 
             font-family: 'Roboto', sans-serif; 
             background: radial-gradient(circle at top, #1a2a6c 0%, var(--night) 100%);
-            background-attachment: fixed;
-            margin: 0; padding: 0; color: white;
-            padding-bottom: 80px; 
+            background-attachment: fixed; margin: 0; color: white; padding-bottom: 80px; 
         }
         
         #alert-box { 
@@ -32,161 +25,118 @@
 
         header { 
             padding: 40px 15px; text-align: center; border-bottom: 2px solid var(--gold);
-            position: relative; overflow: hidden;
-            background: rgba(0,0,0,0.2);
+            position: relative; background: rgba(0,0,0,0.2);
         }
-        header::before { content: '🌙'; position: absolute; left: 15px; top: 15px; font-size: 1.5rem; opacity: 0.3; }
-        header::after { content: '✨'; position: absolute; right: 15px; bottom: 15px; font-size: 1.2rem; opacity: 0.3; }
-
         .logo-img { width: 85px; height: 85px; border-radius: 50%; border: 2px solid var(--gold); margin-bottom: 10px; }
         h1 { font-family: 'Playfair Display', serif; margin: 0; font-size: 1.5rem; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; }
 
         .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 20px 15px; }
-        
-        .day-card { 
-            background: var(--card-bg); margin-bottom: 25px; border-radius: 15px; 
-            border: 1px solid rgba(212, 175, 55, 0.2); overflow: hidden;
-        }
-
+        .day-card { background: var(--card-bg); margin-bottom: 25px; border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.2); overflow: hidden; }
         .card-header { background: rgba(255,255,255,0.03); padding: 15px; text-align: center; border-bottom: 1px solid rgba(212, 175, 55, 0.1); }
-        .day-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--gold); display: block; text-transform: capitalize; }
-
-        .today-badge {
-            background: var(--gold); color: black; font-size: 0.7rem; font-weight: 900;
-            padding: 4px 12px; border-radius: 4px; margin-top: 8px; display: inline-block;
-        }
-
+        .day-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--gold); display: block; }
+        .today-badge { background: var(--gold); color: black; font-size: 0.7rem; font-weight: 900; padding: 4px 12px; border-radius: 4px; margin-top: 8px; display: inline-block; }
         .is-today { border: 2px solid var(--gold); box-shadow: 0 5px 20px rgba(212, 175, 55, 0.2); }
 
         .card-body { padding: 15px; }
-        .shift-header { 
-            color: var(--gold); font-size: 0.8rem; font-weight: bold; text-align: center;
-            padding: 8px; border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 5px; margin-bottom: 10px;
-            background: rgba(212, 175, 55, 0.05); text-transform: uppercase;
-        }
-
+        .shift-header { color: var(--gold); font-size: 0.8rem; font-weight: bold; text-align: center; padding: 8px; border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 5px; margin-bottom: 10px; background: rgba(212, 175, 55, 0.05); text-transform: uppercase; }
         .staff-row { display: flex; margin-bottom: 8px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
         .poste-badge { background: var(--gold); color: black; width: 35%; padding: 10px; font-size: 0.65rem; font-weight: 900; text-align: center; display: flex; align-items: center; justify-content: center; }
         .staff-name { background: rgba(255,255,255,0.08); color: white; width: 65%; padding: 10px; font-weight: bold; text-align: center; text-transform: uppercase; font-size: 0.9rem; }
 
-        .fab-btn {
-            position: fixed; bottom: 20px; right: 20px; background: var(--gold);
-            width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5); font-size: 24px; cursor: pointer; z-index: 100; border: none;
-        }
-        
+        .fab-btn { position: fixed; bottom: 20px; right: 20px; background: var(--gold); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 20px rgba(0,0,0,0.5); font-size: 24px; cursor: pointer; z-index: 100; border: none; }
         .back-btn { display: inline-block; margin-top: 15px; color: var(--gold); text-decoration: none; font-size: 0.8rem; border: 1px solid var(--gold); padding: 8px 15px; border-radius: 20px; }
-        #loading { text-align: center; padding: 50px; color: var(--gold); font-family: 'Playfair Display', serif; }
     </style>
 </head>
 <body>
-    
     <div id="alert-box"></div>
     <button class="fab-btn" onclick="downloadPlanning()">📸</button>
-
     <div id="capture-zone">
         <header>
             <img src="LOGO.jpg" class="logo-img" onerror="this.src='https://via.placeholder.com/90?text=GC'">
             <h1>PLANNING SERVICE</h1>
             <a href="index.html" class="back-btn" data-html2canvas-ignore="true">⬅ Retour Menu</a>
         </header>
-
-        <div class="container" id="planning-container">
-            <div id="loading">Consultation du planning service...</div>
-        </div>
+        <div class="container" id="planning-container"><div id="loading" style="text-align:center; padding:50px; color:var(--gold);">Mise à jour du service...</div></div>
     </div>
 
     <script>
-        // ID SHEET SERVICE
         const SHEET_ID = "1aKrmu7Hdf1tb4_0QFCGC6VYjUVlRKeDJYLYs9qIM6Aw"; 
-        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+
+        // Fonction pour extraire le numéro du jour d'une chaîne (ex: "Lundi 15 Mars" -> 15)
+        function getDayNumber(dateStr) {
+            const match = dateStr.match(/\d+/);
+            return match ? parseInt(match[0]) : null;
+        }
 
         async function init() {
             try {
                 const response = await fetch(SHEET_URL);
                 const text = await response.text();
                 const rows = text.split('\n').map(r => r.trim()).filter(r => r);
-                
-                // Message d'alerte (Ligne 2, Colonne 4)
-                if(rows.length > 1) {
-                    const row2 = rows[1].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if(row2.length >= 4) {
-                        let msg = row2[3].replace(/^"|"$/g, '').trim();
-                        if(msg) {
-                            const box = document.getElementById('alert-box');
-                            box.innerHTML = "💬 " + msg;
-                            box.style.display = 'block';
-                            document.body.classList.add('has-alert');
-                        }
-                    }
-                }
-
                 const data = [];
+
+                const now = new Date();
+                const currentDayNum = now.getDate();
+
                 for (let i = 1; i < rows.length; i++) {
                     const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
                     if (cols.length >= 3 && cols[0] !== "") {
-                        data.push({ date: cols[0], matin: cols[1], soir: cols[2] });
+                        const rowDayNum = getDayNumber(cols[0]);
+                        
+                        // MASQUAGE DES JOURS PRÉCÉDENTS (on garde à partir d'aujourd'hui)
+                        if (rowDayNum !== null && rowDayNum < currentDayNum) continue;
+
+                        data.push({ date: cols[0], matin: cols[1], soir: cols[2], dayNum: rowDayNum });
                     }
                 }
-                renderPlanning(data);
-            } catch (e) { 
-                document.getElementById('loading').innerText = "Erreur de connexion au Sheet"; 
-            }
+                render(data, currentDayNum);
+            } catch (e) { document.getElementById('loading').innerText = "Erreur de chargement"; }
         }
 
-        function renderPlanning(data) {
+        function render(data, currentDayNum) {
             const container = document.getElementById('planning-container');
             container.innerHTML = '';
             
-            const now = new Date();
-            const todayNum = now.getDate().toString();
-
-            data.forEach((jour) => {
-                // Détection du jour J simplifiée
-                const isToday = jour.date.includes(todayNum) && todayNum !== "";
-
+            data.forEach(j => {
+                const isToday = j.dayNum === currentDayNum;
                 container.innerHTML += `
                     <div class="day-card ${isToday ? 'is-today' : ''}">
                         <div class="card-header">
-                            <span class="day-name">${jour.date}</span>
+                            <span class="day-name">${j.date}</span>
                             ${isToday ? '<div class="today-badge">AUJOURD\'HUI</div>' : ''}
                         </div>
                         <div class="card-body">
                             <div class="shift-header">MATIN</div>
-                            ${parseStaff(jour.matin)}
+                            ${parseStaff(j.matin)}
                             <div class="shift-header" style="margin-top:20px;">SOIR</div>
-                            ${parseStaff(jour.soir)}
+                            ${parseStaff(j.soir)}
                         </div>
                     </div>`;
             });
-
             document.getElementById('loading').style.display = 'none';
 
-            // Scroll auto vers aujourd'hui
+            // SCROLL AUTOMATIQUE
             setTimeout(() => {
                 const active = document.querySelector('.is-today');
                 if(active) active.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 500);
+            }, 600);
         }
 
-        function parseStaff(text) {
-            if (!text || text === '-' || text === '') return '<div style="text-align:center; opacity:0.3; font-size:0.8rem; padding:10px;">REPOS</div>';
-            return text.split(',').map(s => {
-                let nom = s.trim(), poste = "SERVICE";
-                if (s.includes(':')) { let p = s.split(':'); poste = p[0].trim(); nom = p[1].trim(); }
-                return `<div class="staff-row"><div class="poste-badge">${poste}</div><div class="staff-name">${nom}</div></div>`;
+        function parseStaff(t) {
+            if (!t || t === '-' || t === '') return '<div style="text-align:center; opacity:0.3; font-size:0.8rem; padding:10px;">REPOS</div>';
+            return t.split(',').map(s => {
+                let n = s.trim(), p = "SERVICE";
+                if (s.includes(':')) { let parts = s.split(':'); p = parts[0].trim(); n = parts[1].trim(); }
+                return `<div class="staff-row"><div class="poste-badge">${p}</div><div class="staff-name">${n}</div></div>`;
             }).join('');
         }
 
         function downloadPlanning() {
             html2canvas(document.getElementById("capture-zone"), { scale: 2, backgroundColor: "#0B0E14" }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = 'Planning-Service.png';
-                link.href = canvas.toDataURL();
-                link.click();
+                const link = document.createElement('a'); link.download = 'Planning-Service.png'; link.href = canvas.toDataURL(); link.click();
             });
         }
-
         init();
     </script>
 </body>
