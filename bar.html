@@ -3,114 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Planning Bar - Ramadan</title>
+    <title>Planning Bar - Ramadan Grey Corner</title>
     <link rel="icon" type="image/jpeg" href="LOGO.jpg">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         :root { 
             --gold: #D4AF37;
-            --deep-blue: #0B0E14;
+            --night: #0B0E14;
             --card-bg: #1A1F26;
         }
 
         body { 
             font-family: 'Roboto', sans-serif; 
-            background-color: var(--deep-blue); /* Fond Noir/Bleu Nuit */
-            background-image: radial-gradient(circle at 50% 50%, #1a2a6c 0%, #0B0E14 100%);
+            background: radial-gradient(circle at top, #1a2a6c 0%, var(--night) 100%);
+            background-attachment: fixed;
             margin: 0; padding: 0; color: white;
             padding-bottom: 80px; 
         }
         
-        /* HEADER STYLE RAMADAN */
+        #alert-box { 
+            display: none; background: linear-gradient(to right, #d4af37, #f1c40f); 
+            color: #000; text-align: center; padding: 15px; font-weight: 800; 
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        body.has-alert { padding-top: 50px; }
+
         header { 
-            background: linear-gradient(135deg, #0B0E14, #1a2a6c);
-            padding: 30px 15px; 
-            text-align: center; 
-            border-bottom: 2px solid var(--gold);
-            position: relative;
+            padding: 40px 15px; text-align: center; border-bottom: 2px solid var(--gold);
+            position: relative; overflow: hidden;
         }
+        header::before { content: '🌙'; position: absolute; left: 15px; top: 15px; font-size: 1.5rem; opacity: 0.5; }
+        header::after { content: '✨'; position: absolute; right: 15px; bottom: 15px; font-size: 1.2rem; opacity: 0.5; }
 
-        header::before { content: '🌙'; position: absolute; left: 20px; top: 20px; font-size: 2rem; opacity: 0.6; }
-        header::after { content: '⭐'; position: absolute; right: 20px; top: 20px; font-size: 1.5rem; opacity: 0.6; }
+        .logo-img { width: 90px; height: 90px; border-radius: 50%; border: 2px solid var(--gold); margin-bottom: 10px; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        h1 { font-family: 'Playfair Display', serif; margin: 0; font-size: 1.6rem; color: var(--gold); letter-spacing: 2px; }
 
-        .logo-img { width: 85px; height: 85px; border-radius: 50%; border: 2px solid var(--gold); margin-bottom: 10px; }
+        .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 20px 15px; }
         
-        h1 { 
-            font-family: 'Cinzel', serif; /* Police orientale/luxe */
-            margin: 0; font-size: 1.4rem; color: var(--gold); letter-spacing: 3px; 
-        }
-
-        .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 15px; }
-        
-        /* CARDS */
         .day-card { 
-            background: var(--card-bg); 
-            margin-bottom: 20px; 
-            border-radius: 15px; 
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            background: var(--card-bg); margin-bottom: 25px; border-radius: 15px; 
+            border: 1px solid rgba(212, 175, 55, 0.2); overflow: hidden;
+            transition: transform 0.3s ease;
         }
 
-        .card-header { 
-            background-color: var(--theme-header); 
-            padding: 15px; text-align: center; border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-        }
-        
-        .day-name { font-family: 'Cinzel', serif; font-size: 1.5rem; color: var(--gold); display: block; }
-        .day-date { font-size: 0.8rem; color: #ccc; text-transform: uppercase; }
+        .card-header { background: rgba(255,255,255,0.03); padding: 15px; text-align: center; border-bottom: 1px solid rgba(212, 175, 55, 0.1); }
+        .day-name { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--gold); display: block; text-transform: capitalize; }
+        .day-date { font-size: 0.85rem; color: #aaa; }
 
         .today-badge {
-            background: var(--gold); color: black; font-size: 0.7rem; font-weight: bold;
-            padding: 4px 10px; border-radius: 4px; margin-top: 8px; display: inline-block;
+            background: var(--gold); color: black; font-size: 0.7rem; font-weight: 900;
+            padding: 5px 12px; border-radius: 4px; margin-top: 10px; display: inline-block;
+            animation: pulse 2s infinite;
         }
-        
+        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
+
+        .is-today { border: 2px solid var(--gold); transform: scale(1.02); box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+
         .card-body { padding: 15px; }
-        
         .shift-header { 
-            background: rgba(255,255,255,0.05); color: var(--gold); 
-            padding: 8px; border-radius: 5px; margin-bottom: 10px;
-            font-size: 0.85rem; font-weight: bold; text-align: center;
-            border-left: 3px solid var(--gold);
+            color: var(--gold); font-size: 0.8rem; font-weight: bold; text-align: center;
+            padding: 8px; border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 5px; margin-bottom: 10px;
+            background: rgba(212, 175, 55, 0.05);
         }
-        
-        .staff-row { 
-            display: flex; margin-bottom: 8px; border-radius: 5px; overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .poste-badge { 
-            background: var(--gold); color: black; font-weight: bold;
-            width: 35%; padding: 8px; font-size: 0.7rem; text-align: center;
-        }
-        
-        .staff-name { background: rgba(255,255,255,0.1); color: white; width: 65%; padding: 8px; font-weight: bold; text-align: center; }
+
+        .staff-row { display: flex; margin-bottom: 8px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+        .poste-badge { background: var(--gold); color: black; width: 35%; padding: 10px; font-size: 0.7rem; font-weight: 900; text-align: center; display: flex; align-items: center; justify-content: center; }
+        .staff-name { background: rgba(255,255,255,0.08); color: white; width: 65%; padding: 10px; font-weight: bold; text-align: center; }
 
         .fab-btn {
             position: fixed; bottom: 20px; right: 20px; background: var(--gold);
-            width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 24px; cursor: pointer; z-index: 100;
+            width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5); font-size: 24px; cursor: pointer; z-index: 100; border: none;
         }
-
-        #alert-box { display: none; background: #e74c3c; color: white; padding: 12px; text-align: center; font-weight: bold; }
+        
+        .back-btn { display: inline-block; margin-top: 15px; color: var(--gold); text-decoration: none; font-size: 0.8rem; border: 1px solid var(--gold); padding: 8px 15px; border-radius: 20px; }
     </style>
 </head>
 <body>
     
     <div id="alert-box"></div>
-    <div class="fab-btn" onclick="downloadPlanning()">📸</div>
+    <button class="fab-btn" onclick="downloadPlanning()">📸</button>
 
     <div id="capture-zone">
         <header>
-            <img src="LOGO.jpg" class="logo-img">
-            <h1>PLANNING RAMADAN</h1>
-            <div style="color: #ccc; font-size: 0.8rem; margin-top: 5px;">GREY CORNER FÈS</div>
+            <img src="LOGO.jpg" class="logo-img" onerror="this.src='https://via.placeholder.com/90?text=GC'">
+            <h1>RAMADAN KAREEM</h1>
+            <a href="index.html" class="back-btn" data-html2canvas-ignore="true">⬅ Retour Menu</a>
         </header>
 
         <div class="container" id="planning-container">
-            <div id="loading" style="text-align: center; padding: 50px;">Chargement...</div>
+            <div id="loading" style="text-align: center; padding: 50px;">Ouverture du grimoire...</div>
         </div>
     </div>
 
@@ -118,27 +103,54 @@
         const SHEET_ID = "1mfwB4zNHS79YsNH4vTMUGOdWeQwC3htMgPtDWsrMbWg";
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 
-        // Couleurs Ramadan : Bleu nuit, Or, Emeraude, Bordeaux
-        const PALETTES = [
-            { header: '#16213e', badge: '#D4AF37' },
-            { header: '#1a1a2e', badge: '#D4AF37' }
-        ];
-
         async function init() {
             try {
                 const response = await fetch(SHEET_URL);
                 const text = await response.text();
+                const lines = text.split('\n');
+
+                // Gestion de l'ALERTE (Message en colonne 4 de la ligne 2)
+                if(lines.length > 1) {
+                    const row2 = lines[1].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    if(row2.length >= 4) {
+                        let message = row2[3].replace(/^"|"$/g, '').trim();
+                        if(message) { 
+                            const alertBox = document.getElementById('alert-box');
+                            alertBox.innerHTML = "🌙 " + message; 
+                            alertBox.style.display = 'block';
+                            document.body.classList.add('has-alert');
+                        }
+                    }
+                }
+
                 document.getElementById('loading').style.display = 'none';
                 renderPlanning(parseCSV(text));
-            } catch (e) { document.getElementById('loading').innerText = "Erreur Sheet"; }
+            } catch (e) { document.getElementById('loading').innerText = "Erreur de connexion"; }
+        }
+
+        function parseDateFr(dateStr) {
+            if(!dateStr) return null;
+            let cleanStr = dateStr.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\./g, "").trim();
+            const jours = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
+            jours.forEach(j => cleanStr = cleanStr.replace(j, ""));
+            let dayMatch = cleanStr.match(/(\d+)/);
+            if (!dayMatch) return null;
+            let day = parseInt(dayMatch[0]);
+            let month = -1;
+            const monthsShort = ['jan', 'fev', 'mar', 'avr', 'mai', 'jui', 'jul', 'aou', 'sep', 'oct', 'nov', 'dec'];
+            for (let i = 0; i < monthsShort.length; i++) { if (cleanStr.includes(monthsShort[i])) { month = i; break; } }
+            if (month === -1) return null;
+            let now = new Date();
+            return new Date(now.getFullYear(), month, day);
         }
 
         function parseCSV(text) {
             const rows = text.split('\n').map(r => r.trim()).filter(r => r);
             const result = [];
-            for (let i = 1; i < rows.length; i++) {
+            for (let i = 0; i < rows.length; i++) {
                 const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
-                if (cols.length >= 3 && cols[0]) result.push({ date: cols[0], matin: cols[1], soir: cols[2] });
+                if (cols.length < 3 || cols[0].toUpperCase().includes("DATE")) continue;
+                result.push({ date: cols[0], matin: cols[1], soir: cols[2] });
             }
             return result;
         }
@@ -146,43 +158,66 @@
         function renderPlanning(data) {
             const container = document.getElementById('planning-container');
             container.innerHTML = '';
+            
             const now = new Date();
-            const jourNum = now.getDate();
+            const jourSemaine = now.toLocaleDateString('fr-FR', { weekday: 'long' }).toLowerCase();
+            const jourNumero = now.getDate();
+            
+            // FILTRE : MASQUER JOURS PRECEDENTS (Garde à partir d'hier)
+            const cutoffDate = new Date(); 
+            cutoffDate.setDate(now.getDate() - 1); 
+            cutoffDate.setHours(0,0,0,0);
 
-            data.forEach((jour, index) => {
-                const theme = PALETTES[index % PALETTES.length];
-                let isToday = jour.date.includes(jourNum) ? 'is-today' : '';
-                let badge = isToday ? '<div class="today-badge">SAHA FTOURKOUM</div>' : '';
+            data.forEach((jour) => {
+                let jourDateObj = parseDateFr(jour.date);
+                if (jourDateObj && jourDateObj < cutoffDate) return; // Ignore les vieux jours
+
+                let isToday = jour.date.toLowerCase().includes(jourSemaine) && jour.date.includes(jourNumero);
+                let isTodayClass = isToday ? 'is-today' : '';
+                let badge = isToday ? '<div class="today-badge">AUJOURD\'HUI - SAHA FTOURKOUM</div>' : '';
+
+                let splitDate = jour.date.split(' ');
 
                 container.innerHTML += `
-                    <div class="day-card ${isToday}">
-                        <div class="card-header" style="--theme-header: ${theme.header}">
-                            <span class="day-name">${jour.date.split(' ')[0]}</span>
-                            <span class="day-date">${jour.date.split(' ').slice(1).join(' ')}</span>
+                    <div class="day-card ${isTodayClass}">
+                        <div class="card-header">
+                            <span class="day-name">${splitDate[0]}</span>
+                            <span class="day-date">${splitDate.slice(1).join(' ')}</span>
                             ${badge}
                         </div>
                         <div class="card-body">
-                            <div class="shift-header">MATIN (S'HOUR)</div>
-                            ${parseStaff(jour.matin)}
-                            <div class="shift-header" style="margin-top:15px;">SOIR (FTOUR)</div>
-                            ${parseStaff(jour.soir)}
+                            <div class="shift-header">S'HOUR / MATIN</div>
+                            <div class="staff-list">${parseStaff(jour.matin)}</div>
+                            <div class="shift-header" style="margin-top:20px;">FTOUR / SOIR</div>
+                            <div class="staff-list">${parseStaff(jour.soir)}</div>
                         </div>
                     </div>`;
             });
+
+            // SCROLL AUTO AU JOUR J
+            setTimeout(() => { 
+                const t = document.querySelector('.is-today'); 
+                if(t) t.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+            }, 800);
         }
 
         function parseStaff(text) {
-            if (!text || text === '-') return '<div style="text-align:center; opacity:0.5; font-size:0.8rem;">Repos</div>';
-            return text.split(',').map(s => {
-                let [p, n] = s.includes(':') ? s.split(':') : ["BAR", s];
-                return `<div class="staff-row"><div class="poste-badge">${p.trim()}</div><div class="staff-name">${n.trim()}</div></div>`;
+            if (!text || text === '-' || text === '') return '<div style="text-align:center; opacity:0.4; font-size:0.8rem; padding:10px;">Repos</div>';
+            return text.split(',').map(entry => {
+                let nom = entry.trim(), poste = "BAR";
+                if (entry.includes(':')) {
+                    let parts = entry.split(':');
+                    poste = parts[0].trim();
+                    nom = parts[1].trim();
+                }
+                return `<div class="staff-row"><div class="poste-badge">${poste}</div><div class="staff-name">${nom}</div></div>`;
             }).join('');
         }
 
         function downloadPlanning() {
-            html2canvas(document.getElementById("capture-zone"), {scale: 2, backgroundColor: "#0B0E14"}).then(canvas => {
+            html2canvas(document.getElementById("capture-zone"), { scale: 2, backgroundColor: "#0B0E14" }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'planning-ramadan.png';
+                link.download = 'Planning-Ramadan.png';
                 link.href = canvas.toDataURL();
                 link.click();
             });
