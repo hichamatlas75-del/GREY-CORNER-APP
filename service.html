@@ -2,11 +2,9 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Planning Service - Ramadan</title>
+    <title>Planning Service - Grey Corner</title>
     <link rel="icon" type="image/jpeg" href="LOGO.jpg">
-    <meta name="theme-color" content="#0B0E14">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -29,7 +27,6 @@
             display: none; background: linear-gradient(to right, #d4af37, #f1c40f); 
             color: #000; text-align: center; padding: 15px; font-weight: 800; 
             position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
         body.has-alert { padding-top: 50px; }
 
@@ -41,7 +38,7 @@
         header::before { content: '🌙'; position: absolute; left: 15px; top: 15px; font-size: 1.5rem; opacity: 0.5; }
         header::after { content: '✨'; position: absolute; right: 15px; bottom: 15px; font-size: 1.2rem; opacity: 0.5; }
 
-        .logo-img { width: 90px; height: 90px; border-radius: 50%; border: 2px solid var(--gold); margin-bottom: 10px; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        .logo-img { width: 90px; height: 90px; border-radius: 50%; border: 2px solid var(--gold); margin-bottom: 10px; }
         h1 { font-family: 'Playfair Display', serif; margin: 0; font-size: 1.6rem; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; }
 
         .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 20px 15px; }
@@ -59,9 +56,7 @@
         .today-badge {
             background: var(--gold); color: black; font-size: 0.7rem; font-weight: 900;
             padding: 5px 12px; border-radius: 4px; margin-top: 10px; display: inline-block;
-            animation: pulse 2s infinite;
         }
-        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
 
         .is-today { border: 2px solid var(--gold); transform: scale(1.02); box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
 
@@ -82,10 +77,7 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.5); font-size: 24px; cursor: pointer; z-index: 100; border: none;
         }
         
-        .back-btn { display: inline-block; margin-top: 15px; color: var(--gold); text-decoration: none; font-size: 0.8rem; border: 1px solid var(--gold); padding: 8px 15px; border-radius: 20px; transition: 0.3s; }
-        .back-btn:hover { background: var(--gold); color: black; }
-        
-        #loading { text-align: center; padding: 50px; color: var(--gold); }
+        .back-btn { display: inline-block; margin-top: 15px; color: var(--gold); text-decoration: none; font-size: 0.8rem; border: 1px solid var(--gold); padding: 8px 15px; border-radius: 20px; }
     </style>
 </head>
 <body>
@@ -97,23 +89,18 @@
         <header>
             <img src="LOGO.jpg" class="logo-img" onerror="this.src='https://via.placeholder.com/90?text=GC'">
             <h1>PLANNING SERVICE</h1>
-            <div style="color: #ccc; font-size: 0.8rem; margin-top: 5px; letter-spacing: 2px;">RAMADAN KAREEM</div>
             <a href="index.html" class="back-btn" data-html2canvas-ignore="true">⬅ Retour Menu</a>
         </header>
 
         <div class="container" id="planning-container">
-            <div id="loading">✨ Préparation du planning... ✨</div>
-        </div>
-
-        <div style="text-align: center; color: rgba(255,255,255,0.3); font-size: 0.65rem; padding-bottom: 20px;">
-            GREY CORNER FÈS - SERVICE
+            <div id="loading" style="text-align:center; padding:50px; color:var(--gold);">Chargement des données Service...</div>
         </div>
     </div>
 
     <script>
-        // ID SHEET SERVICE
-        const SHEET_ID = "1aKrmu7Hdf1tb4_0QFCGC6VYjUVlRKeDJYLYs9qIM6Aw";
-        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+        // ID SPECIFIQUE AU SERVICE
+        const SHEET_ID = "1aKrmu7Hdf1tb4_0QFCGC6VYjUVlRKeDJYLYs9qIM6Aw"; 
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx:out:csv`;
 
         async function init() {
             try {
@@ -127,13 +114,12 @@
                         let message = row2[3].replace(/^"|"$/g, '').trim();
                         if(message) { 
                             const alertBox = document.getElementById('alert-box');
-                            alertBox.innerHTML = "🌙 " + message; 
+                            alertBox.innerHTML = "💬 " + message; 
                             alertBox.style.display = 'block';
                             document.body.classList.add('has-alert');
                         }
                     }
                 }
-
                 document.getElementById('loading').style.display = 'none';
                 renderPlanning(parseCSV(text));
             } catch (e) { document.getElementById('loading').innerText = "Erreur Sheet"; }
@@ -150,7 +136,6 @@
             let month = -1;
             const monthsShort = ['jan', 'fev', 'mar', 'avr', 'mai', 'jui', 'jul', 'aou', 'sep', 'oct', 'nov', 'dec'];
             for (let i = 0; i < monthsShort.length; i++) { if (cleanStr.includes(monthsShort[i])) { month = i; break; } }
-            if (month === -1) return null;
             return new Date(new Date().getFullYear(), month, day);
         }
 
@@ -172,7 +157,6 @@
             const jourSem = now.toLocaleDateString('fr-FR', { weekday: 'long' }).toLowerCase();
             const jourNum = now.getDate();
             
-            // Masquer les jours passés (affiche à partir d'hier)
             const cutoff = new Date(); cutoff.setDate(now.getDate() - 1); cutoff.setHours(0,0,0,0);
 
             data.forEach((jour) => {
@@ -180,7 +164,7 @@
                 if (jourObj && jourObj < cutoff) return;
 
                 let isToday = jour.date.toLowerCase().includes(jourSem) && jour.date.includes(jourNum);
-                let badge = isToday ? '<div class="today-badge">SAHA FTOURKOUM</div>' : '';
+                let badge = isToday ? '<div class="today-badge">AUJOURD\'HUI</div>' : '';
                 let splitDate = jour.date.split(' ');
 
                 container.innerHTML += `
@@ -191,9 +175,9 @@
                             ${badge}
                         </div>
                         <div class="card-body">
-                            <div class="shift-header">S'hour / Matin</div>
+                            <div class="shift-header">MATIN</div>
                             ${parseStaff(jour.matin)}
-                            <div class="shift-header" style="margin-top:20px;">Ftour / Soir</div>
+                            <div class="shift-header" style="margin-top:20px;">SOIR</div>
                             ${parseStaff(jour.soir)}
                         </div>
                     </div>`;
@@ -217,7 +201,7 @@
         function downloadPlanning() {
             html2canvas(document.getElementById("capture-zone"), { scale: 2, backgroundColor: "#0B0E14" }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'Planning-Service-Ramadan.png';
+                link.download = 'Planning-Service-GreyCorner.png';
                 link.href = canvas.toDataURL();
                 link.click();
             });
