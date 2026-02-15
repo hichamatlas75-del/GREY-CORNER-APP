@@ -378,28 +378,46 @@
     }
 
     function parseStaff(t){
-      if(!t || t === "-" || t.trim() === ""){
-        return `<div style="text-align:center; opacity:0.35; font-size:0.85rem; padding:10px; font-weight:900;">REPOS</div>`;
-      }
+  if(!t || t === "-" || t.trim() === ""){
+    return `<div style="text-align:center; opacity:0.35; font-size:0.85rem; padding:10px; font-weight:900;">REPOS</div>`;
+  }
 
-      return t.split(",").map(s => {
-        let name = s.trim();
-        let poste = "";
+  return t.split(",").map(s => {
 
-        if(s.includes(":")){
-          const parts = s.split(":");
-          poste = cleanPoste(parts[0]);
-          name = parts.slice(1).join(":").trim();
-        }
+    let name = "";
+    let poste = "";
 
-        return `
-          <div class="staff-row">
-            <div class="staff-name">${escapeHtml(name)}</div>
-            <div class="staff-poste">${escapeHtml(poste)}</div>
-          </div>
-        `;
-      }).join("");
+    s = s.trim();
+
+    // FORMAT 1 : POSTE: NOM
+    if(s.includes(":")){
+      const parts = s.split(":");
+      poste = cleanPoste(parts[0]);
+      name = parts.slice(1).join(":").trim();
     }
+
+    // FORMAT 2 : NOM (POSTE)
+    else if(s.includes("(") && s.includes(")")){
+      name = s.substring(0, s.indexOf("(")).trim();
+      poste = cleanPoste(
+        s.substring(s.indexOf("(")+1, s.lastIndexOf(")"))
+      );
+    }
+
+    // FORMAT 3 : NOM seul
+    else{
+      name = s;
+      poste = "";
+    }
+
+    return `
+      <div class="staff-row">
+        <div class="staff-name">${escapeHtml(name)}</div>
+        <div class="staff-poste">${escapeHtml(poste)}</div>
+      </div>
+    `;
+  }).join("");
+}
 
     function downloadPlanning(){
       html2canvas(document.getElementById("capture-zone"), {
