@@ -7,7 +7,8 @@
 
 <style>
 :root{
-  /* ✅ Thème clair & pro */
+  --headerH:82px;
+
   --bg:#f6f7fb;
   --card:#ffffff;
   --text:#0f172a;
@@ -40,19 +41,23 @@ body{
     var(--bg);
 }
 
-/* ===== Header ===== */
+/* HEADER */
 header{
   position:sticky;
   top:0;
   z-index:10;
+  height:var(--headerH);
   background:rgba(255,255,255,.78);
   backdrop-filter: blur(10px);
   border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
 }
 .headerWrap{
+  width:100%;
   max-width:1100px;
-  margin:0 auto;
-  padding:12px 14px;
+  margin:auto;
+  padding:10px 14px;
   display:flex;
   align-items:center;
   gap:12px;
@@ -62,286 +67,137 @@ header img{
   width:auto;
   display:block;
 }
-.titles{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-  min-width:0;
-}
-header h1{
-  margin:0;
-  font-size:16px;
-  letter-spacing:.2px;
-  font-weight:900;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-header p{
-  margin:0;
-  font-size:12px;
-  color:var(--muted);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.actions{
-  margin-left:auto;
-  display:flex;
-  gap:8px;
-  align-items:center;
-}
+.titles{ display:flex; flex-direction:column; }
+header h1{ margin:0; font-size:16px; font-weight:900; }
+header p{ margin:0; font-size:12px; color:var(--muted); }
+
+.actions{ margin-left:auto; display:flex; gap:8px; }
+
 .pillBtn{
   border:1px solid var(--line);
   background:#fff;
-  color:var(--text);
   border-radius:999px;
   padding:8px 10px;
   font-size:12px;
   font-weight:800;
-  box-shadow: var(--shadow2);
   cursor:pointer;
 }
-.pillBtn:hover{ filter:brightness(.98); }
 .pillBtn.primary{
   border-color: rgba(37,99,235,.25);
   background: linear-gradient(180deg, #ffffff, var(--accent-soft));
 }
-.pillBtn:active{ transform: translateY(1px); }
 
-/* ===== Layout ===== */
+/* LAYOUT */
 .container{
   max-width:1100px;
-  margin:0 auto;
-  padding:14px;
+  margin:auto;
+  padding:10px;
 }
-
-/* Barre infos */
-.infoBar{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  align-items:center;
-  margin:10px 0 14px;
-}
-.infoChip{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:10px 12px;
-  border-radius:999px;
-  background:#fff;
-  border:1px solid var(--line);
-  box-shadow: var(--shadow2);
-  font-size:12px;
-  color:var(--muted);
-}
-.dot{
-  width:9px; height:9px; border-radius:99px;
-  background:var(--accent);
-}
-.dot.off{ background:var(--off); }
-.dot.today{ background:var(--ok); }
 
 #planning{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap:14px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
 }
 
-/* ===== Carte jour ===== */
+/* CARTE JOUR */
 .day{
   background:var(--card);
   border:1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+
+  /* hauteur exacte écran mobile */
+  min-height: calc(100dvh - var(--headerH) - 20px);
+
+  display:flex;
+  flex-direction:column;
   overflow:hidden;
-  scroll-margin-top:120px;
-
-  /* ✅ PLUS GRAND EN VERTICAL (mobile) */
-  min-height: calc(100vh - 140px);
-  display:flex;
-  flex-direction:column;
 }
 
+/* HEADER JOUR */
 .dayHead{
-  padding:14px 14px 12px;
+  padding:12px;
   display:flex;
-  align-items:flex-start;
   justify-content:space-between;
-  gap:10px;
   border-bottom:1px solid var(--line);
-  background:
-    linear-gradient(135deg, rgba(37,99,235,.08), rgba(14,165,233,.06));
+  background:linear-gradient(135deg, rgba(37,99,235,.08), rgba(14,165,233,.06));
 }
 
-.dateBox{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-  min-width:0;
-}
-.date{
-  font-weight:950;
-  font-size:14px;
-  text-transform:capitalize;
-}
-.subdate{
-  font-size:12px;
-  color:var(--muted);
-}
-
-.badges{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  justify-content:flex-end;
-}
+.date{ font-weight:900; font-size:15px; }
+.subdate{ font-size:12px; color:var(--muted); }
 
 .badge{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:8px 10px;
-  border-radius:999px;
-  font-weight:900;
   font-size:12px;
+  padding:6px 10px;
+  border-radius:999px;
   border:1px solid var(--line);
   background:#fff;
-  color:var(--text);
-  box-shadow: var(--shadow2);
-  white-space:nowrap;
 }
-.badge b{ font-weight:950; }
-.badge.off{
-  border-color: rgba(239,68,68,.25);
-  background: linear-gradient(180deg, #fff, var(--off-soft));
-}
-.badge.off .miniDot{ background:var(--off); }
-.badge.matin .miniDot{ background:var(--accent); }
-.badge.soir .miniDot{ background:var(--accent-2); }
-.miniDot{ width:8px; height:8px; border-radius:99px; background:var(--accent); }
+.badge.off{ background:var(--off-soft); border-color:rgba(239,68,68,.25); }
 
-/* ✅ contenu s’étire */
+/* CONTENT */
 .content{
-  padding:14px;
   flex:1;
   display:flex;
   flex-direction:column;
+  min-height:0;
 }
 
 .teams{
   display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:12px;
-  flex:1;
+  grid-template-columns:1fr;
+  grid-template-rows:1fr 1fr;
+  height:100%;
 }
 
-/* Mobile: 1 colonne mais en 2 blocs qui remplissent l’écran */
-@media (max-width:700px){
-  .teams{
-    grid-template-columns:1fr;
-    grid-template-rows: 1fr 1fr;
-    height:100%;
-  }
-}
-
-/* ===== Blocs équipes ===== */
+/* TEAM */
 .team{
-  border:1px solid var(--line);
-  background:#fff;
-  border-radius:16px;
   padding:12px;
-  box-shadow: var(--shadow2);
-
   display:flex;
   flex-direction:column;
+  min-height:0;
 }
 
 .teamTitle{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:10px;
-}
-.teamTitle span{
-  font-size:13px;
-  font-weight:950;
-}
-.teamLabel{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  color:var(--muted);
-  font-size:12px;
   font-weight:900;
+  margin-bottom:8px;
 }
-.teamLabel .bar{
-  width:10px; height:10px; border-radius:99px;
-  background:var(--accent);
-}
-.teamLabel .bar.soir{ background:var(--accent-2); }
 
 .pills{
   display:flex;
-  flex-direction:column;   /* ✅ vertical */
-  gap:10px;
-  margin-top:2px;
+  flex-direction:column;
+  gap:8px;
+  overflow:auto;
 }
 
-/* ✅ NOMS PLUS GRANDS (lecture cuisine) */
+/* NOMS */
 .pill{
   display:flex;
   justify-content:space-between;
   align-items:center;
-
-  padding:14px 16px;
+  padding:14px;
   border-radius:14px;
   font-size:16px;
   font-weight:900;
   background:#f8fafc;
   border:1px solid var(--line);
-  color:var(--text);
 }
 .pill .tag{
-  font-size:12px;
-  font-weight:950;
   padding:5px 10px;
   border-radius:999px;
   background:var(--accent-soft);
-  border:1px solid rgba(37,99,235,.18);
   color:var(--accent);
-}
-
-.pill.off{
-  background:#fff;
-  border-color: rgba(239,68,68,.25);
+  font-size:12px;
 }
 .pill.off .tag{
   background:var(--off-soft);
-  border-color: rgba(239,68,68,.22);
-  color: var(--off);
+  color:var(--off);
 }
 
-/* Mise en évidence aujourd’hui */
+/* TODAY */
 .today{
-  border-color: rgba(22,163,74,.22);
-  box-shadow:
-    0 0 0 3px rgba(22,163,74,.10),
-    var(--shadow);
-}
-.today .dayHead{
-  background:
-    linear-gradient(135deg, rgba(22,163,74,.10), rgba(37,99,235,.06));
-}
-
-/* Impression */
-@media print{
-  header{ position:static; }
-  .pillBtn{ display:none; }
-  body{ background:#fff; }
-  .day{ box-shadow:none; min-height:auto; }
+  box-shadow:0 0 0 3px rgba(22,163,74,.15), var(--shadow);
 }
 </style>
 </head>
@@ -350,122 +206,81 @@ header p{
 
 <header>
   <div class="headerWrap">
-    <img src="LOGO.jpg" alt="Logo Grey Corner">
+    <img src="LOGO.jpg" alt="Logo">
     <div class="titles">
       <h1>Planning Cuisine Ramadan</h1>
-      <p>Rotation OFF automatique • Vue jour grand format mobile</p>
+      <p>Vue plein écran mobile</p>
     </div>
-
     <div class="actions">
-      <button class="pillBtn primary" id="btnToday">Aller à aujourd’hui</button>
+      <button class="pillBtn primary" id="btnToday">Aujourd’hui</button>
       <button class="pillBtn" onclick="window.print()">Imprimer</button>
     </div>
   </div>
 </header>
 
 <div class="container">
-  <div class="infoBar">
-    <div class="infoChip"><span class="dot today"></span> Aujourd’hui</div>
-    <div class="infoChip"><span class="dot off"></span> OFF</div>
-    <div class="infoChip"><span class="dot"></span> Matin / Soir</div>
-  </div>
-
   <div id="planning"></div>
 </div>
 
 <script>
-/* ===== NOMS ===== */
-const equipeMatin = ["Khaoula","Fatima","Imane"];
+const equipeMatin=["Khaoula","Fatima","Imane"];
+const equipeSoir=["Saad","Jihane","Jawad","Anas","Naoual"];
 
-/* ORDRE OFF SOIR: Saad premier — Naoual dernier */
-const equipeSoir  = ["Saad","Jihane","Jawad","Anas","Naoual"];
+const start=new Date(2026,2,2);
+const end=new Date(2026,2,19);
 
-/* ===== DATES ===== */
-const start = new Date(2026,2,2);
-const end   = new Date(2026,2,19);
-
-let idxMatin=0, idxSoir=0;
+let idxMatin=0,idxSoir=0;
 const container=document.getElementById("planning");
 const todayStr=new Date().toDateString();
 let todayCard=null;
 
-function fmtDate(d){
-  return d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
-}
-function fmtShort(d){
-  return d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"});
-}
+function fmtDate(d){return d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});}
+function fmtShort(d){return d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"});}
 
-for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
-
+for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
   const offMatin=equipeMatin[idxMatin++%equipeMatin.length];
   const offSoir=equipeSoir[idxSoir++%equipeSoir.length];
 
   const card=document.createElement("section");
   card.className="day";
 
-  if(d.toDateString()===todayStr){
-    card.classList.add("today");
-    todayCard=card;
-  }
+  if(d.toDateString()===todayStr){card.classList.add("today");todayCard=card;}
 
-  const matinHTML = equipeMatin.map(n => `
-    <span class="pill ${n===offMatin?'off':''}">
-      <span class="name">${n}</span>
-      <span class="tag">${n===offMatin?'OFF':'OK'}</span>
-    </span>
-  `).join("");
+  const matinHTML=equipeMatin.map(n=>`<div class="pill ${n===offMatin?'off':''}"><span>${n}</span><span class="tag">${n===offMatin?'OFF':'OK'}</span></div>`).join("");
+  const soirHTML=equipeSoir.map(n=>`<div class="pill ${n===offSoir?'off':''}"><span>${n}</span><span class="tag">${n===offSoir?'OFF':'OK'}</span></div>`).join("");
 
-  const soirHTML = equipeSoir.map(n => `
-    <span class="pill ${n===offSoir?'off':''}">
-      <span class="name">${n}</span>
-      <span class="tag">${n===offSoir?'OFF':'OK'}</span>
-    </span>
-  `).join("");
+  card.innerHTML=`
+  <div class="dayHead">
+    <div>
+      <div class="date">${fmtDate(d)}</div>
+      <div class="subdate">${fmtShort(d)}</div>
+    </div>
+    <div>
+      <div class="badge">Matin OFF : ${offMatin}</div>
+      <div class="badge off">Soir OFF : ${offSoir}</div>
+    </div>
+  </div>
 
-  card.innerHTML = `
-    <div class="dayHead">
-      <div class="dateBox">
-        <div class="date">${fmtDate(d)}</div>
-        <div class="subdate">${fmtShort(d)}</div>
+  <div class="content">
+    <div class="teams">
+      <div class="team">
+        <div class="teamTitle">Équipe matin</div>
+        <div class="pills">${matinHTML}</div>
       </div>
 
-      <div class="badges">
-        <div class="badge matin"><span class="miniDot"></span> Matin • <b>OFF</b> : ${offMatin}</div>
-        <div class="badge off soir"><span class="miniDot"></span> Soir • <b>OFF</b> : ${offSoir}</div>
+      <div class="team">
+        <div class="teamTitle">Équipe soir</div>
+        <div class="pills">${soirHTML}</div>
       </div>
     </div>
-
-    <div class="content">
-      <div class="teams">
-        <div class="team">
-          <div class="teamTitle">
-            <span>Équipe matin</span>
-            <span class="teamLabel"><span class="bar"></span> Rotation</span>
-          </div>
-          <div class="pills">${matinHTML}</div>
-        </div>
-
-        <div class="team">
-          <div class="teamTitle">
-            <span>Équipe soir</span>
-            <span class="teamLabel"><span class="bar soir"></span> Rotation</span>
-          </div>
-          <div class="pills">${soirHTML}</div>
-        </div>
-      </div>
-    </div>
-  `;
+  </div>`;
 
   container.appendChild(card);
 }
 
-/* Scroll au jour actuel */
-function goToday(){
-  if(todayCard) todayCard.scrollIntoView({behavior:"smooth",block:"start"});
-}
-document.getElementById("btnToday").addEventListener("click", goToday);
-setTimeout(goToday, 350);
+function goToday(){ if(todayCard) todayCard.scrollIntoView({behavior:"smooth"}); }
+document.getElementById("btnToday").onclick=goToday;
+setTimeout(goToday,400);
 </script>
 
 </body>
