@@ -7,182 +7,438 @@
 
 <style>
 :root{
-  --bg1:#1c2a52;
-  --bg2:#070b18;
-  --text:#f4f1e6;
-  --pill:#0c1a35;
-  --gold:#d4a94f;
-  --off:#ff6b6b;
+  /* ✅ Thème clair & pro (neutres + accent) */
+  --bg:#f6f7fb;
+  --card:#ffffff;
+  --text:#0f172a;
+  --muted:#64748b;
+  --line:#e6eaf2;
+
+  --accent:#2563eb;         /* bleu pro */
+  --accent-2:#0ea5e9;       /* cyan léger */
+  --accent-soft:#eff6ff;
+
+  --ok:#16a34a;
+  --off:#ef4444;
+  --off-soft:#fee2e2;
+
+  --shadow: 0 10px 30px rgba(15, 23, 42, .08);
+  --shadow2: 0 2px 10px rgba(15, 23, 42, .06);
+
+  --radius:18px;
 }
 
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
 body{
   margin:0;
-  font-family:"Segoe UI",Tahoma,sans-serif;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   color:var(--text);
-  background:radial-gradient(circle at top,var(--bg1),var(--bg2) 70%);
+  background:
+    radial-gradient(900px 420px at 20% -10%, rgba(37,99,235,.10), transparent 60%),
+    radial-gradient(900px 420px at 80% -10%, rgba(14,165,233,.10), transparent 60%),
+    var(--bg);
 }
 
+/* ===== Header ===== */
 header{
   position:sticky;
   top:0;
   z-index:10;
-  text-align:center;
-  padding:10px 10px 8px;
-  background:linear-gradient(180deg, rgba(7,11,24,0.92), rgba(7,11,24,0.55));
-  backdrop-filter: blur(8px);
-  border-bottom:1px solid rgba(255,255,255,0.06);
+  background:rgba(255,255,255,.78);
+  backdrop-filter: blur(10px);
+  border-bottom:1px solid var(--line);
 }
-header img{ height:56px; display:block; margin:0 auto 6px; }
-header h1{ margin:0; font-size:18px; letter-spacing:1.2px; color:var(--gold); }
-
-#planning{ display:flex; flex-direction:column; gap:14px; padding:12px; }
-
-.day{
-  width:100%;
-  border-radius:18px;
-  padding:14px;
-  min-height:190px;
-  box-shadow:0 0 0 1px rgba(255,255,255,0.08),0 12px 26px rgba(0,0,0,0.55);
-  scroll-margin-top:110px;
-  position:relative;
+.headerWrap{
+  max-width:1100px;
+  margin:0 auto;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+header img{
+  height:44px;
+  width:auto;
+  display:block;
+}
+.titles{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  min-width:0;
+}
+header h1{
+  margin:0;
+  font-size:16px;
+  letter-spacing:.2px;
+  font-weight:900;
+  white-space:nowrap;
   overflow:hidden;
+  text-overflow:ellipsis;
 }
-
-.day::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(135deg, var(--c1), var(--c2));
-  opacity:0.90;
-}
-.day::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:radial-gradient(circle at top, rgba(255,255,255,0.10), rgba(0,0,0,0.35) 70%);
-}
-
-.content{ position:relative; z-index:2; }
-.today{ outline:2px solid rgba(255,215,125,0.95); transform:scale(1.01); }
-
-.top{ display:flex; justify-content:space-between; margin-bottom:10px; }
-.date{ font-weight:900; font-size:15px; text-transform:capitalize; }
-
-.badge{
-  padding:6px 10px;
-  border-radius:999px;
-  font-weight:800;
+header p{
+  margin:0;
   font-size:12px;
-  border:1px solid rgba(255,255,255,0.18);
-  background:rgba(0,0,0,0.22);
+  color:var(--muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
-.badge.off{ border-color:rgba(255,107,107,0.55); color:#ffd7d7; }
+.actions{
+  margin-left:auto;
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.pillBtn{
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--text);
+  border-radius:999px;
+  padding:8px 10px;
+  font-size:12px;
+  font-weight:800;
+  box-shadow: var(--shadow2);
+  cursor:pointer;
+}
+.pillBtn:hover{ filter:brightness(.98); }
+.pillBtn.primary{
+  border-color: rgba(37,99,235,.25);
+  background: linear-gradient(180deg, #ffffff, var(--accent-soft));
+}
+.pillBtn:active{ transform: translateY(1px); }
 
-.teams{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-@media (max-width:520px){ .teams{ grid-template-columns:1fr; } }
+/* ===== Layout ===== */
+.container{
+  max-width:1100px;
+  margin:0 auto;
+  padding:14px;
+}
 
-.team{ background:rgba(0,0,0,0.20); border-radius:14px; padding:10px; }
+/* Barre infos */
+.infoBar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin:10px 0 14px;
+}
+.infoChip{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid var(--line);
+  box-shadow: var(--shadow2);
+  font-size:12px;
+  color:var(--muted);
+}
+.dot{
+  width:9px; height:9px; border-radius:99px;
+  background:var(--accent);
+}
+.dot.off{ background:var(--off); }
+.dot.today{ background:var(--ok); }
 
-.teamTitle{ font-weight:900; margin-bottom:8px; font-size:13px; display:flex; justify-content:space-between; }
+#planning{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap:14px;
+}
 
-.pills{ display:flex; flex-wrap:wrap; gap:6px; }
+/* ===== Carte jour ===== */
+.day{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow:hidden;
+  scroll-margin-top:120px;
+}
+.dayHead{
+  padding:14px 14px 12px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  border-bottom:1px solid var(--line);
+  background:
+    linear-gradient(135deg, rgba(37,99,235,.08), rgba(14,165,233,.06));
+}
+.dateBox{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  min-width:0;
+}
+.date{
+  font-weight:950;
+  font-size:14px;
+  text-transform:capitalize;
+}
+.subdate{
+  font-size:12px;
+  color:var(--muted);
+}
+.badges{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 10px;
+  border-radius:999px;
+  font-weight:900;
+  font-size:12px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--text);
+  box-shadow: var(--shadow2);
+  white-space:nowrap;
+}
+.badge b{ font-weight:950; }
+.badge.off{
+  border-color: rgba(239,68,68,.25);
+  background: linear-gradient(180deg, #fff, var(--off-soft));
+}
+.badge.off .miniDot{ background:var(--off); }
+.badge.matin .miniDot{ background:var(--accent); }
+.badge.soir .miniDot{ background:var(--accent-2); }
+.miniDot{ width:8px; height:8px; border-radius:99px; background:var(--accent); }
+
+/* Contenu équipes */
+.content{
+  padding:14px;
+}
+.teams{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:12px;
+}
+@media (max-width:700px){
+  .teams{ grid-template-columns:1fr; }
+}
+
+.team{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:16px;
+  padding:12px;
+  box-shadow: var(--shadow2);
+}
+.teamTitle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.teamTitle span{
+  font-size:13px;
+  font-weight:950;
+}
+.teamLabel{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:900;
+}
+.teamLabel .bar{
+  width:10px; height:10px; border-radius:99px;
+  background:var(--accent);
+}
+.teamLabel .bar.soir{ background:var(--accent-2); }
+
+.pills{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
 
 .pill{
-  background:rgba(12,26,53,0.75);
-  border:1px solid rgba(255,255,255,0.10);
-  padding:7px 10px;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 10px;
   border-radius:999px;
   font-size:12px;
-  font-weight:800;
+  font-weight:900;
+  background:#f8fafc;
+  border:1px solid var(--line);
+  color:var(--text);
+}
+.pill .tag{
+  font-size:11px;
+  font-weight:950;
+  padding:3px 8px;
+  border-radius:999px;
+  background:var(--accent-soft);
+  border:1px solid rgba(37,99,235,.18);
+  color:var(--accent);
 }
 .pill.off{
-  background:rgba(255,107,107,0.18);
-  border-color:rgba(255,107,107,0.55);
-  color:#ffd7d7;
+  background: #fff;
+  border-color: rgba(239,68,68,.25);
+}
+.pill.off .tag{
+  background:var(--off-soft);
+  border-color: rgba(239,68,68,.22);
+  color: var(--off);
+}
+
+/* Mise en évidence aujourd’hui */
+.today{
+  border-color: rgba(22,163,74,.22);
+  box-shadow:
+    0 0 0 3px rgba(22,163,74,.10),
+    var(--shadow);
+}
+.today .dayHead{
+  background:
+    linear-gradient(135deg, rgba(22,163,74,.10), rgba(37,99,235,.06));
+}
+
+/* Impression */
+@media print{
+  header{ position:static; }
+  .pillBtn{ display:none; }
+  body{ background:#fff; }
+  .day{ box-shadow:none; }
 }
 </style>
 </head>
+
 <body>
 
 <header>
-  <img src="images/logo.png">
-  <h1>Planning Cuisine Ramadan</h1>
+  <div class="headerWrap">
+    <img src="images/logo.png" alt="Logo Grey Corner">
+    <div class="titles">
+      <h1>Planning Cuisine Ramadan</h1>
+      <p>Rotation OFF automatique • Mise en avant du jour actuel</p>
+    </div>
+
+    <div class="actions">
+      <button class="pillBtn primary" id="btnToday">Aller à aujourd’hui</button>
+      <button class="pillBtn" onclick="window.print()">Imprimer</button>
+    </div>
+  </div>
 </header>
 
-<div id="planning"></div>
+<div class="container">
+  <div class="infoBar">
+    <div class="infoChip"><span class="dot today"></span> Aujourd’hui</div>
+    <div class="infoChip"><span class="dot off"></span> OFF</div>
+    <div class="infoChip"><span class="dot"></span> Matin / Soir</div>
+  </div>
+
+  <div id="planning"></div>
+</div>
 
 <script>
-
-/* ===== NOMS ===== */
+/* ===== NOMS (inchangé) ===== */
 const equipeMatin = ["Khaoula","Fatima","Imane"];
 
 /* ORDRE OFF SOIR: Saad premier — Naoual dernier */
 const equipeSoir  = ["Saad","Jihane","Jawad","Anas","Naoual"];
 
-/* ===== DATES ===== */
+/* ===== DATES (inchangé) ===== */
 const start = new Date(2026,2,2);
 const end   = new Date(2026,2,19);
 
-/* Couleurs par jour */
-const dayColors=[
- ["#ffb703","#fb8500"],
- ["#06d6a0","#1b9aaa"],
- ["#3a86ff","#8338ec"],
- ["#ff006e","#ffbe0b"],
- ["#8ac926","#1982c4"],
- ["#ffd6a5","#fdffb6"],
- ["#ffadad","#caffbf"],
- ["#4cc9f0","#4361ee"],
-];
-
 let idxMatin=0, idxSoir=0;
 const container=document.getElementById("planning");
-const today=new Date().toDateString();
+const todayStr=new Date().toDateString();
 let todayCard=null;
-let i=0;
 
-for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1),i++){
+function fmtDate(d){
+  return d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
+}
+
+function fmtShort(d){
+  return d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"});
+}
+
+for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
 
   const offMatin=equipeMatin[idxMatin++%equipeMatin.length];
   const offSoir=equipeSoir[idxSoir++%equipeSoir.length];
 
-  const [c1,c2]=dayColors[i%dayColors.length];
-
-  const card=document.createElement("div");
+  const card=document.createElement("section");
   card.className="day";
-  card.style.setProperty("--c1",c1);
-  card.style.setProperty("--c2",c2);
 
-  if(d.toDateString()===today){ card.classList.add("today"); todayCard=card; }
+  if(d.toDateString()===todayStr){
+    card.classList.add("today");
+    todayCard=card;
+  }
 
-  const matinHTML=equipeMatin.map(n=>`<span class="pill ${n===offMatin?'off':''}">${n}${n===offMatin?' (OFF)':''}</span>`).join("");
-  const soirHTML=equipeSoir.map(n=>`<span class="pill ${n===offSoir?'off':''}">${n}${n===offSoir?' (OFF)':''}</span>`).join("");
+  const matinHTML = equipeMatin.map(n => `
+    <span class="pill ${n===offMatin?'off':''}">
+      ${n}
+      <span class="tag">${n===offMatin?'OFF':'OK'}</span>
+    </span>
+  `).join("");
 
-  card.innerHTML=`
-  <div class="content">
-    <div class="top">
-      <div class="date">${d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})}</div>
-    </div>
+  const soirHTML = equipeSoir.map(n => `
+    <span class="pill ${n===offSoir?'off':''}">
+      ${n}
+      <span class="tag">${n===offSoir?'OFF':'OK'}</span>
+    </span>
+  `).join("");
 
-    <div class="teams">
-      <div class="team">
-        <div class="teamTitle">Équipe matin <span class="badge off">OFF : ${offMatin}</span></div>
-        <div class="pills">${matinHTML}</div>
+  card.innerHTML = `
+    <div class="dayHead">
+      <div class="dateBox">
+        <div class="date">${fmtDate(d)}</div>
+        <div class="subdate">${fmtShort(d)}</div>
       </div>
 
-      <div class="team">
-        <div class="teamTitle">Équipe soir <span class="badge off">OFF : ${offSoir}</span></div>
-        <div class="pills">${soirHTML}</div>
+      <div class="badges">
+        <div class="badge matin"><span class="miniDot"></span> Matin • <b>OFF</b> : ${offMatin}</div>
+        <div class="badge off soir"><span class="miniDot"></span> Soir • <b>OFF</b> : ${offSoir}</div>
       </div>
     </div>
-  </div>`;
+
+    <div class="content">
+      <div class="teams">
+        <div class="team">
+          <div class="teamTitle">
+            <span>Équipe matin</span>
+            <span class="teamLabel"><span class="bar"></span> Rotation</span>
+          </div>
+          <div class="pills">${matinHTML}</div>
+        </div>
+
+        <div class="team">
+          <div class="teamTitle">
+            <span>Équipe soir</span>
+            <span class="teamLabel"><span class="bar soir"></span> Rotation</span>
+          </div>
+          <div class="pills">${soirHTML}</div>
+        </div>
+      </div>
+    </div>
+  `;
 
   container.appendChild(card);
 }
 
-/* Scroll au jour actuel */
-setTimeout(()=>{ if(todayCard) todayCard.scrollIntoView({behavior:"smooth",block:"start"}); },450);
-
+/* Scroll au jour actuel (inchangé) */
+function goToday(){
+  if(todayCard) todayCard.scrollIntoView({behavior:"smooth",block:"start"});
+}
+document.getElementById("btnToday").addEventListener("click", goToday);
+setTimeout(goToday, 350);
 </script>
+
 </body>
 </html>
