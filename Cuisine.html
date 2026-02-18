@@ -7,15 +7,15 @@
 
 <style>
 :root{
-  /* ✅ Thème clair & pro (neutres + accent) */
+  /* ✅ Thème clair & pro */
   --bg:#f6f7fb;
   --card:#ffffff;
   --text:#0f172a;
   --muted:#64748b;
   --line:#e6eaf2;
 
-  --accent:#2563eb;         /* bleu pro */
-  --accent-2:#0ea5e9;       /* cyan léger */
+  --accent:#2563eb;
+  --accent-2:#0ea5e9;
   --accent-soft:#eff6ff;
 
   --ok:#16a34a;
@@ -157,7 +157,13 @@ header p{
   box-shadow: var(--shadow);
   overflow:hidden;
   scroll-margin-top:120px;
+
+  /* ✅ PLUS GRAND EN VERTICAL (mobile) */
+  min-height: calc(100vh - 140px);
+  display:flex;
+  flex-direction:column;
 }
+
 .dayHead{
   padding:14px 14px 12px;
   display:flex;
@@ -168,6 +174,7 @@ header p{
   background:
     linear-gradient(135deg, rgba(37,99,235,.08), rgba(14,165,233,.06));
 }
+
 .dateBox{
   display:flex;
   flex-direction:column;
@@ -183,12 +190,14 @@ header p{
   font-size:12px;
   color:var(--muted);
 }
+
 .badges{
   display:flex;
   gap:8px;
   flex-wrap:wrap;
   justify-content:flex-end;
 }
+
 .badge{
   display:inline-flex;
   align-items:center;
@@ -213,26 +222,42 @@ header p{
 .badge.soir .miniDot{ background:var(--accent-2); }
 .miniDot{ width:8px; height:8px; border-radius:99px; background:var(--accent); }
 
-/* Contenu équipes */
+/* ✅ contenu s’étire */
 .content{
   padding:14px;
+  flex:1;
+  display:flex;
+  flex-direction:column;
 }
+
 .teams{
   display:grid;
   grid-template-columns: 1fr 1fr;
   gap:12px;
-}
-@media (max-width:700px){
-  .teams{ grid-template-columns:1fr; }
+  flex:1;
 }
 
+/* Mobile: 1 colonne mais en 2 blocs qui remplissent l’écran */
+@media (max-width:700px){
+  .teams{
+    grid-template-columns:1fr;
+    grid-template-rows: 1fr 1fr;
+    height:100%;
+  }
+}
+
+/* ===== Blocs équipes ===== */
 .team{
   border:1px solid var(--line);
   background:#fff;
   border-radius:16px;
   padding:12px;
   box-shadow: var(--shadow2);
+
+  display:flex;
+  flex-direction:column;
 }
+
 .teamTitle{
   display:flex;
   align-items:center;
@@ -260,33 +285,37 @@ header p{
 
 .pills{
   display:flex;
-  flex-wrap:wrap;
-  gap:8px;
+  flex-direction:column;   /* ✅ vertical */
+  gap:10px;
+  margin-top:2px;
 }
 
+/* ✅ NOMS PLUS GRANDS (lecture cuisine) */
 .pill{
-  display:inline-flex;
+  display:flex;
+  justify-content:space-between;
   align-items:center;
-  gap:7px;
-  padding:8px 10px;
-  border-radius:999px;
-  font-size:12px;
+
+  padding:14px 16px;
+  border-radius:14px;
+  font-size:16px;
   font-weight:900;
   background:#f8fafc;
   border:1px solid var(--line);
   color:var(--text);
 }
 .pill .tag{
-  font-size:11px;
+  font-size:12px;
   font-weight:950;
-  padding:3px 8px;
+  padding:5px 10px;
   border-radius:999px;
   background:var(--accent-soft);
   border:1px solid rgba(37,99,235,.18);
   color:var(--accent);
 }
+
 .pill.off{
-  background: #fff;
+  background:#fff;
   border-color: rgba(239,68,68,.25);
 }
 .pill.off .tag{
@@ -312,7 +341,7 @@ header p{
   header{ position:static; }
   .pillBtn{ display:none; }
   body{ background:#fff; }
-  .day{ box-shadow:none; }
+  .day{ box-shadow:none; min-height:auto; }
 }
 </style>
 </head>
@@ -321,10 +350,10 @@ header p{
 
 <header>
   <div class="headerWrap">
-    <img src="images/logo.png" alt="Logo Grey Corner">
+    <img src="LOGO.jpg" alt="Logo Grey Corner">
     <div class="titles">
       <h1>Planning Cuisine Ramadan</h1>
-      <p>Rotation OFF automatique • Mise en avant du jour actuel</p>
+      <p>Rotation OFF automatique • Vue jour grand format mobile</p>
     </div>
 
     <div class="actions">
@@ -345,13 +374,13 @@ header p{
 </div>
 
 <script>
-/* ===== NOMS (inchangé) ===== */
+/* ===== NOMS ===== */
 const equipeMatin = ["Khaoula","Fatima","Imane"];
 
 /* ORDRE OFF SOIR: Saad premier — Naoual dernier */
 const equipeSoir  = ["Saad","Jihane","Jawad","Anas","Naoual"];
 
-/* ===== DATES (inchangé) ===== */
+/* ===== DATES ===== */
 const start = new Date(2026,2,2);
 const end   = new Date(2026,2,19);
 
@@ -363,7 +392,6 @@ let todayCard=null;
 function fmtDate(d){
   return d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
 }
-
 function fmtShort(d){
   return d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"});
 }
@@ -383,14 +411,14 @@ for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
 
   const matinHTML = equipeMatin.map(n => `
     <span class="pill ${n===offMatin?'off':''}">
-      ${n}
+      <span class="name">${n}</span>
       <span class="tag">${n===offMatin?'OFF':'OK'}</span>
     </span>
   `).join("");
 
   const soirHTML = equipeSoir.map(n => `
     <span class="pill ${n===offSoir?'off':''}">
-      ${n}
+      <span class="name">${n}</span>
       <span class="tag">${n===offSoir?'OFF':'OK'}</span>
     </span>
   `).join("");
@@ -432,7 +460,7 @@ for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
   container.appendChild(card);
 }
 
-/* Scroll au jour actuel (inchangé) */
+/* Scroll au jour actuel */
 function goToday(){
   if(todayCard) todayCard.scrollIntoView({behavior:"smooth",block:"start"});
 }
