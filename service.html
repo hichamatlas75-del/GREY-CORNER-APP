@@ -9,33 +9,52 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
-    :root { --gold:#D4AF37; --night:#0B0E14; --card-bg:#1A1F26; }
+    :root{
+      /* ✅ Thème clair 2 couleurs + neutres */
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --line:rgba(15,23,42,.10);
+
+      /* ✅ 2 couleurs principales */
+      --p1:#2563eb;   /* bleu */
+      --p2:#14b8a6;   /* teal */
+
+      --shadow: 0 14px 40px rgba(15,23,42,.08);
+      --radius:18px;
+    }
 
     *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
     html,body{ height:100%; }
     body{
       font-family:'Roboto',sans-serif;
-      background: radial-gradient(circle at top,#1a2a6c 0%, var(--night) 100%);
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 520px at 20% -10%, rgba(37,99,235,.14), transparent 55%),
+        radial-gradient(1100px 520px at 100% 0%, rgba(20,184,166,.16), transparent 60%),
+        linear-gradient(180deg, #ffffff, var(--bg) 55%, #ffffff);
       background-attachment: fixed;
-      margin:0; color:#fff;
-      padding-bottom: 92px;
+      padding-bottom: 96px;
       overflow-x:hidden;
       -webkit-overflow-scrolling: touch;
     }
 
-    /* ✅ BANNIÈRE FIXE */
+    /* ✅ BANNIÈRE FIXE (claire) */
     #alert-box{
       display:none;
-      background: linear-gradient(to right, #d4af37, #f1c40f);
-      color:#000;
+      background: linear-gradient(90deg, rgba(37,99,235,.16), rgba(20,184,166,.18));
+      border-bottom:1px solid var(--line);
+      color: var(--ink);
       text-align:center;
       padding:12px 48px 12px 12px;
       font-weight:900;
       position:fixed; top:0; left:0; width:100%;
       z-index:9999;
-      box-shadow: 0 8px 22px rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
     }
-    body.has-alert{ padding-top:52px; }
+    body.has-alert{ padding-top:54px; }
 
     #alert-close{
       position:absolute;
@@ -43,106 +62,182 @@
       top:50%;
       transform: translateY(-50%);
       border:none;
-      background: rgba(0,0,0,0.18);
-      color:#000;
+      background: rgba(15,23,42,0.08);
+      color: var(--ink);
       font-weight:900;
       width:30px; height:30px;
       border-radius: 999px;
       cursor:pointer;
     }
 
-    /* ✅ HEADER NON STICKY */
+    /* ✅ HEADER clair */
     header{
-      padding: 18px 12px;
+      padding: 18px 12px 14px;
       text-align:center;
-      border-bottom: 1px solid rgba(212,175,55,0.35);
-      background: rgba(0,0,0,0.18);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(10px);
       position: relative;
       z-index: 1;
     }
 
-    .logo-img{ width:58px; height:58px; border-radius:50%; border:2px solid var(--gold); margin-bottom:8px; }
+    .logo-img{
+      width:60px; height:60px;
+      border-radius:50%;
+      border:2px solid rgba(37,99,235,.25);
+      margin-bottom:10px;
+      box-shadow: 0 10px 26px rgba(15,23,42,.08);
+      object-fit: cover;
+      background:#fff;
+    }
     h1{
       font-family:'Playfair Display',serif;
       margin:0;
-      font-size: 1.15rem;
-      color: var(--gold);
-      letter-spacing: 1.5px;
+      font-size: 1.18rem;
+      letter-spacing: 1.2px;
       text-transform: uppercase;
       line-height: 1.2;
+      background: linear-gradient(90deg, var(--p1), var(--p2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
+    .sub{
+      margin-top:6px;
+      font-size:.82rem;
+      color: var(--muted);
+      font-weight:800;
+      letter-spacing:.3px;
+    }
+
     .back-btn{
-      display:inline-block; margin-top:10px; color:var(--gold); text-decoration:none;
-      font-size:0.78rem; border:1px solid rgba(212,175,55,0.85);
-      padding:7px 14px; border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-top:12px;
+      color: var(--ink);
+      text-decoration:none;
+      font-size:0.82rem;
+      border:1px solid var(--line);
+      padding:8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.85);
+      box-shadow: 0 10px 24px rgba(15,23,42,.06);
     }
+    .back-btn:active{ transform: scale(.99); }
 
     .container{
       width:100%;
-      max-width: 560px;
+      max-width: 640px;
       margin:0 auto;
-      padding: 14px 12px 20px;
+      padding: 14px 12px 22px;
     }
 
+    /* ✅ VIGNETTE JOUR: couleur rotative via CSS variables --accent / --tint */
     .day-card{
-      background: var(--card-bg);
+      background: var(--card);
       margin-bottom: 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(212,175,55,0.18);
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
       overflow:hidden;
+      box-shadow: var(--shadow);
       scroll-margin-top: 0;
+      position:relative;
     }
+
+    /* bande latérale couleur */
+    .day-card::before{
+      content:"";
+      position:absolute;
+      left:0; top:0; bottom:0;
+      width: 10px;
+      background: linear-gradient(180deg, var(--accent), rgba(255,255,255,.0));
+      opacity:.95;
+    }
+
+    /* ✅ Mise en avant Jour J */
+    .is-today{
+      border: 2px solid rgba(37,99,235,.35);
+      box-shadow: 0 18px 46px rgba(37,99,235,.18);
+      transform: translateY(-1px);
+    }
+    .is-today::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background: radial-gradient(700px 220px at 25% 0%, rgba(37,99,235,.14), transparent 55%);
+    }
+
     .card-header{
-      background: rgba(255,255,255,0.03);
-      padding: 12px;
-      text-align:center;
-      border-bottom: 1px solid rgba(212,175,55,0.10);
+      padding: 14px 14px 12px 20px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.92), rgba(255,255,255,.75)),
+        radial-gradient(900px 240px at 30% 0%, var(--tint), transparent 55%);
     }
     .day-name{
       font-family:'Playfair Display',serif;
-      font-size: 1.15rem;
-      color: var(--gold);
+      font-size: 1.12rem;
+      color: var(--ink);
       display:block;
+      letter-spacing:.3px;
     }
     .today-badge{
-      background: var(--gold);
-      color:#000;
-      font-size: 0.70rem;
-      font-weight: 900;
-      padding: 4px 12px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-top: 10px;
+      padding: 6px 12px;
       border-radius: 999px;
-      margin-top: 8px;
-      display:inline-block;
+      font-size: .72rem;
+      font-weight: 1000;
+      letter-spacing:.6px;
+      color: var(--ink);
+      background: linear-gradient(90deg, rgba(37,99,235,.16), rgba(20,184,166,.18));
+      border:1px solid rgba(15,23,42,.10);
     }
-    .is-today{
-      border: 2px solid rgba(212,175,55,0.9);
-      box-shadow: 0 6px 18px rgba(212,175,55,0.18);
+    .today-dot{
+      width:10px;height:10px;border-radius:999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(37,99,235,.12);
     }
 
-    .card-body{ padding: 12px; }
+    .card-body{ padding: 12px 12px 14px 20px; }
 
+    /* ✅ 2 blocs shifts (Matin = bleu clair, Soir = teal clair) */
     .shift-header{
-      color: var(--gold);
       font-size: 0.78rem;
-      font-weight: 900;
+      font-weight: 1000;
       text-align:center;
-      padding: 8px;
-      border: 1px solid rgba(212,175,55,0.20);
-      border-radius: 10px;
+      padding: 10px 10px;
+      border-radius: 14px;
       margin-bottom: 10px;
-      background: rgba(212,175,55,0.05);
       text-transform: uppercase;
-      letter-spacing: .8px;
+      letter-spacing: .9px;
       display:flex;
       align-items:center;
       justify-content:center;
       gap:8px;
       flex-wrap:wrap;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.85);
+      box-shadow: 0 10px 24px rgba(15,23,42,.06);
+    }
+    .shift-header.matin{
+      background: linear-gradient(90deg, rgba(37,99,235,.12), rgba(255,255,255,.85));
+      border-color: rgba(37,99,235,.22);
+      color: #0b2a66;
+    }
+    .shift-header.soir{
+      background: linear-gradient(90deg, rgba(20,184,166,.12), rgba(255,255,255,.85));
+      border-color: rgba(20,184,166,.22);
+      color: #064e47;
     }
     .shift-time{
-      opacity:.78;
-      font-weight:900;
-      letter-spacing:.4px;
+      color: var(--muted);
+      font-weight: 900;
+      letter-spacing:.2px;
     }
 
     .staff-row{
@@ -154,62 +249,76 @@
 
     .staff-name{
       flex: 1 1 auto;
-      background:var(--gold);
-      color:#000;
-      font-weight:900;
-      text-transform:uppercase;
+      background: rgba(15,23,42,.04);
+      color: var(--ink);
+      font-weight: 1000;
+      text-transform: uppercase;
       display:flex;
       align-items:center;
       justify-content:center;
       font-size:0.92rem;
       letter-spacing:.5px;
       padding: 12px 10px;
-      border-radius: 12px;
+      border-radius: 14px;
       min-height:46px;
+      border:1px solid rgba(15,23,42,.08);
     }
 
     .staff-poste{
-      flex: 0 0 110px;
-      background:rgba(255,255,255,0.12);
-      color:#fff;
-      font-weight:900;
-      text-transform:uppercase;
+      flex: 0 0 112px;
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.80));
+      color: var(--ink);
+      font-weight: 1000;
+      text-transform: uppercase;
       display:flex;
       align-items:center;
       justify-content:center;
       font-size:0.78rem;
       letter-spacing:.6px;
       padding: 12px 10px;
-      border-radius: 12px;
+      border-radius: 14px;
       min-height:46px;
-      border:1px solid rgba(255,255,255,0.10);
+      border:1px solid rgba(15,23,42,.10);
     }
 
+    .repos{
+      text-align:center;
+      color: var(--muted);
+      font-size:0.86rem;
+      padding:12px 10px;
+      font-weight: 1000;
+      border:1px dashed rgba(15,23,42,.16);
+      border-radius: 14px;
+      background: rgba(255,255,255,.70);
+    }
+
+    /* ✅ Bouton capture (clair) */
     .fab-btn{
       position: fixed;
       bottom: 18px;
       right: 18px;
-      background: var(--gold);
-      width: 56px;
-      height: 56px;
+      background: linear-gradient(135deg, var(--p1), var(--p2));
+      width: 58px;
+      height: 58px;
       border-radius: 50%;
       display:flex; align-items:center; justify-content:center;
-      box-shadow: 0 8px 22px rgba(0,0,0,0.55);
+      box-shadow: 0 16px 40px rgba(15,23,42,.20);
       font-size: 22px;
       cursor:pointer;
       z-index: 200;
       border:none;
+      color:#fff;
     }
     .fab-btn:active{ transform: scale(0.98); }
 
     @media (max-width: 420px){
-      .container{ padding: 12px 10px 20px; }
-      .logo-img{ width:54px; height:54px; }
-      h1{ font-size: 1.05rem; }
-      .day-name{ font-size: 1.08rem; }
+      .container{ padding: 12px 10px 22px; }
+      .logo-img{ width:56px; height:56px; }
+      h1{ font-size: 1.08rem; }
+      .day-name{ font-size: 1.06rem; }
       .staff-name{ font-size:0.90rem; }
       .staff-poste{ flex-basis: 104px; font-size:0.76rem; }
-      .fab-btn{ width:54px; height:54px; right:14px; bottom:14px; }
+      .fab-btn{ width:56px; height:56px; right:14px; bottom:14px; }
     }
   </style>
 </head>
@@ -220,17 +329,18 @@
     <button id="alert-close" type="button" onclick="hideAlert()">✕</button>
   </div>
 
-  <button class="fab-btn" onclick="downloadPlanning()">📸</button>
+  <button class="fab-btn" onclick="downloadPlanning()" title="Télécharger">📸</button>
 
   <div id="capture-zone">
     <header>
       <img src="LOGO.jpg" class="logo-img" onerror="this.src='https://via.placeholder.com/90?text=GC'">
       <h1>PLANNING SERVICE</h1>
+      <div class="sub">Thème clair • Rotation couleurs • Jour J mis en avant</div>
       <a href="index.html" class="back-btn" data-html2canvas-ignore="true">⬅ Retour Menu</a>
     </header>
 
     <div class="container" id="planning-container">
-      <div id="loading" style="text-align:center; padding:34px 10px; color:var(--gold); font-weight:900;">
+      <div id="loading" style="text-align:center; padding:34px 10px; color:var(--muted); font-weight:1000;">
         Mise à jour du service...
       </div>
     </div>
@@ -243,6 +353,16 @@
     /* ✅ Par défaut si E/F vides */
     const DEFAULT_H_MATIN = "09:00 - 16:00";
     const DEFAULT_H_SOIR  = "16:00 - Fin service";
+
+    /* ✅ Palette rotation (chaque jour une couleur) */
+    const ROTATION = [
+      { accent: "#2563eb", tint: "rgba(37,99,235,.16)" },   // bleu
+      { accent: "#14b8a6", tint: "rgba(20,184,166,.18)" },  // teal
+      { accent: "#f59e0b", tint: "rgba(245,158,11,.18)" },  // amber
+      { accent: "#a855f7", tint: "rgba(168,85,247,.16)" },  // violet
+      { accent: "#ef4444", tint: "rgba(239,68,68,.14)" },   // rouge doux
+      { accent: "#22c55e", tint: "rgba(34,197,94,.16)" }    // vert
+    ];
 
     function showAlert(msg){
       const box = document.getElementById("alert-box");
@@ -357,12 +477,12 @@
         /* ✅ BANNIÈRE FIXE = D2 */
         let bannerD2 = "";
         if(rows.length >= 2){
-          const colsRow2 = splitCsvLine(rows[1]); // header=rows[0], ligne2=rows[1]
+          const colsRow2 = splitCsvLine(rows[1]);
           bannerD2 = String(colsRow2[3] ?? "").trim();
         }
         if(bannerD2 && bannerD2 !== "-") showAlert(bannerD2);
 
-        /* ✅ Lecture: A,B,C,D,E,F  (E=horaire matin, F=horaire soir) */
+        /* ✅ Lecture: A,B,C,D,E,F */
         const all = [];
         for(let i=1;i<rows.length;i++){
           const cols = splitCsvLine(rows[i]);
@@ -372,18 +492,19 @@
               matin: cols[1] ?? "",
               soir:  cols[2] ?? "",
               msg:   cols[3] ?? "",
-              hMatin: cols[4] ?? "",  // colonne E
-              hSoir:  cols[5] ?? ""   // colonne F
+              hMatin: cols[4] ?? "",
+              hSoir:  cols[5] ?? ""
             });
           }
         }
 
+        /* ✅ Cacher anciennes dates: on démarre à la ligne qui correspond au Jour J */
         const startIndex = all.findIndex(r => rowLooksLikeToday(r.date, todayInfo));
         let data = all;
         let hasToday = false;
 
         if(startIndex >= 0){
-          data = all.slice(startIndex);
+          data = all.slice(startIndex);  // ✅ anciens jours cachés
           hasToday = true;
         }else{
           if(!bannerD2) showAlert("Aujourd'hui non trouvé dans la feuille (format date différent).");
@@ -402,7 +523,7 @@
       if(loadingEl) loadingEl.remove();
 
       if(!data.length){
-        container.innerHTML = `<div style="text-align:center; opacity:0.9; padding:28px 10px; color:var(--gold); font-weight:900;">
+        container.innerHTML = `<div style="text-align:center; padding:28px 10px; color:var(--muted); font-weight:1000;">
           Aucun jour à afficher.
         </div>`;
         return;
@@ -410,22 +531,27 @@
 
       container.innerHTML = data.map((j, idx) => {
         const isToday = hasToday && idx === 0;
-
         const hMatin = pickTime(j.hMatin, DEFAULT_H_MATIN);
-        const hSoir  = pickTime(j.hSoir,  DEFAULT_H_SOIR); // ✅ 16:00 - Fin service (si vide)
+        const hSoir  = pickTime(j.hSoir,  DEFAULT_H_SOIR);
+
+        const rot = ROTATION[idx % ROTATION.length];
 
         return `
-          <div class="day-card ${isToday ? 'is-today' : ''}" ${isToday ? 'id="today-card"' : ''}>
+          <div class="day-card ${isToday ? 'is-today' : ''}"
+               style="--accent:${rot.accent}; --tint:${rot.tint};"
+               ${isToday ? 'id="today-card"' : ''}>
             <div class="card-header">
               <span class="day-name">${escapeHtml(j.date)}</span>
-              ${isToday ? `<div class="today-badge">AUJOURD'HUI</div>` : ``}
+              ${isToday ? `<div class="today-badge"><span class="today-dot"></span>JOUR J</div>` : ``}
             </div>
+
             <div class="card-body">
-              <div class="shift-header">
+              <div class="shift-header matin">
                 MATIN <span class="shift-time">(${escapeHtml(hMatin)})</span>
               </div>
               ${parseStaff(j.matin)}
-              <div class="shift-header" style="margin-top:16px;">
+
+              <div class="shift-header soir" style="margin-top:16px;">
                 SOIR <span class="shift-time">(${escapeHtml(hSoir)})</span>
               </div>
               ${parseStaff(j.soir)}
@@ -434,6 +560,7 @@
         `;
       }).join("");
 
+      /* ✅ Pointer sur le jour J */
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           const el = document.getElementById("today-card");
@@ -444,7 +571,7 @@
 
     function parseStaff(t){
       if(!t || t === "-" || t.trim() === ""){
-        return `<div style="text-align:center; opacity:0.35; font-size:0.85rem; padding:10px; font-weight:900;">REPOS</div>`;
+        return `<div class="repos">REPOS</div>`;
       }
 
       return t.split(",").map(s => {
@@ -474,9 +601,10 @@
     }
 
     function downloadPlanning(){
+      /* ✅ capture fond clair */
       html2canvas(document.getElementById("capture-zone"), {
         scale: 2,
-        backgroundColor: "#0B0E14",
+        backgroundColor: "#ffffff",
         useCORS: true,
         allowTaint: false
       }).then(canvas => {
