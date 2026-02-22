@@ -10,17 +10,13 @@
 
   <style>
     :root{
-      /* ✅ Thème clair 2 couleurs + neutres */
       --bg:#f6f7fb;
       --card:#ffffff;
       --ink:#0f172a;
       --muted:#64748b;
       --line:rgba(15,23,42,.10);
-
-      /* ✅ 2 couleurs principales */
-      --p1:#2563eb;   /* bleu */
-      --p2:#14b8a6;   /* teal */
-
+      --p1:#2563eb;
+      --p2:#14b8a6;
       --shadow: 0 14px 40px rgba(15,23,42,.08);
       --radius:18px;
     }
@@ -41,7 +37,6 @@
       -webkit-overflow-scrolling: touch;
     }
 
-    /* ✅ BANNIÈRE FIXE (claire) */
     #alert-box{
       display:none;
       background: linear-gradient(90deg, rgba(37,99,235,.16), rgba(20,184,166,.18));
@@ -70,7 +65,6 @@
       cursor:pointer;
     }
 
-    /* ✅ HEADER clair */
     header{
       padding: 18px 12px 14px;
       text-align:center;
@@ -133,7 +127,6 @@
       padding: 14px 12px 22px;
     }
 
-    /* ✅ VIGNETTE JOUR: couleur rotative via CSS variables --accent / --tint */
     .day-card{
       background: var(--card);
       margin-bottom: 14px;
@@ -141,11 +134,8 @@
       border: 1px solid var(--line);
       overflow:hidden;
       box-shadow: var(--shadow);
-      scroll-margin-top: 0;
       position:relative;
     }
-
-    /* bande latérale couleur */
     .day-card::before{
       content:"";
       position:absolute;
@@ -155,7 +145,6 @@
       opacity:.95;
     }
 
-    /* ✅ Mise en avant Jour J */
     .is-today{
       border: 2px solid rgba(37,99,235,.35);
       box-shadow: 0 18px 46px rgba(37,99,235,.18);
@@ -205,7 +194,6 @@
 
     .card-body{ padding: 12px 12px 14px 20px; }
 
-    /* ✅ 2 blocs shifts (Matin = bleu clair, Soir = teal clair) */
     .shift-header{
       font-size: 0.78rem;
       font-weight: 1000;
@@ -292,7 +280,6 @@
       background: rgba(255,255,255,.70);
     }
 
-    /* ✅ Bouton capture (clair) */
     .fab-btn{
       position: fixed;
       bottom: 18px;
@@ -335,7 +322,7 @@
     <header>
       <img src="LOGO.jpg" class="logo-img" onerror="this.src='https://via.placeholder.com/90?text=GC'">
       <h1>PLANNING SERVICE</h1>
-      <div class="sub">Thème clair • Rotation couleurs • Jour J mis en avant</div>
+      <div class="sub">Thème clair • Rotation couleurs • Anciennes dates cachées • Jour J mis en avant</div>
       <a href="index.html" class="back-btn" data-html2canvas-ignore="true">⬅ Retour Menu</a>
     </header>
 
@@ -350,18 +337,16 @@
     const SHEET_ID = "1aKrmu7Hdf1tb4_0QFCGC6VYjUVlRKeDJYLYs9qIM6Aw";
     const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
 
-    /* ✅ Par défaut si E/F vides */
     const DEFAULT_H_MATIN = "09:00 - 16:00";
     const DEFAULT_H_SOIR  = "16:00 - Fin service";
 
-    /* ✅ Palette rotation (chaque jour une couleur) */
     const ROTATION = [
-      { accent: "#2563eb", tint: "rgba(37,99,235,.16)" },   // bleu
-      { accent: "#14b8a6", tint: "rgba(20,184,166,.18)" },  // teal
-      { accent: "#f59e0b", tint: "rgba(245,158,11,.18)" },  // amber
-      { accent: "#a855f7", tint: "rgba(168,85,247,.16)" },  // violet
-      { accent: "#ef4444", tint: "rgba(239,68,68,.14)" },   // rouge doux
-      { accent: "#22c55e", tint: "rgba(34,197,94,.16)" }    // vert
+      { accent: "#2563eb", tint: "rgba(37,99,235,.16)" },
+      { accent: "#14b8a6", tint: "rgba(20,184,166,.18)" },
+      { accent: "#f59e0b", tint: "rgba(245,158,11,.18)" },
+      { accent: "#a855f7", tint: "rgba(168,85,247,.16)" },
+      { accent: "#ef4444", tint: "rgba(239,68,68,.14)" },
+      { accent: "#22c55e", tint: "rgba(34,197,94,.16)" }
     ];
 
     function showAlert(msg){
@@ -389,34 +374,8 @@
         .replaceAll("'","&#039;");
     }
 
-    function normalize(str){
-      return String(str ?? "")
-        .toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-        .replace(/\s+/g," ")
-        .trim();
-    }
-
     function isHtml(text){
       return /<html[\s>]/i.test(text) || /<!doctype html/i.test(text);
-    }
-
-    function getTodayInfo(){
-      const now = new Date();
-      const day = now.getDate();
-      const weekday = normalize(new Intl.DateTimeFormat("fr-FR", { weekday: "long" }).format(now));
-      const month   = normalize(new Intl.DateTimeFormat("fr-FR", { month: "long" }).format(now));
-      return { day, weekday, month };
-    }
-
-    function rowLooksLikeToday(label, todayInfo){
-      const s = normalize(label);
-      if(!s) return false;
-
-      const hasDayNum = new RegExp(`\\b${todayInfo.day}\\b`).test(s);
-      if(!hasDayNum) return false;
-
-      return s.includes(todayInfo.weekday) || s.includes(todayInfo.month);
     }
 
     function splitCsvLine(line){
@@ -428,7 +387,6 @@
     function cleanPoste(raw){
       if(!raw) return "";
       const p = String(raw).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
-
       if(p.includes("loge")) return "LOGE";
       if(p.includes("ter1")) return "TER1";
       if(p.includes("ter2")) return "TER2";
@@ -441,13 +399,71 @@
       if(p.includes("run")) return "RUN";
       if(p.includes("acc")) return "ACC";
       if(p.includes("deb")) return "DEB";
-
       return String(raw).substring(0,4).toUpperCase();
     }
 
     function pickTime(raw, fallback){
       const t = String(raw ?? "").trim();
       return (t && t !== "-") ? t : fallback;
+    }
+
+    /* ✅ Date = minuit local (pour comparer proprement) */
+    function todayMidnight(){
+      const d = new Date();
+      d.setHours(0,0,0,0);
+      return d;
+    }
+
+    /* ✅ Parse date depuis texte colonne A (formats courants + mois FR) */
+    function parseDateLabel(label){
+      const s0 = String(label ?? "").trim();
+      if(!s0) return null;
+
+      // ISO: 2026-02-22 ou 2026/02/22
+      let m = s0.match(/\b(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})\b/);
+      if(m){
+        const y = +m[1], mo = +m[2]-1, da = +m[3];
+        const d = new Date(y, mo, da);
+        d.setHours(0,0,0,0);
+        return isNaN(d) ? null : d;
+      }
+
+      // FR numérique: 22/02/2026 ou 22-02-2026
+      m = s0.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})\b/);
+      if(m){
+        const da = +m[1], mo = +m[2]-1, y = +m[3];
+        const d = new Date(y, mo, da);
+        d.setHours(0,0,0,0);
+        return isNaN(d) ? null : d;
+      }
+
+      // Texte FR: "dimanche 22 février 2026" ou "22 février"
+      const months = {
+        "janvier":0,"fevrier":1,"février":1,"mars":2,"avril":3,"mai":4,"juin":5,
+        "juillet":6,"aout":7,"août":7,"septembre":8,"octobre":9,"novembre":10,
+        "decembre":11,"décembre":11
+      };
+
+      const low = s0.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+      // cherche "22 fevrier 2026" ou "22 fevrier"
+      m = low.match(/\b(\d{1,2})\s+(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\b(?:\s+(\d{4}))?/);
+      if(m){
+        const da = +m[1];
+        const mo = months[m[2]];
+        const y = m[3] ? +m[3] : (new Date()).getFullYear();
+        const d = new Date(y, mo, da);
+        d.setHours(0,0,0,0);
+        return isNaN(d) ? null : d;
+      }
+
+      return null;
+    }
+
+    function sameDay(a,b){
+      return a && b &&
+        a.getFullYear()===b.getFullYear() &&
+        a.getMonth()===b.getMonth() &&
+        a.getDate()===b.getDate();
     }
 
     async function init(){
@@ -472,8 +488,6 @@
           return;
         }
 
-        const todayInfo = getTodayInfo();
-
         /* ✅ BANNIÈRE FIXE = D2 */
         let bannerD2 = "";
         if(rows.length >= 2){
@@ -482,13 +496,14 @@
         }
         if(bannerD2 && bannerD2 !== "-") showAlert(bannerD2);
 
-        /* ✅ Lecture: A,B,C,D,E,F */
         const all = [];
         for(let i=1;i<rows.length;i++){
           const cols = splitCsvLine(rows[i]);
           if(cols.length >= 3 && cols[0] !== ""){
+            const d = parseDateLabel(cols[0]);
             all.push({
               date: cols[0],
+              dateObj: d,               // ✅ parsed date (peut être null si format bizarre)
               matin: cols[1] ?? "",
               soir:  cols[2] ?? "",
               msg:   cols[3] ?? "",
@@ -498,39 +513,52 @@
           }
         }
 
-        /* ✅ Cacher anciennes dates: on démarre à la ligne qui correspond au Jour J */
-        const startIndex = all.findIndex(r => rowLooksLikeToday(r.date, todayInfo));
+        const t0 = todayMidnight();
+
+        /* ✅ NOUVEAU: cacher anciens jours PAR DATE (si parse OK) */
+        const anyParsable = all.some(r => r.dateObj instanceof Date);
         let data = all;
         let hasToday = false;
 
-        if(startIndex >= 0){
-          data = all.slice(startIndex);  // ✅ anciens jours cachés
-          hasToday = true;
+        if(anyParsable){
+          // garde seulement aujourd'hui et futur
+          data = all.filter(r => r.dateObj && r.dateObj >= t0);
+
+          // si la feuille contient plusieurs lignes aujourd'hui, on garde toutes (elles seront marquées une seule fois via idx)
+          hasToday = data.some(r => sameDay(r.dateObj, t0));
         }else{
-          if(!bannerD2) showAlert("Aujourd'hui non trouvé dans la feuille (format date différent).");
+          // fallback (si aucun format reconnu): ancien comportement (ne casse pas)
+          showAlert("Format date non reconnu: impossible de cacher les anciens jours. Mets un format type 2026-02-22 ou 22/02/2026.");
         }
 
-        render(data, hasToday);
+        render(data, hasToday, t0);
 
       }catch(e){
         if(loadingEl) loadingEl.innerText = "Erreur de chargement";
       }
     }
 
-    function render(data, hasToday){
+    function render(data, hasToday, t0){
       const container = document.getElementById("planning-container");
       const loadingEl = document.getElementById("loading");
       if(loadingEl) loadingEl.remove();
 
       if(!data.length){
         container.innerHTML = `<div style="text-align:center; padding:28px 10px; color:var(--muted); font-weight:1000;">
-          Aucun jour à afficher.
+          Aucun jour à afficher (anciennes dates cachées).
         </div>`;
         return;
       }
 
+      // ✅ Jour J = première ligne dont la date == aujourd’hui
+      let todayIndex = -1;
+      for(let i=0;i<data.length;i++){
+        if(data[i].dateObj && sameDay(data[i].dateObj, t0)){ todayIndex = i; break; }
+      }
+
       container.innerHTML = data.map((j, idx) => {
-        const isToday = hasToday && idx === 0;
+        const isToday = (todayIndex >= 0 && idx === todayIndex);
+
         const hMatin = pickTime(j.hMatin, DEFAULT_H_MATIN);
         const hSoir  = pickTime(j.hSoir,  DEFAULT_H_SOIR);
 
@@ -560,7 +588,6 @@
         `;
       }).join("");
 
-      /* ✅ Pointer sur le jour J */
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           const el = document.getElementById("today-card");
@@ -601,7 +628,6 @@
     }
 
     function downloadPlanning(){
-      /* ✅ capture fond clair */
       html2canvas(document.getElementById("capture-zone"), {
         scale: 2,
         backgroundColor: "#ffffff",
