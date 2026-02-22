@@ -6,32 +6,53 @@
   <title>Planning Bar - Grey Corner</title>
   <link rel="icon" type="image/jpeg" href="LOGO.jpg">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
-    :root { --gold:#D4AF37; --night:#0B0E14; --card-bg:#1A1F26; }
+    :root{
+      /* ✅ Même thème clair (nuances plus contrastées) */
+      --bg:#f3f6ff;
+      --card:#ffffff;
+      --ink:#0b1220;
+      --muted:#51607a;
+      --line:rgba(11,18,32,.12);
 
+      /* ✅ 2 couleurs principales (creusées) */
+      --p1:#1d4ed8;  /* bleu profond */
+      --p2:#0f766e;  /* teal profond */
+
+      --shadow: 0 16px 44px rgba(11,18,32,.10);
+      --radius:18px;
+    }
+
+    *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+    html,body{ height:100%; }
     body{
       font-family:'Roboto',sans-serif;
-      background: radial-gradient(circle at top,#1a2a6c 0%, var(--night) 100%);
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 520px at 15% -10%, rgba(29,78,216,.20), transparent 55%),
+        radial-gradient(1100px 520px at 100% 0%, rgba(15,118,110,.22), transparent 60%),
+        linear-gradient(180deg, #ffffff, var(--bg) 55%, #ffffff);
       background-attachment: fixed;
-      margin:0; color:#fff; padding-bottom:80px;
-      overflow-x:hidden; -webkit-overflow-scrolling: touch;
+      overflow-x:hidden;
+      -webkit-overflow-scrolling: touch;
     }
 
     /* ✅ BANNIÈRE FIXE */
     #alert-box{
       display:none;
-      background: linear-gradient(to right, #d4af37, #f1c40f);
-      color:#000;
+      background: linear-gradient(90deg, rgba(29,78,216,.20), rgba(15,118,110,.22));
+      border-bottom:1px solid var(--line);
+      color: var(--ink);
       text-align:center;
       padding:12px 48px 12px 12px;
       font-weight:900;
       position:fixed; top:0; left:0; width:100%;
       z-index:9999;
-      box-shadow: 0 8px 22px rgba(0,0,0,0.35);
+      backdrop-filter: blur(12px);
     }
-    body.has-alert{ padding-top:52px; }
+    body.has-alert{ padding-top:54px; }
 
     #alert-close{
       position:absolute;
@@ -39,76 +60,246 @@
       top:50%;
       transform: translateY(-50%);
       border:none;
-      background: rgba(0,0,0,0.18);
-      color:#000;
+      background: rgba(11,18,32,0.10);
+      color: var(--ink);
       font-weight:900;
       width:30px; height:30px;
       border-radius: 999px;
       cursor:pointer;
     }
 
+    /* ✅ HEADER */
     header{
-      padding:40px 15px; text-align:center; border-bottom:2px solid var(--gold);
-      background: rgba(0,0,0,0.2);
-    }
-    .logo-img{ width:85px; height:85px; border-radius:50%; border:2px solid var(--gold); margin-bottom:10px; }
-    h1{ font-family:'Playfair Display',serif; margin:0; font-size:1.5rem; color:var(--gold); letter-spacing:2px; text-transform:uppercase; }
-
-    .container{ width:100%; max-width:500px; margin:0 auto; padding:20px 15px; }
-
-    .day-card{
-      background:var(--card-bg); margin-bottom:25px; border-radius:15px;
-      border:1px solid rgba(212,175,55,0.2); overflow:hidden;
-      scroll-margin-top: 0;
-    }
-
-    .card-header{ background: rgba(255,255,255,0.03); padding:15px; text-align:center; border-bottom:1px solid rgba(212,175,55,0.1); }
-    .day-name{ font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--gold); display:block; text-transform:capitalize; }
-    .today-badge{
-      background: var(--gold); color:#000; font-size:0.7rem; font-weight:900;
-      padding:4px 12px; border-radius:4px; margin-top:8px; display:inline-block;
-    }
-    .is-today{ border:2px solid var(--gold); box-shadow:0 5px 20px rgba(212,175,55,0.2); }
-
-    .card-body{ padding:15px; }
-
-    .shift-header{
-      color:var(--gold);
-      font-size:0.8rem;
-      font-weight:900;
+      padding: 18px 12px 14px;
       text-align:center;
-      padding:8px;
-      border:1px solid rgba(212,175,55,0.2);
-      border-radius:5px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(12px);
+      position: relative;
+      z-index: 1;
+    }
+    .logo-img{
+      width:60px; height:60px;
+      border-radius:50%;
+      border:2px solid rgba(29,78,216,.28);
       margin-bottom:10px;
-      background: rgba(212,175,55,0.05);
-      text-transform:uppercase;
+      box-shadow: 0 12px 30px rgba(11,18,32,.10);
+      object-fit: cover;
+      background:#fff;
+    }
+    h1{
+      font-family:'Playfair Display',serif;
+      margin:0;
+      font-size: 1.18rem;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      line-height: 1.2;
+      background: linear-gradient(90deg, var(--p1), var(--p2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .sub{
+      margin-top:6px;
+      font-size:.82rem;
+      color: var(--muted);
+      font-weight:800;
+      letter-spacing:.3px;
+    }
+    .back-btn{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-top:12px;
+      color: var(--ink);
+      text-decoration:none;
+      font-size:0.82rem;
+      border:1px solid var(--line);
+      padding:8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 10px 24px rgba(11,18,32,.08);
+    }
+    .back-btn:active{ transform: scale(.99); }
+
+    .container{
+      width:100%;
+      max-width: 640px;
+      margin:0 auto;
+      padding: 14px 12px 22px;
+    }
+
+    /* ✅ VIGNETTE JOUR: rotation couleur + contour */
+    .day-card{
+      background: var(--card);
+      margin-bottom: 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      position:relative;
+      outline: 2px solid rgba(0,0,0,0);
+    }
+    .day-card::before{
+      content:"";
+      position:absolute;
+      left:0; top:0; bottom:0;
+      width: 12px;
+      background: linear-gradient(180deg, var(--accent), rgba(255,255,255,0));
+      opacity: .98;
+    }
+    .day-card[data-colored="1"]{
+      outline-color: var(--outline);
+      outline-offset: -2px;
+    }
+
+    /* ✅ Jour J */
+    .is-today{
+      border: 2px solid rgba(29,78,216,.40);
+      box-shadow: 0 22px 54px rgba(29,78,216,.22);
+      transform: translateY(-1px);
+    }
+    .is-today::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background: radial-gradient(720px 240px at 22% 0%, rgba(29,78,216,.18), transparent 58%);
+    }
+
+    .card-header{
+      padding: 14px 14px 12px 22px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.94), rgba(255,255,255,.82)),
+        radial-gradient(900px 260px at 30% 0%, var(--tint), transparent 55%);
+      text-align:center;
+    }
+    .day-name{
+      font-family:'Playfair Display',serif;
+      font-size: 1.12rem;
+      color: var(--ink);
+      display:block;
+      letter-spacing:.3px;
+      text-transform: capitalize;
+    }
+    .today-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-top: 10px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 1000;
+      letter-spacing:.6px;
+      color: var(--ink);
+      background: linear-gradient(90deg, rgba(29,78,216,.20), rgba(15,118,110,.22));
+      border:1px solid rgba(11,18,32,.12);
+    }
+    .today-dot{
+      width:10px;height:10px;border-radius:999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 7px rgba(29,78,216,.14);
+    }
+
+    .card-body{ padding: 12px 12px 14px 22px; }
+
+    /* ✅ 2 blocs shifts (Matin vs Soir) – mêmes nuances que service */
+    .shift-header{
+      font-size: 0.78rem;
+      font-weight: 1000;
+      text-align:center;
+      padding: 10px 10px;
+      border-radius: 14px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: .9px;
       display:flex;
       align-items:center;
       justify-content:center;
       gap:8px;
       flex-wrap:wrap;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.90);
+      box-shadow: 0 10px 24px rgba(11,18,32,.08);
+    }
+    .shift-header.matin{
+      background: linear-gradient(90deg, rgba(29,78,216,.22), rgba(255,255,255,.92));
+      border-color: rgba(29,78,216,.32);
+      color: #0b2a66;
+    }
+    .shift-header.soir{
+      background: linear-gradient(90deg, rgba(15,118,110,.22), rgba(255,255,255,.92));
+      border-color: rgba(15,118,110,.32);
+      color: #064e47;
     }
     .shift-time{
-      opacity:.78;
-      font-weight:900;
-      letter-spacing:.3px;
+      color: var(--muted);
+      font-weight: 900;
+      letter-spacing:.2px;
       word-break: break-word;
       white-space: normal;
     }
 
-    .staff-row{ display:flex; margin-bottom:8px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.05); }
-    .poste-badge{ background:var(--gold); color:#000; width:35%; padding:10px; font-size:0.65rem; font-weight:900; text-align:center; display:flex; align-items:center; justify-content:center; }
-    .staff-name{ background:rgba(255,255,255,0.08); color:#fff; width:65%; padding:10px; font-weight:bold; text-align:center; text-transform:uppercase; font-size:0.9rem; }
-
-    .fab-btn{
-      position:fixed; bottom:20px; right:20px; background:var(--gold);
-      width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-      box-shadow:0 5px 20px rgba(0,0,0,0.5); font-size:24px; cursor:pointer; z-index:100; border:none;
+    /* ✅ Lignes staff (style bar: poste à gauche, nom à droite) */
+    .staff-row{
+      display:flex;
+      gap:10px;
+      margin-bottom:10px;
+      align-items:stretch;
+    }
+    .poste-badge{
+      flex: 0 0 112px;
+      background: linear-gradient(135deg, rgba(29,78,216,.18), rgba(15,118,110,.18));
+      border:1px solid rgba(11,18,32,.12);
+      color: var(--ink);
+      font-weight: 1000;
+      text-transform: uppercase;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:0.78rem;
+      letter-spacing:.6px;
+      padding: 12px 10px;
+      border-radius: 14px;
+      min-height:46px;
+    }
+    .staff-name{
+      flex: 1 1 auto;
+      background: rgba(11,18,32,.045);
+      color: var(--ink);
+      font-weight: 1000;
+      text-transform: uppercase;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:0.92rem;
+      letter-spacing:.5px;
+      padding: 12px 10px;
+      border-radius: 14px;
+      min-height:46px;
+      border:1px solid rgba(11,18,32,.10);
+    }
+    .repos{
+      text-align:center;
+      color: var(--muted);
+      font-size:0.86rem;
+      padding:12px 10px;
+      font-weight: 1000;
+      border:1px dashed rgba(11,18,32,.20);
+      border-radius: 14px;
+      background: rgba(255,255,255,.78);
     }
 
-    .back-btn{ display:inline-block; margin-top:15px; color:var(--gold); text-decoration:none; font-size:0.8rem; border:1px solid var(--gold); padding:8px 15px; border-radius:20px; }
-    #loading{ text-align:center; padding:50px; color:var(--gold); font-family:'Playfair Display',serif; }
+    @media (max-width: 420px){
+      .container{ padding: 12px 10px 22px; }
+      .logo-img{ width:56px; height:56px; }
+      h1{ font-size: 1.08rem; }
+      .day-name{ font-size: 1.06rem; }
+      .staff-name{ font-size:0.90rem; }
+      .poste-badge{ flex-basis: 104px; font-size:0.76rem; }
+    }
   </style>
 </head>
 
@@ -118,17 +309,20 @@
     <button id="alert-close" type="button" onclick="hideAlert()">✕</button>
   </div>
 
-  <button class="fab-btn" onclick="downloadPlanning()">📸</button>
+  <!-- ✅ suppression capture/ footer flottant -->
 
   <div id="capture-zone">
     <header>
       <img src="LOGO.jpg" class="logo-img" onerror="this.src='https://via.placeholder.com/90?text=GC'">
       <h1>PLANNING BAR</h1>
-      <a href="index.html" class="back-btn" data-html2canvas-ignore="true">⬅ Retour Menu</a>
+      <div class="sub">Thème clair • Rotation couleurs • Anciennes dates cachées • Jour J mis en avant</div>
+      <a href="index.html" class="back-btn">⬅ Retour Menu</a>
     </header>
 
     <div class="container" id="planning-container">
-      <div id="loading">Préparation du comptoir...</div>
+      <div id="loading" style="text-align:center; padding:34px 10px; color:var(--muted); font-weight:1000;">
+        Préparation du comptoir...
+      </div>
     </div>
   </div>
 
@@ -138,6 +332,16 @@
     const DEFAULT_H_MATIN = "06:30 - 14:30";
     const DEFAULT_H_SOIR  = "14:15 - Fin service";
 
+    /* ✅ Rotation (même logique + nuances creusées) */
+    const ROTATION = [
+      { accent:"#1d4ed8", tint:"rgba(29,78,216,.22)", outline:"rgba(29,78,216,.22)" },
+      { accent:"#0f766e", tint:"rgba(15,118,110,.24)", outline:"rgba(15,118,110,.22)" },
+      { accent:"#b45309", tint:"rgba(180,83,9,.18)", outline:"rgba(180,83,9,.18)" },
+      { accent:"#7c3aed", tint:"rgba(124,58,237,.18)", outline:"rgba(124,58,237,.18)" },
+      { accent:"#be123c", tint:"rgba(190,18,60,.16)", outline:"rgba(190,18,60,.16)" },
+      { accent:"#15803d", tint:"rgba(21,128,61,.16)", outline:"rgba(21,128,61,.16)" }
+    ];
+
     function showAlert(msg){
       const box = document.getElementById("alert-box");
       const textEl = document.getElementById("alert-text");
@@ -146,6 +350,7 @@
       box.style.display = "block";
       document.body.classList.add("has-alert");
     }
+
     function hideAlert(){
       const box = document.getElementById("alert-box");
       if(!box) return;
@@ -166,14 +371,6 @@
       return /<html[\s>]/i.test(text) || /<!doctype html/i.test(text);
     }
 
-    function normalize(str){
-      return String(str ?? "")
-        .toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-        .replace(/\s+/g," ")
-        .trim();
-    }
-
     /* ✅ CSV robuste */
     function parseCsvLine(line){
       const out = [];
@@ -182,7 +379,6 @@
 
       for(let i=0;i<line.length;i++){
         const ch = line[i];
-
         if(ch === '"'){
           if(inQuotes && line[i+1] === '"'){ cur += '"'; i++; }
           else inQuotes = !inQuotes;
@@ -199,35 +395,67 @@
       return out;
     }
 
-    function getTodayInfo(){
-      const now = new Date();
-      const day = now.getDate();
-      const month = normalize(new Intl.DateTimeFormat("fr-FR", { month:"long" }).format(now));
-      return { day, month };
+    function pickTime(raw, fallback){
+      const t = String(raw ?? "").trim();
+      return (t && t !== "-") ? t : fallback;
     }
 
-    /* ✅ Corrigé: accepte "févr." / "sept." etc */
-    function rowLooksLikeToday(label, todayInfo){
-      if(!label) return false;
+    /* ✅ Aujourd’hui à minuit */
+    function todayMidnight(){
+      const d = new Date();
+      d.setHours(0,0,0,0);
+      return d;
+    }
 
-      const dayMatch = String(label).match(/\b(\d{1,2})\b/);
-      if(!dayMatch) return false;
-      const day = parseInt(dayMatch[1], 10);
-      if(day !== todayInfo.day) return false;
+    /* ✅ Parse date depuis la colonne A (ISO, FR numérique, FR texte) */
+    function parseDateLabel(label){
+      const s0 = String(label ?? "").trim();
+      if(!s0) return null;
 
-      const s = normalize(label)
-        .replace("janv","janvier")
-        .replace("fevr","fevrier")
-        .replace("févr","fevrier")
-        .replace("avr","avril")
-        .replace("juil","juillet")
-        .replace("sept","septembre")
-        .replace("oct","octobre")
-        .replace("nov","novembre")
-        .replace("dec","decembre")
-        .replace("déc","decembre");
+      // ISO: 2026-02-22 / 2026/02/22
+      let m = s0.match(/\b(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})\b/);
+      if(m){
+        const y = +m[1], mo = +m[2]-1, da = +m[3];
+        const d = new Date(y, mo, da);
+        d.setHours(0,0,0,0);
+        return isNaN(d) ? null : d;
+      }
 
-      return s.includes(todayInfo.month);
+      // FR: 22/02/2026 / 22-02-2026
+      m = s0.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})\b/);
+      if(m){
+        const da = +m[1], mo = +m[2]-1, y = +m[3];
+        const d = new Date(y, mo, da);
+        d.setHours(0,0,0,0);
+        return isNaN(d) ? null : d;
+      }
+
+      // Texte FR: "dimanche 22 février 2026" / "22 février"
+      const months = {
+        "janvier":0,"fevrier":1,"février":1,"mars":2,"avril":3,"mai":4,"juin":5,
+        "juillet":6,"aout":7,"août":7,"septembre":8,"octobre":9,"novembre":10,
+        "decembre":11,"décembre":11
+      };
+
+      const low = s0.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+      m = low.match(/\b(\d{1,2})\s+(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\b(?:\s+(\d{4}))?/);
+      if(m){
+        const da = +m[1];
+        const mo = months[m[2]];
+        const y = m[3] ? +m[3] : (new Date()).getFullYear();
+        const d = new Date(y, mo, da);
+        d.setHours(0,0,0,0);
+        return isNaN(d) ? null : d;
+      }
+
+      return null;
+    }
+
+    function sameDay(a,b){
+      return a && b &&
+        a.getFullYear()===b.getFullYear() &&
+        a.getMonth()===b.getMonth() &&
+        a.getDate()===b.getDate();
     }
 
     function cleanPoste(raw){
@@ -250,11 +478,6 @@
       return String(raw).substring(0,4).toUpperCase();
     }
 
-    function pickTime(raw, fallback){
-      const t = String(raw ?? "").trim();
-      return (t && t !== "-") ? t : fallback;
-    }
-
     async function init(){
       const loadingEl = document.getElementById("loading");
       try{
@@ -273,8 +496,6 @@
           return;
         }
 
-        const todayInfo = getTodayInfo();
-
         /* ✅ BANNIÈRE FIXE = D2 */
         let bannerD2 = "";
         if(rows.length >= 2){
@@ -290,64 +511,82 @@
           const cols = parseCsvLine(rows[i]);
           while(cols.length < 6) cols.push("");
 
-          if((cols[0] ?? "").trim()){
+          const label = (cols[0] ?? "").trim();
+          if(label){
+            const d = parseDateLabel(label);
             all.push({
-              date:  cols[0],
+              date: label,
+              dateObj: d,
               matin: cols[1] ?? "",
               soir:  cols[2] ?? "",
               msg:   cols[3] ?? "",
-              hMatin: cols[4] ?? "", // E
-              hSoir:  cols[5] ?? ""  // F
+              hMatin: cols[4] ?? "",
+              hSoir:  cols[5] ?? ""
             });
           }
         }
 
-        /* ✅ Start à partir d'aujourd'hui */
-        const startIndex = all.findIndex(r => rowLooksLikeToday(r.date, todayInfo));
-        const hasToday = startIndex >= 0;
-        const data = hasToday ? all.slice(startIndex) : all;
+        const t0 = todayMidnight();
+        const anyParsable = all.some(r => r.dateObj instanceof Date);
 
-        if(!hasToday && !bannerD2){
-          showAlert("Aujourd'hui non trouvé (format date différent).");
+        let data = all;
+        if(anyParsable){
+          /* ✅ Même fonctionnalité: cacher anciens jours */
+          data = all.filter(r => r.dateObj && r.dateObj >= t0);
+        }else{
+          showAlert("Format date non reconnu: mets A en 2026-02-22 ou 22/02/2026.");
         }
 
-        renderPlanning(data, hasToday);
+        renderPlanning(data, t0);
 
       }catch(e){
         if(loadingEl) loadingEl.innerText = "Erreur réseau / CORS.";
-        showAlert("Si la page est ouverte en file://, héberge-la en HTTPS (Firebase/Netlify).");
+        showAlert("Ouvre la page via HTTPS (pas en file://).");
       }
     }
 
-    function renderPlanning(data, hasToday){
+    function renderPlanning(data, t0){
       const container = document.getElementById("planning-container");
       const loadingEl = document.getElementById("loading");
       if(loadingEl) loadingEl.remove();
 
       if(!data.length){
-        container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--gold);">Aucune donnée</div>`;
+        container.innerHTML = `<div style="text-align:center; padding:28px 10px; color:var(--muted); font-weight:1000;">
+          Aucun jour à afficher (anciennes dates cachées).
+        </div>`;
         return;
       }
 
-      container.innerHTML = data.map((jour, idx) => {
-        const isToday = hasToday && idx === 0;
+      /* ✅ Jour J = première ligne dont la date == aujourd’hui */
+      let todayIndex = -1;
+      for(let i=0;i<data.length;i++){
+        if(data[i].dateObj && sameDay(data[i].dateObj, t0)){ todayIndex = i; break; }
+      }
 
+      container.innerHTML = data.map((jour, idx) => {
+        const isToday = (todayIndex >= 0 && idx === todayIndex);
         const hMatin = pickTime(jour.hMatin, DEFAULT_H_MATIN);
         const hSoir  = pickTime(jour.hSoir,  DEFAULT_H_SOIR);
 
+        const rot = ROTATION[idx % ROTATION.length];
+
         return `
-          <div class="day-card ${isToday ? 'is-today' : ''}" ${isToday ? 'id="today-card"' : ''}>
+          <div class="day-card ${isToday ? 'is-today' : ''}"
+               data-colored="1"
+               style="--accent:${rot.accent}; --tint:${rot.tint}; --outline:${rot.outline};"
+               ${isToday ? 'id="today-card"' : ''}>
             <div class="card-header">
               <span class="day-name">${escapeHtml(jour.date)}</span>
-              ${isToday ? `<div class="today-badge">AUJOURD'HUI</div>` : ``}
+              ${isToday ? `<div class="today-badge"><span class="today-dot"></span>JOUR J</div>` : ``}
             </div>
+
             <div class="card-body">
-              <div class="shift-header">
+              <div class="shift-header matin">
                 MATIN <span class="shift-time">(${escapeHtml(hMatin)})</span>
               </div>
               ${parseStaff(jour.matin)}
 
-              <div class="shift-header" style="margin-top:20px;">
+              <div class="shift-header soir" style="margin-top:16px;">
                 SOIR <span class="shift-time">(${escapeHtml(hSoir)})</span>
               </div>
               ${parseStaff(jour.soir)}
@@ -359,14 +598,14 @@
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           const el = document.getElementById("today-card");
-          if(el) el.scrollIntoView({ behavior:"smooth", block:"center" });
+          if(el) el.scrollIntoView({ behavior:"smooth", block:"start" });
         });
       });
     }
 
     function parseStaff(text){
       if(!text || text === '-' || text.trim() === ''){
-        return '<div style="text-align:center; opacity:0.3; font-size:0.8rem; padding:10px;">REPOS</div>';
+        return `<div class="repos">REPOS</div>`;
       }
 
       return text.split(',').map(s => {
@@ -386,25 +625,13 @@
           poste = "BAR";
         }
 
-        return `<div class="staff-row">
-          <div class="poste-badge">${escapeHtml(poste)}</div>
-          <div class="staff-name">${escapeHtml(nom)}</div>
-        </div>`;
+        return `
+          <div class="staff-row">
+            <div class="poste-badge">${escapeHtml(poste)}</div>
+            <div class="staff-name">${escapeHtml(nom)}</div>
+          </div>
+        `;
       }).join('');
-    }
-
-    function downloadPlanning(){
-      html2canvas(document.getElementById("capture-zone"), {
-        scale: 2,
-        backgroundColor: "#0B0E14",
-        useCORS: true,
-        allowTaint: false
-      }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'Planning-Bar.png';
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      }).catch(() => showAlert("Capture impossible (CORS / images externes)."));
     }
 
     init();
