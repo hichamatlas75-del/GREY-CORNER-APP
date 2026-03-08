@@ -1,184 +1,548 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grey Corner • Ramadan Mubarak 🌙</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            /* Palette Ramadan : Bleu Nuit, Vert Profond et Or */
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #064e3b 100%);
-            --gold: #fbbf24;
-        }
-        body {
-            background: var(--bg-gradient);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: #f8fafc;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grey Corner • Private Access</title>
 
-        /* Effet de ciel étoilé en arrière-plan */
-        .stars-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px);
-            background-size: 550px 550px;
-            opacity: 0.15;
-            z-index: -1;
-        }
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-        .card-ramadan {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(251, 191, 36, 0.2);
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-        .card-ramadan:hover {
-            transform: translateY(-8px);
-            border: 1px solid var(--gold);
-            box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
-            background: rgba(15, 23, 42, 0.8);
-        }
+  <style>
+    :root{
+      --bg:#0a0b0d;
+      --bg2:#111317;
+      --panel:rgba(17,19,23,.78);
+      --panel-strong:rgba(22,25,30,.9);
+      --stroke:rgba(255,255,255,.09);
+      --stroke-soft:rgba(255,255,255,.06);
+      --text:#f5f7fa;
+      --muted:rgba(245,247,250,.62);
+      --gold:#d6b36a;
+      --gold-soft:rgba(214,179,106,.22);
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+    }
 
-        .img-layer {
-            position: absolute;
-            inset: 0;
-            background-size: cover;
-            background-position: center;
-            opacity: 0.3;
-            mix-blend-mode: overlay;
-        }
+    *{ box-sizing:border-box; }
 
-        .gold-glow {
-            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
-        }
+    html,body{
+      margin:0;
+      min-height:100%;
+      background:
+        radial-gradient(circle at top, rgba(214,179,106,.08), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(255,255,255,.035), transparent 24%),
+        linear-gradient(160deg, #090a0d 0%, #0f1115 45%, #090a0d 100%);
+      color:var(--text);
+      font-family:'Inter',sans-serif;
+      overflow-x:hidden;
+    }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-        .floating-moon {
-            animation: float 4s ease-in-out infinite;
-        }
+    body{
+      display:flex;
+      justify-content:center;
+      position:relative;
+    }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade { animation: fadeIn 0.8s ease-out forwards; }
-    </style>
+    .noise{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.035;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          rgba(255,255,255,.8) 0px,
+          rgba(255,255,255,.8) 1px,
+          transparent 1px,
+          transparent 2px
+        );
+      mix-blend-mode:soft-light;
+      z-index:0;
+    }
+
+    .glow-top{
+      position:fixed;
+      inset:auto 0 0 auto;
+      width:420px;
+      height:420px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(214,179,106,.12), transparent 65%);
+      filter:blur(22px);
+      pointer-events:none;
+      z-index:0;
+      top:-120px;
+      right:-120px;
+    }
+
+    .shell{
+      width:100%;
+      max-width:470px;
+      padding:26px 18px 36px;
+      position:relative;
+      z-index:2;
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--stroke);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)),
+        rgba(10,12,15,.74);
+      border-radius:30px;
+      padding:26px 22px 22px;
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(14px);
+    }
+
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at top right, rgba(214,179,106,.12), transparent 28%),
+        linear-gradient(120deg, transparent 0%, rgba(255,255,255,.02) 45%, transparent 100%);
+      pointer-events:none;
+    }
+
+    .logo-wrap{
+      position:relative;
+      width:94px;
+      height:94px;
+      margin:0 auto 18px;
+      border-radius:999px;
+      padding:4px;
+      background:linear-gradient(135deg, rgba(214,179,106,.9), rgba(255,255,255,.45), rgba(214,179,106,.6));
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.06),
+        0 18px 30px rgba(0,0,0,.35),
+        0 0 28px rgba(214,179,106,.12);
+    }
+
+    .logo-wrap img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      border-radius:999px;
+      display:block;
+      background:#fff;
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:12px;
+      color:var(--gold);
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.34em;
+      text-transform:uppercase;
+    }
+
+    .eyebrow::before,
+    .eyebrow::after{
+      content:"";
+      width:22px;
+      height:1px;
+      background:linear-gradient(90deg, transparent, rgba(214,179,106,.7), transparent);
+    }
+
+    .brand{
+      font-family:'Cormorant Garamond',serif;
+      font-size:42px;
+      line-height:1;
+      font-weight:700;
+      letter-spacing:.06em;
+      text-align:center;
+      margin:0;
+      color:#f8f5ef;
+    }
+
+    .sub{
+      margin:10px auto 0;
+      text-align:center;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+      max-width:290px;
+    }
+
+    .divider{
+      width:92px;
+      height:1px;
+      margin:18px auto 0;
+      background:linear-gradient(90deg, transparent, rgba(214,179,106,.9), transparent);
+    }
+
+    .section-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin:22px 4px 14px;
+      color:rgba(255,255,255,.78);
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.20em;
+      text-transform:uppercase;
+    }
+
+    .section-title span:last-child{
+      color:rgba(214,179,106,.8);
+      letter-spacing:.14em;
+      font-size:11px;
+    }
+
+    .nav-list{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .lux-card{
+      position:relative;
+      display:block;
+      overflow:hidden;
+      min-height:118px;
+      border-radius:26px;
+      text-decoration:none;
+      border:1px solid var(--stroke);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)),
+        var(--panel);
+      backdrop-filter:blur(14px);
+      box-shadow:0 12px 30px rgba(0,0,0,.24);
+      transition:transform .35s ease, border-color .35s ease, box-shadow .35s ease, background .35s ease;
+    }
+
+    .lux-card:hover{
+      transform:translateY(-5px);
+      border-color:rgba(214,179,106,.38);
+      box-shadow:0 22px 40px rgba(0,0,0,.33), 0 0 0 1px rgba(214,179,106,.08) inset;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.02)),
+        var(--panel-strong);
+    }
+
+    .card-image{
+      position:absolute;
+      inset:0;
+      background-size:cover;
+      background-position:center;
+      opacity:.17;
+      transform:scale(1);
+      transition:transform .7s ease, opacity .35s ease;
+      filter:grayscale(20%) contrast(108%);
+    }
+
+    .lux-card:hover .card-image{
+      transform:scale(1.06);
+      opacity:.24;
+    }
+
+    .card-overlay{
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(90deg, rgba(8,10,13,.92) 0%, rgba(8,10,13,.78) 44%, rgba(8,10,13,.52) 100%),
+        linear-gradient(180deg, transparent, rgba(214,179,106,.03));
+    }
+
+    .card-inner{
+      position:relative;
+      z-index:2;
+      min-height:118px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:18px 18px 18px 20px;
+    }
+
+    .meta{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .tag{
+      font-size:10px;
+      font-weight:800;
+      letter-spacing:.28em;
+      color:var(--gold);
+      text-transform:uppercase;
+    }
+
+    .title-row{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .emoji{
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(214,179,106,.08);
+      border:1px solid rgba(214,179,106,.16);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+      font-size:20px;
+      flex:0 0 auto;
+    }
+
+    .title{
+      margin:0;
+      font-size:21px;
+      font-weight:800;
+      color:#fff;
+      letter-spacing:-.02em;
+    }
+
+    .hint{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    .go{
+      width:44px;
+      height:44px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid rgba(214,179,106,.22);
+      color:var(--gold);
+      background:rgba(214,179,106,.06);
+      transition:all .3s ease;
+      flex:0 0 auto;
+    }
+
+    .lux-card:hover .go{
+      transform:translateX(2px);
+      background:rgba(214,179,106,.16);
+      border-color:rgba(214,179,106,.44);
+      box-shadow:0 0 20px rgba(214,179,106,.12);
+    }
+
+    .footer{
+      text-align:center;
+      padding-top:18px;
+      color:rgba(255,255,255,.34);
+      font-size:11px;
+      letter-spacing:.28em;
+      text-transform:uppercase;
+    }
+
+    .access-denied{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+      position:relative;
+      z-index:3;
+    }
+
+    .access-box{
+      width:min(100%,380px);
+      padding:30px 22px;
+      border-radius:28px;
+      border:1px solid rgba(214,179,106,.18);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.012)),
+        rgba(11,13,17,.84);
+      backdrop-filter:blur(18px);
+      box-shadow:var(--shadow);
+      text-align:center;
+    }
+
+    .access-lock{
+      width:68px;
+      height:68px;
+      margin:0 auto 14px;
+      border-radius:20px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:30px;
+      color:var(--gold);
+      background:rgba(214,179,106,.08);
+      border:1px solid rgba(214,179,106,.18);
+    }
+
+    .access-title{
+      margin:0 0 8px;
+      font-family:'Cormorant Garamond',serif;
+      font-size:34px;
+      line-height:1;
+      color:#f8f5ef;
+    }
+
+    .access-text{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    @keyframes fadeUp{
+      from{ opacity:0; transform:translateY(16px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+
+    .fade-up{
+      opacity:0;
+      animation:fadeUp .65s ease forwards;
+    }
+  </style>
 </head>
 <body>
-    <div class="stars-bg"></div>
-    <div id="root" class="w-full max-w-md px-6 py-10 relative z-10"></div>
+  <div class="noise"></div>
+  <div class="glow-top"></div>
+  <div id="root" class="shell"></div>
 
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script>
+    const PASSWORD = "2026";
+    const enteredPassword = prompt("Entrez le mot de passe");
 
-    <script>
-        const React = window.React;
-        const ReactDOM = window.ReactDOM;
+    if (enteredPassword !== PASSWORD) {
+      document.body.innerHTML = `
+        <div class="noise"></div>
+        <div class="glow-top"></div>
+        <div class="access-denied">
+          <div class="access-box">
+            <div class="access-lock">🔒</div>
+            <h1 class="access-title">Accès refusé</h1>
+            <p class="access-text">Le mot de passe est incorrect.</p>
+          </div>
+        </div>
+      `;
+      throw new Error("Accès refusé");
+    }
+  </script>
 
-        const NAV_LINKS = [
-          { 
-            title: "Planning Bar", 
-            subtitle: "RAFRAÎCHISSEMENTS FTOR", 
-            href: "bar.html", 
-            img: "https://images.unsplash.com/photo-1544145945-f904253d0c71?w=800",
-            icon: "🥤"
-          },
-          { 
-            title: "Planning Service", 
-            subtitle: "HOSPITALITÉ & PARTAGE", 
-            href: "service.html", 
-            img: "https://images.pexels.com/photos/1556691/pexels-photo-1556691.jpeg?auto=compress&cs=tinysrgb&w=800", 
-            icon: "🍽️"
-          },
-          { 
-            title: "Planning Cuisine", 
-            subtitle: "SAVEURS DU RAMADAN", 
-            href: "Cuisine.html", 
-            img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800",
-            icon: "👨‍🍳"
-          },
-          { 
-            title: "Planning Ménage", 
-            subtitle: "PURETÉ & SÉRÉNITÉ", 
-            href: "menage.html", 
-            img: "https://images.pexels.com/photos/4099467/pexels-photo-4099467.jpeg?auto=compress&cs=tinysrgb&w=800",
-            icon: "✨"
-          }
-        ];
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
-        const App = () => {
-            return React.createElement('div', { className: 'flex flex-col items-center' },
-                // HEADER RAMADAN
-                React.createElement('header', { className: 'text-center mb-10' },
-                    React.createElement('div', { className: 'relative mb-4 inline-block' },
-                        React.createElement('div', { className: 'absolute -top-6 -right-6 text-3xl floating-moon' }, '🌙'),
-                        React.createElement('img', { 
-                            src: 'LOGO.jpg', 
-                            className: 'w-24 h-24 relative rounded-full border-4 border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.5)] bg-white p-1',
-                            onError: (e) => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=064e3b&color=fbbf24' }
-                        })
-                    ),
-                    React.createElement('h1', { className: 'text-3xl font-black tracking-widest text-white gold-glow uppercase' }, 'GREY CORNER'),
-                    React.createElement('div', { className: 'flex items-center justify-center gap-2 mt-2' },
-                        React.createElement('span', { className: 'h-px w-8 bg-amber-400 opacity-50' }),
-                        React.createElement('p', { className: 'text-amber-400 text-[11px] font-extrabold tracking-[0.4em] uppercase' }, 'Ramadan Mubarak'),
-                        React.createElement('span', { className: 'h-px w-8 bg-amber-400 opacity-50' })
+  <script>
+    const React = window.React;
+    const ReactDOM = window.ReactDOM;
+
+    const NAV_LINKS = [
+      {
+        title: "Planning Bar",
+        subtitle: "Boissons & Coordination",
+        desc: "Organisation élégante du service bar pendant Ramadan.",
+        href: "bar.html",
+        img: "https://images.unsplash.com/photo-1544145945-f904253d0c71?w=1200",
+        icon: "🥤"
+      },
+      {
+        title: "Planning Service",
+        subtitle: "Salle & Hospitalité",
+        desc: "Répartition fluide du service et de l’accueil client.",
+        href: "service.html",
+        img: "https://images.pexels.com/photos/1556691/pexels-photo-1556691.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        icon: "🍽️"
+      },
+      {
+        title: "Planning Cuisine",
+        subtitle: "Production & Préparation",
+        desc: "Suivi raffiné de l’équipe cuisine et du rythme opérationnel.",
+        href: "Cuisine.html",
+        img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1200",
+        icon: "👨‍🍳"
+      },
+      {
+        title: "Planning Ménage",
+        subtitle: "Ordre & Entretien",
+        desc: "Gestion claire des tâches de propreté et d’entretien.",
+        href: "menage.html",
+        img: "https://images.pexels.com/photos/4099467/pexels-photo-4099467.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        icon: "✨"
+      }
+    ];
+
+    const Arrow = () =>
+      React.createElement(
+        'svg',
+        { className:'w-4 h-4', fill:'none', stroke:'currentColor', viewBox:'0 0 24 24' },
+        React.createElement('path', {
+          strokeLinecap:'round',
+          strokeLinejoin:'round',
+          strokeWidth:'2.4',
+          d:'M9 5l7 7-7 7'
+        })
+      );
+
+    const App = () => {
+      return React.createElement('div', null,
+        React.createElement('section', { className:'hero fade-up', style:{ animationDelay:'0s' } },
+          React.createElement('div', { className:'text-center relative z-10' },
+            React.createElement('div', { className:'logo-wrap' },
+              React.createElement('img', {
+                src:'LOGO.jpg',
+                alt:'Grey Corner',
+                onError:(e)=>{ e.target.src='https://ui-avatars.com/api/?name=GC&background=111317&color=d6b36a&size=256'; }
+              })
+            ),
+            React.createElement('div', { className:'eyebrow' }, 'Private Planning Access'),
+            React.createElement('h1', { className:'brand' }, 'Grey Corner'),
+            React.createElement('p', { className:'sub' },
+              'Interface privée au style premium pour consulter les plannings par service.'
+            ),
+            React.createElement('div', { className:'divider' })
+          )
+        ),
+
+        React.createElement('div', { className:'section-title fade-up', style:{ animationDelay:'.08s' } },
+          React.createElement('span', null, 'Navigation'),
+          React.createElement('span', null, 'Secure View')
+        ),
+
+        React.createElement('nav', { className:'nav-list' },
+          NAV_LINKS.map((link, i) =>
+            React.createElement('a', {
+              key:i,
+              href:link.href,
+              className:'lux-card fade-up',
+              style:{ animationDelay:`${0.12 + i * 0.08}s` }
+            },
+              React.createElement('div', {
+                className:'card-image',
+                style:{ backgroundImage:`url(${link.img})` }
+              }),
+              React.createElement('div', { className:'card-overlay' }),
+              React.createElement('div', { className:'card-inner' },
+                React.createElement('div', { className:'meta' },
+                  React.createElement('div', { className:'tag' }, link.subtitle),
+                  React.createElement('div', { className:'title-row' },
+                    React.createElement('div', { className:'emoji' }, link.icon),
+                    React.createElement('div', null,
+                      React.createElement('h2', { className:'title' }, link.title),
+                      React.createElement('div', { className:'hint' }, link.desc)
                     )
+                  )
                 ),
+                React.createElement('div', { className:'go' }, React.createElement(Arrow))
+              )
+            )
+          )
+        ),
 
-                // NAVIGATION
-                React.createElement('nav', { className: 'w-full space-y-5' },
-                    NAV_LINKS.map((link, i) => (
-                        React.createElement('a', {
-                            key: i,
-                            href: link.href,
-                            className: 'relative block group h-28 rounded-3xl card-ramadan overflow-hidden animate-fade opacity-0',
-                            style: { animationDelay: `${i * 0.1}s`, animationFillMode: 'forwards' }
-                        }, [
-                            React.createElement('div', { 
-                                className: 'img-layer transition-transform duration-700 group-hover:scale-110',
-                                style: { backgroundImage: `url(${link.img})` }
-                            }),
-                            
-                            React.createElement('div', { className: 'relative h-full flex items-center justify-between px-8 z-10' },
-                                React.createElement('div', null,
-                                    React.createElement('p', { className: 'text-[10px] font-black tracking-widest text-amber-400 mb-1 opacity-90' }, link.subtitle),
-                                    React.createElement('div', { className: 'flex items-center gap-2' },
-                                        React.createElement('span', { className: 'text-xl' }, link.icon),
-                                        React.createElement('h2', { className: 'text-xl font-extrabold text-white group-hover:text-amber-400 transition-colors' }, link.title)
-                                    )
-                                ),
-                                React.createElement('div', { className: 'w-10 h-10 rounded-full border border-amber-400/30 flex items-center justify-center group-hover:bg-amber-400 group-hover:text-slate-900 transition-all duration-300' },
-                                    React.createElement('svg', { className: 'w-4 h-4', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },
-                                        React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', strokeWidth: '3', d: 'M9 5l7 7-7 7' })
-                                    )
-                                )
-                            )
-                        ])
-                    ))
-                ),
+        React.createElement('div', { className:'footer fade-up', style:{ animationDelay:'.5s' } },
+          'Grey Corner • Confidential Access'
+        )
+      );
+    };
 
-                // FOOTER
-                React.createElement('footer', { className: 'mt-12 text-center' },
-                    React.createElement('p', { className: 'text-[10px] font-bold tracking-[0.4em] text-white opacity-40 uppercase' }, 'Service • Respect • Spiritualité'),
-                    React.createElement('div', { className: 'mt-2 text-amber-400 text-xl' }, '🏮')
-                )
-            );
-        };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(React.createElement(App));
-    </script>
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(App));
+  </script>
 </body>
 </html>
