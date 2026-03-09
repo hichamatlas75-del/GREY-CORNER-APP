@@ -13,17 +13,16 @@
       --bg:#0a0b0d;
       --bg2:#111317;
       --panel:rgba(17,19,23,.78);
-      --panel-strong:rgba(22,25,30,.9);
+      --panel-strong:rgba(22,25,30,.92);
       --stroke:rgba(255,255,255,.09);
-      --stroke-soft:rgba(255,255,255,.06);
       --text:#f5f7fa;
       --muted:rgba(245,247,250,.62);
       --gold:#d6b36a;
-      --gold-soft:rgba(214,179,106,.22);
+      --gold-soft:rgba(214,179,106,.14);
       --shadow:0 20px 60px rgba(0,0,0,.45);
     }
 
-    *{ box-sizing:border-box; }
+    *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
 
     html,body{
       margin:0;
@@ -62,7 +61,6 @@
 
     .glow-top{
       position:fixed;
-      inset:auto 0 0 auto;
       width:420px;
       height:420px;
       border-radius:999px;
@@ -338,58 +336,6 @@
       text-transform:uppercase;
     }
 
-    .access-denied{
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:22px;
-      position:relative;
-      z-index:3;
-    }
-
-    .access-box{
-      width:min(100%,380px);
-      padding:30px 22px;
-      border-radius:28px;
-      border:1px solid rgba(214,179,106,.18);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.012)),
-        rgba(11,13,17,.84);
-      backdrop-filter:blur(18px);
-      box-shadow:var(--shadow);
-      text-align:center;
-    }
-
-    .access-lock{
-      width:68px;
-      height:68px;
-      margin:0 auto 14px;
-      border-radius:20px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:30px;
-      color:var(--gold);
-      background:rgba(214,179,106,.08);
-      border:1px solid rgba(214,179,106,.18);
-    }
-
-    .access-title{
-      margin:0 0 8px;
-      font-family:'Cormorant Garamond',serif;
-      font-size:34px;
-      line-height:1;
-      color:#f8f5ef;
-    }
-
-    .access-text{
-      margin:0;
-      color:var(--muted);
-      font-size:14px;
-      line-height:1.7;
-    }
-
     @keyframes fadeUp{
       from{ opacity:0; transform:translateY(16px); }
       to{ opacity:1; transform:translateY(0); }
@@ -399,37 +345,293 @@
       opacity:0;
       animation:fadeUp .65s ease forwards;
     }
+
+    /* PIN LOCKSCREEN */
+    .lockscreen{
+      position:fixed;
+      inset:0;
+      z-index:50;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:
+        linear-gradient(180deg, rgba(6,7,10,.78), rgba(6,7,10,.88)),
+        radial-gradient(circle at top, rgba(214,179,106,.08), transparent 30%);
+      backdrop-filter:blur(14px);
+    }
+
+    .pin-panel{
+      width:min(100%, 390px);
+      border-radius:32px;
+      border:1px solid rgba(214,179,106,.16);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01)),
+        rgba(12,14,18,.92);
+      box-shadow:
+        0 28px 80px rgba(0,0,0,.5),
+        inset 0 1px 0 rgba(255,255,255,.04);
+      padding:24px 20px 22px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .pin-panel::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at top right, rgba(214,179,106,.10), transparent 28%),
+        linear-gradient(140deg, transparent 0%, rgba(255,255,255,.02) 45%, transparent 100%);
+      pointer-events:none;
+    }
+
+    .pin-top{
+      position:relative;
+      z-index:1;
+      text-align:center;
+      margin-bottom:18px;
+    }
+
+    .pin-badge{
+      width:68px;
+      height:68px;
+      margin:0 auto 14px;
+      border-radius:22px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:28px;
+      color:var(--gold);
+      background:rgba(214,179,106,.08);
+      border:1px solid rgba(214,179,106,.18);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .pin-title{
+      margin:0;
+      font-family:'Cormorant Garamond',serif;
+      font-size:38px;
+      line-height:1;
+      color:#f8f5ef;
+      letter-spacing:.03em;
+    }
+
+    .pin-sub{
+      margin:8px auto 0;
+      max-width:260px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+
+    .pin-dots{
+      position:relative;
+      z-index:1;
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      margin:18px 0 12px;
+    }
+
+    .pin-dot{
+      width:14px;
+      height:14px;
+      border-radius:999px;
+      border:1px solid rgba(214,179,106,.35);
+      background:rgba(255,255,255,.04);
+      box-shadow:inset 0 1px 2px rgba(0,0,0,.25);
+      transition:all .22s ease;
+    }
+
+    .pin-dot.filled{
+      background:linear-gradient(180deg, rgba(214,179,106,.95), rgba(182,144,76,.95));
+      border-color:rgba(214,179,106,.9);
+      box-shadow:0 0 14px rgba(214,179,106,.22);
+    }
+
+    .pin-error{
+      min-height:20px;
+      text-align:center;
+      font-size:12px;
+      color:#d89a9a;
+      margin-bottom:12px;
+      letter-spacing:.02em;
+      position:relative;
+      z-index:1;
+    }
+
+    .pin-pad{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:12px;
+      margin-top:6px;
+    }
+
+    .pin-key{
+      height:68px;
+      border:none;
+      border-radius:22px;
+      color:#f8f5ef;
+      font-size:24px;
+      font-weight:700;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015)),
+        rgba(255,255,255,.02);
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:
+        0 10px 22px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.05);
+      transition:transform .12s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
+    }
+
+    .pin-key:active{
+      transform:scale(.97);
+    }
+
+    .pin-key:hover{
+      border-color:rgba(214,179,106,.28);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.02)),
+        rgba(214,179,106,.03);
+    }
+
+    .pin-key.func{
+      font-size:13px;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .pin-key.enter{
+      color:var(--gold);
+    }
+
+    .hidden-app{
+      visibility:hidden;
+    }
+
+    @media (max-width:420px){
+      .pin-panel{ padding:22px 16px 18px; border-radius:28px; }
+      .pin-key{ height:64px; border-radius:20px; }
+      .pin-title{ font-size:34px; }
+    }
   </style>
 </head>
 <body>
   <div class="noise"></div>
   <div class="glow-top"></div>
-  <div id="root" class="shell"></div>
 
-  <script>
-    const PASSWORD = "2026";
-    const enteredPassword = prompt("Entrez le mot de passe");
+  <div id="lockscreen" class="lockscreen">
+    <div class="pin-panel">
+      <div class="pin-top">
+        <div class="pin-badge">✦</div>
+        <h2 class="pin-title">Accès privé</h2>
+        <p class="pin-sub">Saisissez votre code PIN pour ouvrir l’espace planning Grey Corner.</p>
+      </div>
 
-    if (enteredPassword !== PASSWORD) {
-      document.body.innerHTML = `
-        <div class="noise"></div>
-        <div class="glow-top"></div>
-        <div class="access-denied">
-          <div class="access-box">
-            <div class="access-lock">🔒</div>
-            <h1 class="access-title">Accès refusé</h1>
-            <p class="access-text">Le mot de passe est incorrect.</p>
-          </div>
-        </div>
-      `;
-      throw new Error("Accès refusé");
-    }
-  </script>
+      <div class="pin-dots" id="pinDots">
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+      </div>
+
+      <div class="pin-error" id="pinError"></div>
+
+      <div class="pin-pad">
+        <button class="pin-key" data-num="1">1</button>
+        <button class="pin-key" data-num="2">2</button>
+        <button class="pin-key" data-num="3">3</button>
+        <button class="pin-key" data-num="4">4</button>
+        <button class="pin-key" data-num="5">5</button>
+        <button class="pin-key" data-num="6">6</button>
+        <button class="pin-key" data-num="7">7</button>
+        <button class="pin-key" data-num="8">8</button>
+        <button class="pin-key" data-num="9">9</button>
+        <button class="pin-key func" id="clearPin">Effacer</button>
+        <button class="pin-key" data-num="0">0</button>
+        <button class="pin-key func enter" id="submitPin">Entrer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="root" class="shell hidden-app"></div>
 
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
   <script>
+    const PIN_CODE = "2026";
+    let pinValue = "";
+
+    const lockscreen = document.getElementById("lockscreen");
+    const rootShell = document.getElementById("root");
+    const dots = Array.from(document.querySelectorAll(".pin-dot"));
+    const pinError = document.getElementById("pinError");
+
+    function updateDots() {
+      dots.forEach((dot, i) => {
+        dot.classList.toggle("filled", i < pinValue.length);
+      });
+    }
+
+    function clearError() {
+      pinError.textContent = "";
+    }
+
+    function showError(msg) {
+      pinError.textContent = msg;
+    }
+
+    function unlockApp() {
+      lockscreen.style.opacity = "0";
+      lockscreen.style.pointerEvents = "none";
+      setTimeout(() => {
+        lockscreen.remove();
+        rootShell.classList.remove("hidden-app");
+      }, 250);
+    }
+
+    function submitPin() {
+      if (pinValue.length !== 4) {
+        showError("Entrez un code PIN à 4 chiffres.");
+        return;
+      }
+
+      if (pinValue === PIN_CODE) {
+        clearError();
+        unlockApp();
+      } else {
+        showError("Code incorrect.");
+        pinValue = "";
+        updateDots();
+      }
+    }
+
+    document.querySelectorAll("[data-num]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (pinValue.length >= 4) return;
+        pinValue += btn.dataset.num;
+        clearError();
+        updateDots();
+        if (pinValue.length === 4) {
+          setTimeout(submitPin, 120);
+        }
+      });
+    });
+
+    document.getElementById("clearPin").addEventListener("click", () => {
+      pinValue = "";
+      clearError();
+      updateDots();
+    });
+
+    document.getElementById("submitPin").addEventListener("click", submitPin);
+
     const React = window.React;
     const ReactDOM = window.ReactDOM;
 
