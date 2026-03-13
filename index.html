@@ -6,531 +6,364 @@
   <title>Grey Corner • Private Access</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    :root{
-      --bg:#0a0b0d;
-      --bg2:#111317;
-      --panel:rgba(17,19,23,.78);
-      --panel-strong:rgba(22,25,30,.92);
-      --stroke:rgba(255,255,255,.09);
-      --text:#f5f7fa;
-      --muted:rgba(245,247,250,.62);
-      --gold:#d6b36a;
-      --gold-soft:rgba(214,179,106,.14);
-      --shadow:0 20px 60px rgba(0,0,0,.45);
+    :root {
+      --bg: #09090c;
+      --panel: rgba(15,17,22,.80);
+      --panel-strong: rgba(19,22,28,.94);
+      --stroke: rgba(255,255,255,.072);
+      --stroke-gold: rgba(214,179,106,.30);
+      --text: #f0ede8;
+      --muted: rgba(240,237,232,.52);
+      --gold: #d6b36a;
+      --gold-dim: rgba(214,179,106,.75);
+      --gold-soft: rgba(214,179,106,.08);
+      --gold-mid: rgba(214,179,106,.15);
+      --shadow: 0 22px 56px rgba(0,0,0,.50);
     }
 
-    *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-    html,body{
-      margin:0;
-      min-height:100%;
+    html, body {
+      min-height: 100%;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      overflow-x: hidden;
       background:
-        radial-gradient(circle at top, rgba(214,179,106,.08), transparent 28%),
-        radial-gradient(circle at bottom left, rgba(255,255,255,.035), transparent 24%),
-        linear-gradient(160deg, #090a0d 0%, #0f1115 45%, #090a0d 100%);
-      color:var(--text);
-      font-family:'Inter',sans-serif;
-      overflow-x:hidden;
+        radial-gradient(ellipse 65% 38% at 72% 0%, rgba(214,179,106,.075) 0%, transparent 55%),
+        radial-gradient(ellipse 45% 45% at 8% 92%, rgba(255,255,255,.022) 0%, transparent 50%),
+        linear-gradient(172deg, #0b0c10 0%, #0e0f14 48%, #09090c 100%);
     }
 
-    body{
-      display:flex;
-      justify-content:center;
-      position:relative;
+    body { display: flex; justify-content: center; position: relative; }
+
+    /* Grain overlay */
+    .grain {
+      position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: .034;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 160px;
     }
 
-    .noise{
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      opacity:.035;
-      background-image:
-        repeating-linear-gradient(
-          0deg,
-          rgba(255,255,255,.8) 0px,
-          rgba(255,255,255,.8) 1px,
-          transparent 1px,
-          transparent 2px
-        );
-      mix-blend-mode:soft-light;
-      z-index:0;
+    /* Ambient glows */
+    .glow-a, .glow-b { position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; filter: blur(64px); }
+    .glow-a { width: 460px; height: 460px; top: -170px; right: -150px; background: radial-gradient(circle, rgba(214,179,106,.10), transparent 65%); }
+    .glow-b { width: 280px; height: 280px; bottom: 8%; left: -80px; background: radial-gradient(circle, rgba(160,150,200,.04), transparent 65%); }
+
+    /* Shell */
+    .shell { width: 100%; max-width: 468px; padding: 26px 15px 44px; position: relative; z-index: 2; }
+
+    /* Hero card */
+    .hero {
+      position: relative; overflow: hidden;
+      border: 1px solid var(--stroke);
+      background: linear-gradient(158deg, rgba(255,255,255,.038) 0%, rgba(255,255,255,.010) 100%), rgba(11,13,18,.78);
+      border-radius: 28px;
+      padding: 30px 22px 24px;
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.038);
+      text-align: center;
     }
 
-    .glow-top{
-      position:fixed;
-      width:420px;
-      height:420px;
-      border-radius:999px;
-      background:radial-gradient(circle, rgba(214,179,106,.12), transparent 65%);
-      filter:blur(22px);
-      pointer-events:none;
-      z-index:0;
-      top:-120px;
-      right:-120px;
+    .hero::before {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at top right, rgba(214,179,106,.11), transparent 34%);
     }
 
-    .shell{
-      width:100%;
-      max-width:470px;
-      padding:26px 18px 36px;
-      position:relative;
-      z-index:2;
+    /* Spinning logo ring */
+    .logo-wrap {
+      position: relative; width: 90px; height: 90px;
+      margin: 0 auto 20px; border-radius: 50%;
     }
 
-    .hero{
-      position:relative;
-      overflow:hidden;
-      border:1px solid var(--stroke);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)),
-        rgba(10,12,15,.74);
-      border-radius:30px;
-      padding:26px 22px 22px;
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(14px);
+    .logo-wrap::before {
+      content: ""; position: absolute; inset: -2px; border-radius: 50%;
+      background: conic-gradient(from 0deg,
+        rgba(214,179,106,.85) 0%, rgba(255,255,255,.55) 25%,
+        rgba(214,179,106,.40) 50%, rgba(255,255,255,.55) 75%,
+        rgba(214,179,106,.85) 100%);
+      animation: rotateBorder 14s linear infinite;
     }
 
-    .hero::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:
-        radial-gradient(circle at top right, rgba(214,179,106,.12), transparent 28%),
-        linear-gradient(120deg, transparent 0%, rgba(255,255,255,.02) 45%, transparent 100%);
-      pointer-events:none;
+    .logo-wrap::after { content: ""; position: absolute; inset: 2px; border-radius: 50%; background: #0d0e13; }
+
+    @keyframes rotateBorder { to { transform: rotate(360deg); } }
+
+    .logo-wrap img {
+      position: absolute; inset: 4px; z-index: 1;
+      width: calc(100% - 8px); height: calc(100% - 8px);
+      object-fit: cover; border-radius: 50%; background: #fff;
     }
 
-    .logo-wrap{
-      position:relative;
-      width:94px;
-      height:94px;
-      margin:0 auto 18px;
-      border-radius:999px;
-      padding:4px;
-      background:linear-gradient(135deg, rgba(214,179,106,.9), rgba(255,255,255,.45), rgba(214,179,106,.6));
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.06),
-        0 18px 30px rgba(0,0,0,.35),
-        0 0 28px rgba(214,179,106,.12);
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 10px;
+      color: var(--gold); font-size: 10px; font-weight: 700;
+      letter-spacing: .38em; text-transform: uppercase; margin-bottom: 11px;
+    }
+    .eyebrow::before, .eyebrow::after {
+      content: ""; width: 20px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
     }
 
-    .logo-wrap img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      border-radius:999px;
-      display:block;
-      background:#fff;
-      border:1px solid rgba(255,255,255,.08);
+    .brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 44px; line-height: 1; font-weight: 700;
+      letter-spacing: .07em; color: #f8f4ee;
+      position: relative; z-index: 1;
     }
 
-    .eyebrow{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      margin-bottom:12px;
-      color:var(--gold);
-      font-size:11px;
-      font-weight:800;
-      letter-spacing:.34em;
-      text-transform:uppercase;
+    .sub {
+      margin: 10px auto 0; max-width: 275px;
+      color: var(--muted); font-size: 12.5px; line-height: 1.78;
+      position: relative; z-index: 1;
     }
 
-    .eyebrow::before,
-    .eyebrow::after{
-      content:"";
-      width:22px;
-      height:1px;
-      background:linear-gradient(90deg, transparent, rgba(214,179,106,.7), transparent);
+    .gold-rule {
+      width: 76px; height: 1px; margin: 18px auto 0;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: .70; position: relative; z-index: 1;
     }
 
-    .brand{
-      font-family:'Cormorant Garamond',serif;
-      font-size:42px;
-      line-height:1;
-      font-weight:700;
-      letter-spacing:.06em;
-      text-align:center;
-      margin:0;
-      color:#f8f5ef;
+    /* Section header */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 22px 3px 13px;
     }
 
-    .sub{
-      margin:10px auto 0;
-      text-align:center;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.7;
-      max-width:290px;
+    .section-label {
+      font-size: 10.5px; font-weight: 700; letter-spacing: .26em;
+      color: rgba(255,255,255,.70); text-transform: uppercase;
     }
 
-    .divider{
-      width:92px;
-      height:1px;
-      margin:18px auto 0;
-      background:linear-gradient(90deg, transparent, rgba(214,179,106,.9), transparent);
+    .section-pill {
+      font-size: 10px; font-weight: 600; letter-spacing: .10em;
+      color: var(--gold-dim); text-transform: uppercase;
+      background: var(--gold-soft); border: 1px solid rgba(214,179,106,.13);
+      padding: 3px 10px; border-radius: 20px;
     }
 
-    .section-title{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      margin:22px 4px 14px;
-      color:rgba(255,255,255,.78);
-      font-size:12px;
-      font-weight:700;
-      letter-spacing:.20em;
-      text-transform:uppercase;
+    /* Nav list */
+    .nav-list { display: flex; flex-direction: column; gap: 12px; }
+
+    /* Lux card */
+    .lux-card {
+      position: relative; display: block; overflow: hidden;
+      min-height: 114px; border-radius: 22px;
+      text-decoration: none;
+      border: 1px solid var(--stroke);
+      background: linear-gradient(165deg, rgba(255,255,255,.038) 0%, rgba(255,255,255,.010) 100%), var(--panel);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 26px rgba(0,0,0,.22);
+      transition: transform .38s cubic-bezier(.22,.68,0,1.26), border-color .30s ease, box-shadow .30s ease, background .30s ease;
     }
 
-    .section-title span:last-child{
-      color:rgba(214,179,106,.8);
-      letter-spacing:.14em;
-      font-size:11px;
+    .lux-card:hover {
+      transform: translateY(-5px) scale(1.008);
+      border-color: var(--stroke-gold);
+      box-shadow: 0 22px 42px rgba(0,0,0,.34), 0 0 0 1px rgba(214,179,106,.06) inset;
+      background: linear-gradient(165deg, rgba(255,255,255,.052) 0%, rgba(255,255,255,.016) 100%), var(--panel-strong);
     }
 
-    .nav-list{
-      display:flex;
-      flex-direction:column;
-      gap:14px;
+    .card-img {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      opacity: .15; filter: grayscale(18%) contrast(108%); transform: scale(1);
+      transition: transform .72s cubic-bezier(.25,.46,.45,.94), opacity .34s ease;
     }
 
-    .lux-card{
-      position:relative;
-      display:block;
-      overflow:hidden;
-      min-height:118px;
-      border-radius:26px;
-      text-decoration:none;
-      border:1px solid var(--stroke);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)),
-        var(--panel);
-      backdrop-filter:blur(14px);
-      box-shadow:0 12px 30px rgba(0,0,0,.24);
-      transition:transform .35s ease, border-color .35s ease, box-shadow .35s ease, background .35s ease;
+    .lux-card:hover .card-img { transform: scale(1.07); opacity: .22; }
+
+    .card-scrim {
+      position: absolute; inset: 0;
+      background: linear-gradient(100deg, rgba(8,9,14,.94) 0%, rgba(8,9,14,.78) 45%, rgba(8,9,14,.48) 100%);
     }
 
-    .lux-card:hover{
-      transform:translateY(-5px);
-      border-color:rgba(214,179,106,.38);
-      box-shadow:0 22px 40px rgba(0,0,0,.33), 0 0 0 1px rgba(214,179,106,.08) inset;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.02)),
-        var(--panel-strong);
+    .card-inner {
+      position: relative; z-index: 2;
+      min-height: 114px; padding: 18px 18px 18px 20px;
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
     }
 
-    .card-image{
-      position:absolute;
-      inset:0;
-      background-size:cover;
-      background-position:center;
-      opacity:.17;
-      transform:scale(1);
-      transition:transform .7s ease, opacity .35s ease;
-      filter:grayscale(20%) contrast(108%);
+    .meta { display: flex; flex-direction: column; gap: 7px; flex: 1; min-width: 0; }
+
+    .card-tag {
+      font-size: 9.5px; font-weight: 700; letter-spacing: .28em;
+      color: var(--gold); text-transform: uppercase;
     }
 
-    .lux-card:hover .card-image{
-      transform:scale(1.06);
-      opacity:.24;
+    .title-row { display: flex; align-items: center; gap: 11px; }
+
+    .icon-box {
+      width: 40px; height: 40px; border-radius: 13px; flex: 0 0 auto;
+      display: flex; align-items: center; justify-content: center; font-size: 19px;
+      background: var(--gold-soft); border: 1px solid rgba(214,179,106,.14);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+      transition: transform .25s ease, background .25s ease;
     }
 
-    .card-overlay{
-      position:absolute;
-      inset:0;
-      background:
-        linear-gradient(90deg, rgba(8,10,13,.92) 0%, rgba(8,10,13,.78) 44%, rgba(8,10,13,.52) 100%),
-        linear-gradient(180deg, transparent, rgba(214,179,106,.03));
+    .lux-card:hover .icon-box { transform: scale(1.1) rotate(-4deg); background: var(--gold-mid); }
+
+    .card-title { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -.025em; line-height: 1.1; }
+    .card-hint { font-size: 11.5px; color: var(--muted); line-height: 1.58; }
+
+    .go-btn {
+      width: 42px; height: 42px; border-radius: 50%; flex: 0 0 auto;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(214,179,106,.20); color: var(--gold-dim);
+      background: var(--gold-soft);
+      transition: all .28s ease;
     }
 
-    .card-inner{
-      position:relative;
-      z-index:2;
-      min-height:118px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
-      padding:18px 18px 18px 20px;
+    .lux-card:hover .go-btn {
+      transform: translateX(3px);
+      background: var(--gold-mid);
+      border-color: rgba(214,179,106,.44);
+      box-shadow: 0 0 22px rgba(214,179,106,.14);
     }
 
-    .meta{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
+    /* Footer */
+    .footer {
+      text-align: center; padding-top: 22px;
+      color: rgba(255,255,255,.28); font-size: 10.5px;
+      letter-spacing: .30em; text-transform: uppercase;
     }
 
-    .tag{
-      font-size:10px;
-      font-weight:800;
-      letter-spacing:.28em;
-      color:var(--gold);
-      text-transform:uppercase;
+    /* Fade-up animation */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { opacity: 0; animation: fadeUp .60s cubic-bezier(.22,.68,0,1) forwards; }
+
+    /* ─── LOCKSCREEN ─── */
+    .lockscreen {
+      position: fixed; inset: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+      background: linear-gradient(180deg, rgba(5,6,9,.82), rgba(5,6,9,.92));
+      backdrop-filter: blur(18px);
+      transition: opacity .28s ease;
     }
 
-    .title-row{
-      display:flex;
-      align-items:center;
-      gap:12px;
+    .pin-panel {
+      width: min(100%, 384px); border-radius: 30px;
+      border: 1px solid rgba(214,179,106,.14);
+      background: linear-gradient(165deg, rgba(255,255,255,.032) 0%, rgba(255,255,255,.008) 100%), rgba(11,13,18,.94);
+      box-shadow: 0 32px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.038);
+      padding: 26px 20px 22px;
+      position: relative; overflow: hidden;
     }
 
-    .emoji{
-      width:42px;
-      height:42px;
-      border-radius:14px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:rgba(214,179,106,.08);
-      border:1px solid rgba(214,179,106,.16);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
-      font-size:20px;
-      flex:0 0 auto;
+    .pin-panel::before {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at top right, rgba(214,179,106,.10), transparent 30%);
     }
 
-    .title{
-      margin:0;
-      font-size:21px;
-      font-weight:800;
-      color:#fff;
-      letter-spacing:-.02em;
+    .pin-top { position: relative; z-index: 1; text-align: center; margin-bottom: 18px; }
+
+    .pin-badge {
+      width: 66px; height: 66px; margin: 0 auto 14px;
+      border-radius: 22px; display: flex; align-items: center; justify-content: center;
+      font-size: 26px; color: var(--gold);
+      background: var(--gold-soft); border: 1px solid rgba(214,179,106,.18);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
     }
 
-    .hint{
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.6;
+    .pin-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px; line-height: 1; color: #f8f4ee; letter-spacing: .03em;
     }
 
-    .go{
-      width:44px;
-      height:44px;
-      border-radius:999px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border:1px solid rgba(214,179,106,.22);
-      color:var(--gold);
-      background:rgba(214,179,106,.06);
-      transition:all .3s ease;
-      flex:0 0 auto;
+    .pin-sub { margin: 8px auto 0; max-width: 252px; color: var(--muted); font-size: 12.5px; line-height: 1.72; }
+
+    .pin-dots { position: relative; z-index: 1; display: flex; justify-content: center; gap: 13px; margin: 18px 0 10px; }
+
+    .pin-dot {
+      width: 13px; height: 13px; border-radius: 50%;
+      border: 1px solid rgba(214,179,106,.32);
+      background: rgba(255,255,255,.04);
+      transition: all .20s ease;
     }
 
-    .lux-card:hover .go{
-      transform:translateX(2px);
-      background:rgba(214,179,106,.16);
-      border-color:rgba(214,179,106,.44);
-      box-shadow:0 0 20px rgba(214,179,106,.12);
+    .pin-dot.filled {
+      background: linear-gradient(180deg, rgba(214,179,106,.95), rgba(178,138,64,.95));
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(214,179,106,.28);
+      transform: scale(1.15);
     }
 
-    .footer{
-      text-align:center;
-      padding-top:18px;
-      color:rgba(255,255,255,.34);
-      font-size:11px;
-      letter-spacing:.28em;
-      text-transform:uppercase;
+    .pin-error {
+      min-height: 18px; text-align: center; font-size: 11.5px;
+      color: #d89a9a; margin-bottom: 12px; letter-spacing: .02em;
+      position: relative; z-index: 1;
     }
 
-    @keyframes fadeUp{
-      from{ opacity:0; transform:translateY(16px); }
-      to{ opacity:1; transform:translateY(0); }
+    .pin-pad {
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
     }
 
-    .fade-up{
-      opacity:0;
-      animation:fadeUp .65s ease forwards;
+    .pin-key {
+      height: 66px; border-radius: 20px; cursor: pointer;
+      color: #f0ede8; font-family: 'DM Sans', sans-serif;
+      font-size: 23px; font-weight: 600;
+      background: linear-gradient(165deg, rgba(255,255,255,.042) 0%, rgba(255,255,255,.012) 100%), rgba(255,255,255,.022);
+      border: 1px solid rgba(255,255,255,.058);
+      box-shadow: 0 8px 20px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.046);
+      transition: transform .12s ease, border-color .20s ease, background .20s ease;
+      user-select: none;
     }
 
-    /* PIN LOCKSCREEN */
-    .lockscreen{
-      position:fixed;
-      inset:0;
-      z-index:50;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-      background:
-        linear-gradient(180deg, rgba(6,7,10,.78), rgba(6,7,10,.88)),
-        radial-gradient(circle at top, rgba(214,179,106,.08), transparent 30%);
-      backdrop-filter:blur(14px);
+    .pin-key:hover {
+      border-color: rgba(214,179,106,.26);
+      background: linear-gradient(165deg, rgba(255,255,255,.054) 0%, rgba(255,255,255,.018) 100%), rgba(214,179,106,.028);
     }
 
-    .pin-panel{
-      width:min(100%, 390px);
-      border-radius:32px;
-      border:1px solid rgba(214,179,106,.16);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01)),
-        rgba(12,14,18,.92);
-      box-shadow:
-        0 28px 80px rgba(0,0,0,.5),
-        inset 0 1px 0 rgba(255,255,255,.04);
-      padding:24px 20px 22px;
-      position:relative;
-      overflow:hidden;
+    .pin-key:active { transform: scale(.95); }
+
+    .pin-key.func {
+      font-size: 22px; letter-spacing: 0;
+      color: var(--muted); font-weight: 500;
     }
 
-    .pin-panel::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:
-        radial-gradient(circle at top right, rgba(214,179,106,.10), transparent 28%),
-        linear-gradient(140deg, transparent 0%, rgba(255,255,255,.02) 45%, transparent 100%);
-      pointer-events:none;
+    .pin-key.enter {
+      color: var(--gold); font-size: 22px; letter-spacing: 0; font-weight: 600;
     }
 
-    .pin-top{
-      position:relative;
-      z-index:1;
-      text-align:center;
-      margin-bottom:18px;
-    }
+    .pin-key.enter:hover { border-color: rgba(214,179,106,.38); box-shadow: 0 0 18px rgba(214,179,106,.10); }
 
-    .pin-badge{
-      width:68px;
-      height:68px;
-      margin:0 auto 14px;
-      border-radius:22px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:28px;
-      color:var(--gold);
-      background:rgba(214,179,106,.08);
-      border:1px solid rgba(214,179,106,.18);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    /* Shake on wrong PIN */
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%     { transform: translateX(-9px); }
+      40%     { transform: translateX(9px); }
+      60%     { transform: translateX(-6px); }
+      80%     { transform: translateX(6px); }
     }
+    .shake { animation: shake .38s ease; }
 
-    .pin-title{
-      margin:0;
-      font-family:'Cormorant Garamond',serif;
-      font-size:38px;
-      line-height:1;
-      color:#f8f5ef;
-      letter-spacing:.03em;
-    }
+    .hidden-app { visibility: hidden; }
 
-    .pin-sub{
-      margin:8px auto 0;
-      max-width:260px;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.7;
-    }
-
-    .pin-dots{
-      position:relative;
-      z-index:1;
-      display:flex;
-      justify-content:center;
-      gap:12px;
-      margin:18px 0 12px;
-    }
-
-    .pin-dot{
-      width:14px;
-      height:14px;
-      border-radius:999px;
-      border:1px solid rgba(214,179,106,.35);
-      background:rgba(255,255,255,.04);
-      box-shadow:inset 0 1px 2px rgba(0,0,0,.25);
-      transition:all .22s ease;
-    }
-
-    .pin-dot.filled{
-      background:linear-gradient(180deg, rgba(214,179,106,.95), rgba(182,144,76,.95));
-      border-color:rgba(214,179,106,.9);
-      box-shadow:0 0 14px rgba(214,179,106,.22);
-    }
-
-    .pin-error{
-      min-height:20px;
-      text-align:center;
-      font-size:12px;
-      color:#d89a9a;
-      margin-bottom:12px;
-      letter-spacing:.02em;
-      position:relative;
-      z-index:1;
-    }
-
-    .pin-pad{
-      position:relative;
-      z-index:1;
-      display:grid;
-      grid-template-columns:repeat(3, 1fr);
-      gap:12px;
-      margin-top:6px;
-    }
-
-    .pin-key{
-      height:68px;
-      border:none;
-      border-radius:22px;
-      color:#f8f5ef;
-      font-size:24px;
-      font-weight:700;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015)),
-        rgba(255,255,255,.02);
-      border:1px solid rgba(255,255,255,.06);
-      box-shadow:
-        0 10px 22px rgba(0,0,0,.22),
-        inset 0 1px 0 rgba(255,255,255,.05);
-      transition:transform .12s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
-    }
-
-    .pin-key:active{
-      transform:scale(.97);
-    }
-
-    .pin-key:hover{
-      border-color:rgba(214,179,106,.28);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.02)),
-        rgba(214,179,106,.03);
-    }
-
-    .pin-key.func{
-      font-size:13px;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      color:var(--muted);
-      font-weight:700;
-    }
-
-    .pin-key.enter{
-      color:var(--gold);
-    }
-
-    .hidden-app{
-      visibility:hidden;
-    }
-
-    @media (max-width:420px){
-      .pin-panel{ padding:22px 16px 18px; border-radius:28px; }
-      .pin-key{ height:64px; border-radius:20px; }
-      .pin-title{ font-size:34px; }
+    @media (max-width: 400px) {
+      .pin-panel { padding: 22px 14px 18px; border-radius: 26px; }
+      .pin-key { height: 60px; border-radius: 17px; }
+      .pin-title { font-size: 32px; }
+      .brand { font-size: 38px; }
     }
   </style>
 </head>
 <body>
-  <div class="noise"></div>
-  <div class="glow-top"></div>
+  <div class="grain"></div>
+  <div class="glow-a"></div>
+  <div class="glow-b"></div>
 
+  <!-- ─── LOCKSCREEN ─── -->
   <div id="lockscreen" class="lockscreen">
-    <div class="pin-panel">
+    <div class="pin-panel" id="pinPanel">
       <div class="pin-top">
         <div class="pin-badge">✦</div>
         <h2 class="pin-title">Accès privé</h2>
-        <p class="pin-sub">Saisissez votre code PIN pour ouvrir l’espace planning Grey Corner.</p>
+        <p class="pin-sub">Saisissez votre code PIN pour ouvrir l'espace planning Grey Corner.</p>
       </div>
 
       <div class="pin-dots" id="pinDots">
@@ -540,7 +373,7 @@
         <span class="pin-dot"></span>
       </div>
 
-      <div class="pin-error" id="pinError"></div>
+      <p class="pin-error" id="pinError"></p>
 
       <div class="pin-pad">
         <button class="pin-key" data-num="1">1</button>
@@ -552,64 +385,50 @@
         <button class="pin-key" data-num="7">7</button>
         <button class="pin-key" data-num="8">8</button>
         <button class="pin-key" data-num="9">9</button>
-        <button class="pin-key func" id="clearPin">Effacer</button>
+        <button class="pin-key func" id="clearPin">⌫</button>
         <button class="pin-key" data-num="0">0</button>
-        <button class="pin-key func enter" id="submitPin">Entrer</button>
+        <button class="pin-key func enter" id="submitPin">↵</button>
       </div>
     </div>
   </div>
 
+  <!-- ─── APP ─── -->
   <div id="root" class="shell hidden-app"></div>
 
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
   <script>
+    /* ── PIN ── */
     const PIN_CODE = "2026";
     let pinValue = "";
 
     const lockscreen = document.getElementById("lockscreen");
-    const rootShell = document.getElementById("root");
-    const dots = Array.from(document.querySelectorAll(".pin-dot"));
-    const pinError = document.getElementById("pinError");
+    const rootShell  = document.getElementById("root");
+    const pinPanel   = document.getElementById("pinPanel");
+    const dots       = Array.from(document.querySelectorAll(".pin-dot"));
+    const pinError   = document.getElementById("pinError");
 
-    function updateDots() {
-      dots.forEach((dot, i) => {
-        dot.classList.toggle("filled", i < pinValue.length);
-      });
-    }
-
-    function clearError() {
-      pinError.textContent = "";
-    }
+    const updateDots = () => dots.forEach((d, i) => d.classList.toggle("filled", i < pinValue.length));
+    const clearError = () => { pinError.textContent = ""; };
 
     function showError(msg) {
       pinError.textContent = msg;
+      pinPanel.classList.remove("shake");
+      void pinPanel.offsetWidth;
+      pinPanel.classList.add("shake");
     }
 
     function unlockApp() {
       lockscreen.style.opacity = "0";
       lockscreen.style.pointerEvents = "none";
-      setTimeout(() => {
-        lockscreen.remove();
-        rootShell.classList.remove("hidden-app");
-      }, 250);
+      setTimeout(() => { lockscreen.remove(); rootShell.classList.remove("hidden-app"); }, 260);
     }
 
     function submitPin() {
-      if (pinValue.length !== 4) {
-        showError("Entrez un code PIN à 4 chiffres.");
-        return;
-      }
-
-      if (pinValue === PIN_CODE) {
-        clearError();
-        unlockApp();
-      } else {
-        showError("Code incorrect.");
-        pinValue = "";
-        updateDots();
-      }
+      if (pinValue.length !== 4) { showError("Entrez un code à 4 chiffres."); return; }
+      if (pinValue === PIN_CODE) { clearError(); unlockApp(); }
+      else { showError("Code incorrect. Réessayez."); pinValue = ""; updateDots(); }
     }
 
     document.querySelectorAll("[data-num]").forEach(btn => {
@@ -618,133 +437,135 @@
         pinValue += btn.dataset.num;
         clearError();
         updateDots();
-        if (pinValue.length === 4) {
-          setTimeout(submitPin, 120);
-        }
+        if (pinValue.length === 4) setTimeout(submitPin, 130);
       });
     });
 
-    document.getElementById("clearPin").addEventListener("click", () => {
-      pinValue = "";
-      clearError();
-      updateDots();
-    });
-
+    document.getElementById("clearPin").addEventListener("click", () => { pinValue = ""; clearError(); updateDots(); });
     document.getElementById("submitPin").addEventListener("click", submitPin);
 
-    const React = window.React;
+    /* Keyboard support */
+    document.addEventListener("keydown", e => {
+      if (!document.getElementById("lockscreen")) return;
+      if (e.key >= "0" && e.key <= "9") {
+        if (pinValue.length >= 4) return;
+        pinValue += e.key; clearError(); updateDots();
+        if (pinValue.length === 4) setTimeout(submitPin, 130);
+      } else if (e.key === "Backspace") {
+        pinValue = pinValue.slice(0, -1); clearError(); updateDots();
+      } else if (e.key === "Enter") {
+        submitPin();
+      }
+    });
+
+    /* ── REACT ── */
+    const React    = window.React;
     const ReactDOM = window.ReactDOM;
 
-    const NAV_LINKS = [
+    const LINKS = [
       {
         title: "Planning Bar",
-        subtitle: "Boissons & Coordination",
-        desc: "Organisation élégante du service bar pendant Ramadan.",
+        tag: "Boissons & Coordination",
+        desc: "Organisation élégante du service bar et coordination.",
         href: "bar.html",
         img: "https://images.unsplash.com/photo-1544145945-f904253d0c71?w=1200",
         icon: "🥤"
       },
       {
         title: "Planning Service",
-        subtitle: "Salle & Hospitalité",
-        desc: "Répartition fluide du service et de l’accueil client.",
+        tag: "Salle & Hospitalité",
+        desc: "Répartition fluide du service et de l'accueil client.",
         href: "service.html",
         img: "https://images.pexels.com/photos/1556691/pexels-photo-1556691.jpeg?auto=compress&cs=tinysrgb&w=1200",
         icon: "🍽️"
       },
       {
         title: "Planning Cuisine",
-        subtitle: "Production & Préparation",
-        desc: "Suivi raffiné de l’équipe cuisine et du rythme opérationnel.",
+        tag: "Production & Préparation",
+        desc: "Suivi de l'équipe cuisine et du rythme opérationnel.",
         href: "Cuisine.html",
         img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1200",
         icon: "👨‍🍳"
       },
       {
         title: "Planning Ménage",
-        subtitle: "Ordre & Entretien",
-        desc: "Gestion claire des tâches de propreté et d’entretien.",
+        tag: "Ordre & Entretien",
+        desc: "Gestion des tâches de propreté et d'entretien.",
         href: "menage.html",
         img: "https://images.pexels.com/photos/4099467/pexels-photo-4099467.jpeg?auto=compress&cs=tinysrgb&w=1200",
         icon: "✨"
       }
     ];
 
-    const Arrow = () =>
-      React.createElement(
-        'svg',
-        { className:'w-4 h-4', fill:'none', stroke:'currentColor', viewBox:'0 0 24 24' },
-        React.createElement('path', {
-          strokeLinecap:'round',
-          strokeLinejoin:'round',
-          strokeWidth:'2.4',
-          d:'M9 5l7 7-7 7'
-        })
+    const ChevronRight = () =>
+      React.createElement('svg', {
+        width: 14, height: 14, fill: 'none', stroke: 'currentColor',
+        viewBox: '0 0 24 24', strokeWidth: '2.4',
+        strokeLinecap: 'round', strokeLinejoin: 'round'
+      },
+        React.createElement('path', { d: 'M9 5l7 7-7 7' })
       );
 
-    const App = () => {
-      return React.createElement('div', null,
-        React.createElement('section', { className:'hero fade-up', style:{ animationDelay:'0s' } },
-          React.createElement('div', { className:'text-center relative z-10' },
-            React.createElement('div', { className:'logo-wrap' },
-              React.createElement('img', {
-                src:'LOGO.jpg',
-                alt:'Grey Corner',
-                onError:(e)=>{ e.target.src='https://ui-avatars.com/api/?name=GC&background=111317&color=d6b36a&size=256'; }
-              })
-            ),
-            React.createElement('div', { className:'eyebrow' }, 'Private Planning Access'),
-            React.createElement('h1', { className:'brand' }, 'Grey Corner'),
-            React.createElement('p', { className:'sub' },
-              'Interface privée au style premium pour consulter les plannings par service.'
-            ),
-            React.createElement('div', { className:'divider' })
-          )
-        ),
-
-        React.createElement('div', { className:'section-title fade-up', style:{ animationDelay:'.08s' } },
-          React.createElement('span', null, 'Navigation'),
-          React.createElement('span', null, 'Secure View')
-        ),
-
-        React.createElement('nav', { className:'nav-list' },
-          NAV_LINKS.map((link, i) =>
-            React.createElement('a', {
-              key:i,
-              href:link.href,
-              className:'lux-card fade-up',
-              style:{ animationDelay:`${0.12 + i * 0.08}s` }
-            },
-              React.createElement('div', {
-                className:'card-image',
-                style:{ backgroundImage:`url(${link.img})` }
-              }),
-              React.createElement('div', { className:'card-overlay' }),
-              React.createElement('div', { className:'card-inner' },
-                React.createElement('div', { className:'meta' },
-                  React.createElement('div', { className:'tag' }, link.subtitle),
-                  React.createElement('div', { className:'title-row' },
-                    React.createElement('div', { className:'emoji' }, link.icon),
-                    React.createElement('div', null,
-                      React.createElement('h2', { className:'title' }, link.title),
-                      React.createElement('div', { className:'hint' }, link.desc)
-                    )
-                  )
-                ),
-                React.createElement('div', { className:'go' }, React.createElement(Arrow))
+    const Card = ({ link, delay }) =>
+      React.createElement('a', {
+        href: link.href,
+        className: 'lux-card fade-up',
+        style: { animationDelay: `${delay}s` }
+      },
+        React.createElement('div', { className: 'card-img', style: { backgroundImage: `url(${link.img})` } }),
+        React.createElement('div', { className: 'card-scrim' }),
+        React.createElement('div', { className: 'card-inner' },
+          React.createElement('div', { className: 'meta' },
+            React.createElement('div', { className: 'card-tag' }, link.tag),
+            React.createElement('div', { className: 'title-row' },
+              React.createElement('div', { className: 'icon-box' }, link.icon),
+              React.createElement('div', null,
+                React.createElement('div', { className: 'card-title' }, link.title),
+                React.createElement('div', { className: 'card-hint' }, link.desc)
               )
             )
+          ),
+          React.createElement('div', { className: 'go-btn' },
+            React.createElement(ChevronRight)
+          )
+        )
+      );
+
+    const App = () =>
+      React.createElement('div', null,
+
+        React.createElement('section', { className: 'hero fade-up', style: { animationDelay: '0s' } },
+          React.createElement('div', { className: 'logo-wrap' },
+            React.createElement('img', {
+              src: 'LOGO.jpg', alt: 'Grey Corner',
+              onError: e => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=111317&color=d6b36a&size=256'; }
+            })
+          ),
+          React.createElement('div', { className: 'eyebrow' }, 'Private Planning Access'),
+          React.createElement('h1', { className: 'brand' }, 'Grey Corner'),
+          React.createElement('p', { className: 'sub' },
+            'Interface privée au style premium pour consulter les plannings par service.'
+          ),
+          React.createElement('div', { className: 'gold-rule' })
+        ),
+
+        React.createElement('div', { className: 'section-header fade-up', style: { animationDelay: '.07s' } },
+          React.createElement('span', { className: 'section-label' }, 'Navigation'),
+          React.createElement('span', { className: 'section-pill' }, 'Secure View')
+        ),
+
+        React.createElement('nav', { className: 'nav-list' },
+          LINKS.map((link, i) =>
+            React.createElement(Card, { key: i, link, delay: 0.12 + i * 0.07 })
           )
         ),
 
-        React.createElement('div', { className:'footer fade-up', style:{ animationDelay:'.5s' } },
-          'Grey Corner • Confidential Access'
+        React.createElement('div', { className: 'footer fade-up', style: { animationDelay: '.52s' } },
+          'Grey Corner · Espace Confidentiel'
         )
       );
-    };
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(React.createElement(App));
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
   </script>
 </body>
 </html>
