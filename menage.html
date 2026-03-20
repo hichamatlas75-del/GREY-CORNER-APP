@@ -21,7 +21,6 @@
         .today-shadow {
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
         }
-        /* Ajoute un petit espace au-dessus de la carte quand on scroll dessus */
         .scroll-mt-24 {
             scroll-margin-top: 6rem;
         }
@@ -37,25 +36,25 @@
             S1: {
                 title: 'Semaine 01',
                 schedules: [
-                    { day: 'lundi', matin: { staff: 'SOUAD G' }, soir: { staff: 'SOUAD M / HAKIMA' } },
-                    { day: 'mardi', matin: { staff: 'SAOUAD M' }, soir: { staff: 'SOUAD G / ANISSA' } },
+                    { day: 'lundi', matin: { staff: 'SAMIRA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
+                    { day: 'mardi', matin: { staff: 'SAOUAD M' }, soir: { staff: 'SAMIRA / ANISSA' } },
                     { day: 'mercredi', matin: { staff: 'ANISSA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
-                    { day: 'jeudi', matin: { staff: 'HAKIMA' }, soir: { staff: 'SOUAD G / ANISSA' } },
-                    { day: 'vendredi', matin: { staff: 'SOUAD G / ANISSA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
-                    { day: 'samedi', matin: { staff: 'SOUAD M / HAKIMA' }, soir: { staff: 'SOUAD G / ANISSA' } },
-                    { day: 'dimanche', matin: { staff: 'SOUAD G / ANISSA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
+                    { day: 'jeudi', matin: { staff: 'HAKIMA' }, soir: { staff: 'SAMIRA / ANISSA' } },
+                    { day: 'vendredi', matin: { staff: 'SAMIRA / ANISSA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
+                    { day: 'samedi', matin: { staff: 'SOUAD M / HAKIMA' }, soir: { staff: 'SAMIRA / ANISSA' } },
+                    { day: 'dimanche', matin: { staff: 'SAMIRA / ANISSA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
                 ]
             },
             S2: {
                 title: 'Semaine 02',
                 schedules: [
-                    { day: 'lundi', matin: { staff: 'SOUAD M' }, soir: { staff: 'SOUAD G / ANISSA' } },
-                    { day: 'mardi', matin: { staff: 'SAOUAD G' }, soir: { staff: 'SOUAD M / HAKIMA' } },
-                    { day: 'mercredi', matin: { staff: 'HAKIMA' }, soir: { staff: 'SOUAD G / ANISSA' } },
+                    { day: 'lundi', matin: { staff: 'SOUAD M' }, soir: { staff: 'SAMIRA / ANISSA' } },
+                    { day: 'mardi', matin: { staff: 'SAMIRA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
+                    { day: 'mercredi', matin: { staff: 'HAKIMA' }, soir: { staff: 'SAMIRA / ANISSA' } },
                     { day: 'jeudi', matin: { staff: 'ANISSA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
-                    { day: 'vendredi', matin: { staff: 'SOUAD M / HAKIMA' }, soir: { staff: 'SOUAD G / ANISSA' } },
-                    { day: 'samedi', matin: { staff: 'SOUAD G / ANISSA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
-                    { day: 'dimanche', matin: { staff: 'SOUAD M / HAKIMA' }, soir: { staff: 'SOUAD G / ANISSA' } },
+                    { day: 'vendredi', matin: { staff: 'SOUAD M / HAKIMA' }, soir: { staff: 'SAMIRA / ANISSA' } },
+                    { day: 'samedi', matin: { staff: 'SAMIRA / ANISSA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
+                    { day: 'dimanche', matin: { staff: 'SOUAD M / HAKIMA' }, soir: { staff: 'SAMIRA / ANISSA' } },
                 ]
             }
         };
@@ -102,7 +101,6 @@
             const today = new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(new Date()).toLowerCase();
 
             useEffect(() => {
-                // Petit délai pour laisser le temps au DOM de se stabiliser
                 const timeout = setTimeout(() => {
                     if (todayRef.current) {
                         todayRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
