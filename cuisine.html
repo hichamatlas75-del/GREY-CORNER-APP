@@ -1,444 +1,225 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Planning Cuisine Ramadan</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planning Cuisine Couleur</title>
+    <style>
+        :root {
+            --bg-body: #f0f2f5;
+            --card-bg: #ffffff;
+            --femme: #e91e63; /* Rose vif */
+            --homme: #0288d1; /* Bleu vif */
+            --off-bg: #ffebee;
+            --off-text: #c62828;
+            --fs-color: #546e7a;
+            --header-bg: #455a64;
+        }
 
-<style>
-:root{
-  /* ✅ Thème clair & pro (neutres + accent) */
-  --bg:#f6f7fb;
-  --card:#ffffff;
-  --text:#0f172a;
-  --muted:#64748b;
-  --line:#e6eaf2;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            margin: 0;
+            padding: 10px;
+        }
 
-  --accent:#2563eb;         /* bleu pro */
-  --accent-2:#0ea5e9;       /* cyan léger */
-  --accent-soft:#eff6ff;
+        h1 {
+            text-align: center;
+            color: #263238;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
 
-  --ok:#16a34a;
-  --off:#ef4444;
-  --off-soft:#fee2e2;
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
 
-  --shadow: 0 10px 30px rgba(15, 23, 42, .08);
-  --shadow2: 0 2px 10px rgba(15, 23, 42, .06);
+        /* Style de la vignette jour */
+        .day-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border-left: 6px solid var(--header-bg);
+        }
 
-  --radius:18px;
-}
+        .day-header {
+            background-color: var(--header-bg);
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-*{ box-sizing:border-box; }
-html,body{ height:100%; }
-body{
-  margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  color:var(--text);
-  background:
-    radial-gradient(900px 420px at 20% -10%, rgba(37,99,235,.10), transparent 60%),
-    radial-gradient(900px 420px at 80% -10%, rgba(14,165,233,.10), transparent 60%),
-    var(--bg);
-}
+        .staff-list {
+            padding: 5px 0;
+        }
 
-/* ===== Header ===== */
-header{
-  position:sticky;
-  top:0;
-  z-index:10;
-  background:rgba(255,255,255,.78);
-  backdrop-filter: blur(10px);
-  border-bottom:1px solid var(--line);
-}
-.headerWrap{
-  max-width:1100px;
-  margin:0 auto;
-  padding:12px 14px;
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-header img{
-  height:44px;
-  width:auto;
-  display:block;
-}
-.titles{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-  min-width:0;
-}
-header h1{
-  margin:0;
-  font-size:16px;
-  letter-spacing:.2px;
-  font-weight:900;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-header p{
-  margin:0;
-  font-size:12px;
-  color:var(--muted);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.actions{
-  margin-left:auto;
-  display:flex;
-  gap:8px;
-  align-items:center;
-}
-.pillBtn{
-  border:1px solid var(--line);
-  background:#fff;
-  color:var(--text);
-  border-radius:999px;
-  padding:8px 10px;
-  font-size:12px;
-  font-weight:800;
-  box-shadow: var(--shadow2);
-  cursor:pointer;
-}
-.pillBtn:hover{ filter:brightness(.98); }
-.pillBtn.primary{
-  border-color: rgba(37,99,235,.25);
-  background: linear-gradient(180deg, #ffffff, var(--accent-soft));
-}
-.pillBtn:active{ transform: translateY(1px); }
+        .staff-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: center;
+        }
 
-/* ===== Layout ===== */
-.container{
-  max-width:1100px;
-  margin:0 auto;
-  padding:14px;
-}
+        .staff-row:last-child {
+            border-bottom: none;
+        }
 
-/* Barre infos */
-.infoBar{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  align-items:center;
-  margin:10px 0 14px;
-}
-.infoChip{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:10px 12px;
-  border-radius:999px;
-  background:#fff;
-  border:1px solid var(--line);
-  box-shadow: var(--shadow2);
-  font-size:12px;
-  color:var(--muted);
-}
-.dot{
-  width:9px; height:9px; border-radius:99px;
-  background:var(--accent);
-}
-.dot.off{ background:var(--off); }
-.dot.today{ background:var(--ok); }
+        /* Couleurs par genre */
+        .femme {
+            color: var(--femme);
+            font-weight: 700;
+        }
 
-#planning{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap:14px;
-}
+        .homme {
+            color: var(--homme);
+            font-weight: 700;
+        }
 
-/* ===== Carte jour ===== */
-.day{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  overflow:hidden;
-  scroll-margin-top:120px;
-}
-.dayHead{
-  padding:14px 14px 12px;
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:10px;
-  border-bottom:1px solid var(--line);
-  background:
-    linear-gradient(135deg, rgba(37,99,235,.08), rgba(14,165,233,.06));
-}
-.dateBox{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-  min-width:0;
-}
-.date{
-  font-weight:950;
-  font-size:14px;
-  text-transform:capitalize;
-}
-.subdate{
-  font-size:12px;
-  color:var(--muted);
-}
-.badges{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  justify-content:flex-end;
-}
-.badge{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:8px 10px;
-  border-radius:999px;
-  font-weight:900;
-  font-size:12px;
-  border:1px solid var(--line);
-  background:#fff;
-  color:var(--text);
-  box-shadow: var(--shadow2);
-  white-space:nowrap;
-}
-.badge b{ font-weight:950; }
-.badge.off{
-  border-color: rgba(239,68,68,.25);
-  background: linear-gradient(180deg, #fff, var(--off-soft));
-}
-.badge.off .miniDot{ background:var(--off); }
-.badge.matin .miniDot{ background:var(--accent); }
-.badge.soir .miniDot{ background:var(--accent-2); }
-.miniDot{ width:8px; height:8px; border-radius:99px; background:var(--accent); }
+        /* Heures et statuts */
+        .time-badge {
+            font-family: 'monospace';
+            font-size: 0.95rem;
+            background: #f8f9fa;
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            font-weight: bold;
+            color: #333;
+        }
 
-/* Contenu équipes */
-.content{
-  padding:14px;
-}
-.teams{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:12px;
-}
-@media (max-width:700px){
-  .teams{ grid-template-columns:1fr; }
-}
+        .status-off {
+            background-color: var(--off-bg);
+            color: var(--off-text);
+            border-color: #ffcdd2;
+        }
 
-.team{
-  border:1px solid var(--line);
-  background:#fff;
-  border-radius:16px;
-  padding:12px;
-  box-shadow: var(--shadow2);
-}
-.teamTitle{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:10px;
-}
-.teamTitle span{
-  font-size:13px;
-  font-weight:950;
-}
-.teamLabel{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  color:var(--muted);
-  font-size:12px;
-  font-weight:900;
-}
-.teamLabel .bar{
-  width:10px; height:10px; border-radius:99px;
-  background:var(--accent);
-}
-.teamLabel .bar.soir{ background:var(--accent-2); }
+        .status-fs {
+            color: var(--fs-color);
+            font-style: italic;
+        }
 
-.pills{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-
-.pill{
-  display:inline-flex;
-  align-items:center;
-  gap:7px;
-  padding:8px 10px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:900;
-  background:#f8fafc;
-  border:1px solid var(--line);
-  color:var(--text);
-}
-.pill .tag{
-  font-size:11px;
-  font-weight:950;
-  padding:3px 8px;
-  border-radius:999px;
-  background:var(--accent-soft);
-  border:1px solid rgba(37,99,235,.18);
-  color:var(--accent);
-}
-.pill.off{
-  background: #fff;
-  border-color: rgba(239,68,68,.25);
-}
-.pill.off .tag{
-  background:var(--off-soft);
-  border-color: rgba(239,68,68,.22);
-  color: var(--off);
-}
-
-/* Mise en évidence aujourd’hui */
-.today{
-  border-color: rgba(22,163,74,.22);
-  box-shadow:
-    0 0 0 3px rgba(22,163,74,.10),
-    var(--shadow);
-}
-.today .dayHead{
-  background:
-    linear-gradient(135deg, rgba(22,163,74,.10), rgba(37,99,235,.06));
-}
-
-/* Impression */
-@media print{
-  header{ position:static; }
-  .pillBtn{ display:none; }
-  body{ background:#fff; }
-  .day{ box-shadow:none; }
-}
-</style>
+        /* Animation au toucher pour mobile */
+        .day-card:active {
+            transform: scale(0.98);
+            transition: 0.2s;
+        }
+    </style>
 </head>
-
 <body>
 
-<header>
-  <div class="headerWrap">
-    <img src="images/logo.png" alt="Logo Grey Corner">
-    <div class="titles">
-      <h1>Planning Cuisine Ramadan</h1>
-      <p>Rotation OFF automatique • Mise en avant du jour actuel</p>
-    </div>
+    <h1>ðŸ“… Planning Cuisine</h1>
 
-    <div class="actions">
-      <button class="pillBtn primary" id="btnToday">Aller à aujourd’hui</button>
-      <button class="pillBtn" onclick="window.print()">Imprimer</button>
-    </div>
-  </div>
-</header>
-
-<div class="container">
-  <div class="infoBar">
-    <div class="infoChip"><span class="dot today"></span> Aujourd’hui</div>
-    <div class="infoChip"><span class="dot off"></span> OFF</div>
-    <div class="infoChip"><span class="dot"></span> Matin / Soir</div>
-  </div>
-
-  <div id="planning"></div>
-</div>
-
-<script>
-/* ===== NOMS (inchangé) ===== */
-const equipeMatin = ["Khaoula","Fatima","Imane"];
-
-/* ORDRE OFF SOIR: Saad premier — Naoual dernier */
-const equipeSoir  = ["Saad","Jihane","Jawad","Anas","Naoual"];
-
-/* ===== DATES (inchangé) ===== */
-const start = new Date(2026,2,2);
-const end   = new Date(2026,2,19);
-
-let idxMatin=0, idxSoir=0;
-const container=document.getElementById("planning");
-const todayStr=new Date().toDateString();
-let todayCard=null;
-
-function fmtDate(d){
-  return d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
-}
-
-function fmtShort(d){
-  return d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"});
-}
-
-for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
-
-  const offMatin=equipeMatin[idxMatin++%equipeMatin.length];
-  const offSoir=equipeSoir[idxSoir++%equipeSoir.length];
-
-  const card=document.createElement("section");
-  card.className="day";
-
-  if(d.toDateString()===todayStr){
-    card.classList.add("today");
-    todayCard=card;
-  }
-
-  const matinHTML = equipeMatin.map(n => `
-    <span class="pill ${n===offMatin?'off':''}">
-      ${n}
-      <span class="tag">${n===offMatin?'OFF':'OK'}</span>
-    </span>
-  `).join("");
-
-  const soirHTML = equipeSoir.map(n => `
-    <span class="pill ${n===offSoir?'off':''}">
-      ${n}
-      <span class="tag">${n===offSoir?'OFF':'OK'}</span>
-    </span>
-  `).join("");
-
-  card.innerHTML = `
-    <div class="dayHead">
-      <div class="dateBox">
-        <div class="date">${fmtDate(d)}</div>
-        <div class="subdate">${fmtShort(d)}</div>
-      </div>
-
-      <div class="badges">
-        <div class="badge matin"><span class="miniDot"></span> Matin • <b>OFF</b> : ${offMatin}</div>
-        <div class="badge off soir"><span class="miniDot"></span> Soir • <b>OFF</b> : ${offSoir}</div>
-      </div>
-    </div>
-
-    <div class="content">
-      <div class="teams">
-        <div class="team">
-          <div class="teamTitle">
-            <span>Équipe matin</span>
-            <span class="teamLabel"><span class="bar"></span> Rotation</span>
-          </div>
-          <div class="pills">${matinHTML}</div>
+    <div class="container">
+        
+        <!-- LUNDI -->
+        <div class="day-card" style="border-left-color: #ff9800;">
+            <div class="day-header" style="background-color: #ff9800;"><span>LUNDI</span> ðŸ‘¨â€ðŸ³</div>
+            <div class="staff-list">
+                <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 14</span></div>
+                <div class="staff-row"><span class="femme">Fatima</span><span class="time-badge">6 / 14</span></div>
+                <div class="staff-row"><span class="femme">Jihane</span><span class="time-badge">12 / 20</span></div>
+                <div class="staff-row"><span class="femme">Imane</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="homme">Anass</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="homme">Jawad</span><span class="time-badge status-off">OFF</span></div>
+                <div class="staff-row"><span class="homme">SaÃ¢d</span><span class="time-badge">13 / <span class="status-fs">F.S</span></span></div>
+            </div>
         </div>
 
-        <div class="team">
-          <div class="teamTitle">
-            <span>Équipe soir</span>
-            <span class="teamLabel"><span class="bar soir"></span> Rotation</span>
-          </div>
-          <div class="pills">${soirHTML}</div>
+        <!-- MARDI -->
+        <div class="day-card" style="border-left-color: #4caf50;">
+            <div class="day-header" style="background-color: #4caf50;"><span>MARDI</span> ðŸ‘¨â€ðŸ³</div>
+            <div class="staff-list">
+                <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 14</span></div>
+                <div class="staff-row"><span class="femme">Fatima</span><span class="time-badge">6 / 14</span></div>
+                <div class="staff-row"><span class="femme">Jihane</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="femme">Imane</span><span class="time-badge status-off">OFF</span></div>
+                <div class="staff-row"><span class="homme">Anass</span><span class="time-badge status-off">OFF</span></div>
+                <div class="staff-row"><span class="homme">Jawad</span><span class="time-badge">12 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="homme">SaÃ¢d</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
+            </div>
         </div>
-      </div>
+
+        <!-- MERCREDI -->
+        <div class="day-card" style="border-left-color: #2196f3;">
+            <div class="day-header" style="background-color: #2196f3;"><span>MERCREDI</span> ðŸ‘¨â€ðŸ³</div>
+            <div class="staff-list">
+                <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 14</span></div>
+                <div class="staff-row"><span class="femme">Fatima</span><span class="time-badge status-off">OFF</span></div>
+                <div class="staff-row"><span class="femme">Jihane</span><span class="time-badge">13 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="femme">Imane</span><span class="time-badge">6 / 14</span></div>
+                <div class="staff-row"><span class="homme">Anass</span><span class="time-badge">12 / 21</span></div>
+                <div class="staff-row"><span class="homme">Jawad</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="homme">SaÃ¢d</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
+            </div>
+        </div>
+
+        <!-- JEUDI -->
+        <div class="day-card" style="border-left-color: #9c27b0;">
+            <div class="day-header" style="background-color: #9c27b0;"><span>JEUDI</span> ðŸ‘¨â€ðŸ³</div>
+            <div class="staff-list">
+                <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 14</span></div>
+                <div class="staff-row"><span class="femme">Fatima</span><span class="time-badge">6 / 14</span></div>
+                <div class="staff-row"><span class="femme">Jihane</span><span class="time-badge status-off">OFF</span></div>
+                <div class="staff-row"><span class="femme">Imane</span><span class="time-badge">12 / 20</span></div>
+                <div class="staff-row"><span class="homme">Anass</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="homme">Jawad</span><span class="time-badge">12 / 21</span></div>
+                <div class="staff-row"><span class="homme">SaÃ¢d</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
+            </div>
+        </div>
+
+        <!-- VENDREDI -->
+        <div class="day-card" style="border-left-color: #f44336;">
+            <div class="day-header" style="background-color: #f44336;"><span>VENDREDI</span> ðŸ‘¨â€ðŸ³</div>
+            <div class="staff-list">
+                <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge status-off">OFF</span></div>
+                <div class="staff-row"><span class="femme">Fatima</span><span class="time-badge">6 / 14</span></div>
+                <div class="staff-row"><span class="femme">Jihane</span><span class="time-badge">12 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="femme">Imane</span><span class="time-badge">6 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="homme">Anass</span><span class="time-badge">13 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="homme">Jawad</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="homme">SaÃ¢d</span><span class="time-badge status-off">OFF</span></div>
+            </div>
+        </div>
+
+        <!-- SAMEDI -->
+        <div class="day-card" style="border-left-color: #795548;">
+            <div class="day-header" style="background-color: #795548;"><span>SAMEDI</span> ðŸ‘¨â€ðŸ³</div>
+            <div class="staff-list">
+                <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 15</span></div>
+                <div class="staff-row"><span class="femme">Fatima</span><span class="time-badge">6 / 15</span></div>
+                <div class="staff-row"><span class="femme">Jihane</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="femme">Imane</span><span class="time-badge">10 / 18</span></div>
+                <div class="staff-row"><span class="homme">Anass</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="homme">Jawad</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="homme">SaÃ¢d</span><span class="time-badge">13 / <span class="status-fs">F.S</span></span></div>
+            </div>
+        </div>
+
+        <!-- DIMANCHE -->
+        <div class="day-card" style="border-left-color: #009688;">
+            <div class="day-header" style="background-color: #009688;"><span>DIMANCHE</span> ðŸ‘¨â€ðŸ³</div>
+            <div class="staff-list">
+                <div class="staff-row"><span class="femme">Khaoula</span><span class="time-badge">6 / 15</span></div>
+                <div class="staff-row"><span class="femme">Fatima</span><span class="time-badge">6 / 15</span></div>
+                <div class="staff-row"><span class="femme">Jihane</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="femme">Imane</span><span class="time-badge">12 / 20</span></div>
+                <div class="staff-row"><span class="homme">Anass</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="homme">Jawad</span><span class="time-badge">14 / <span class="status-fs">F.S</span></span></div>
+                <div class="staff-row"><span class="homme">SaÃ¢d</span><span class="time-badge">13 / 21</span></div>
+            </div>
+        </div>
+
     </div>
-  `;
-
-  container.appendChild(card);
-}
-
-/* Scroll au jour actuel (inchangé) */
-function goToday(){
-  if(todayCard) todayCard.scrollIntoView({behavior:"smooth",block:"start"});
-}
-document.getElementById("btnToday").addEventListener("click", goToday);
-setTimeout(goToday, 350);
-</script>
 
 </body>
 </html>
