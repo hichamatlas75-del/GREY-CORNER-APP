@@ -265,6 +265,24 @@
       text-transform: uppercase;
     }
 
+    /* ─── TODAY HIGHLIGHT ─── */
+    .day-card.today {
+      border-color: rgba(193,154,88,0.5);
+      box-shadow: 0 0 0 1px rgba(193,154,88,0.25), 0 8px 24px rgba(0,0,0,0.35);
+    }
+
+    .day-card.today .day-name::after {
+      content: ' · Aujourd\'hui';
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-left: 8px;
+      opacity: 0.8;
+    }
+
     /* ─── FOOTER ─── */
     .page-footer {
       text-align: center;
@@ -295,7 +313,7 @@
   <div class="grid">
 
     <!-- LUNDI -->
-    <div class="day-card" style="--accent:#6b7280;">
+    <div class="day-card" id="day-1" style="--accent:#6b7280;">
       <div class="day-header">
         <span class="day-name">Lundi</span>
       </div>
@@ -311,7 +329,7 @@
     </div>
 
     <!-- MARDI -->
-    <div class="day-card" style="--accent:#7a8694;">
+    <div class="day-card" id="day-2" style="--accent:#7a8694;">
       <div class="day-header">
         <span class="day-name">Mardi</span>
       </div>
@@ -327,7 +345,7 @@
     </div>
 
     <!-- MERCREDI -->
-    <div class="day-card" style="--accent:#8492a0;">
+    <div class="day-card" id="day-3" style="--accent:#8492a0;">
       <div class="day-header">
         <span class="day-name">Mercredi</span>
       </div>
@@ -343,7 +361,7 @@
     </div>
 
     <!-- JEUDI -->
-    <div class="day-card" style="--accent:#6b7280;">
+    <div class="day-card" id="day-4" style="--accent:#6b7280;">
       <div class="day-header">
         <span class="day-name">Jeudi</span>
       </div>
@@ -359,7 +377,7 @@
     </div>
 
     <!-- VENDREDI -->
-    <div class="day-card" style="--accent:#7a8694;">
+    <div class="day-card" id="day-5" style="--accent:#7a8694;">
       <div class="day-header">
         <span class="day-name">Vendredi</span>
       </div>
@@ -375,7 +393,7 @@
     </div>
 
     <!-- SAMEDI -->
-    <div class="day-card" style="--accent:#8492a0;">
+    <div class="day-card" id="day-6" style="--accent:#8492a0;">
       <div class="day-header">
         <span class="day-name">Samedi</span>
       </div>
@@ -391,7 +409,7 @@
     </div>
 
     <!-- DIMANCHE -->
-    <div class="day-card" style="--accent:#6b7280;">
+    <div class="day-card" id="day-0" style="--accent:#6b7280;">
       <div class="day-header">
         <span class="day-name">Dimanche</span>
       </div>
@@ -410,5 +428,15 @@
 
   <footer class="page-footer">Grey Corner · Cuisine · Planning Hebdomadaire</footer>
 
+  <script>
+    const today = new Date().getDay(); // 0=dim, 1=lun ... 6=sam
+    const card = document.getElementById('day-' + today);
+    if (card) {
+      card.classList.add('today');
+      setTimeout(() => {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 400);
+    }
+  </script>
 </body>
 </html>
