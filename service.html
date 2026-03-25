@@ -89,7 +89,7 @@
       backdrop-filter: blur(18px);
     }
 
-    /* Spinning logo ring (same as index) */
+    /* Spinning logo ring */
     .logo-wrap {
       position: relative; width: 80px; height: 80px;
       margin: 0 auto 16px; border-radius: 50%;
@@ -362,12 +362,12 @@
 
     /* Accent colors per day (warm obsidian palette) */
     const ACCENTS = [
-      "rgba(200,120,74,.90)",   // copper
-      "rgba(180,140,90,.85)",   // bronze
-      "rgba(160,100,60,.90)",   // amber dark
-      "rgba(210,150,90,.80)",   // champagne
-      "rgba(140,90,55,.90)",    // sienna
-      "rgba(190,110,70,.85)",   // terracotta
+      "rgba(200,120,74,.90)",
+      "rgba(180,140,90,.85)",
+      "rgba(160,100,60,.90)",
+      "rgba(210,150,90,.80)",
+      "rgba(140,90,55,.90)",
+      "rgba(190,110,70,.85)",
     ];
 
     /* ── helpers ── */
@@ -419,17 +419,58 @@
     function sameDay(a, b) {
       return a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
     }
+
+    /* ── FIX : parseDateLabel avec abréviations (avr. juil. sept. etc.) ── */
     function parseDateLabel(label) {
       const s = String(label ?? "").trim();
       if (!s) return null;
+
+      /* Format ISO : 2025-03-31 */
       let m = s.match(/\b(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})\b/);
       if (m) { const d = new Date(+m[1], +m[2]-1, +m[3]); d.setHours(0,0,0,0); return isNaN(d)?null:d; }
+
+      /* Format DD/MM/YYYY */
       m = s.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})\b/);
       if (m) { const d = new Date(+m[3], +m[2]-1, +m[1]); d.setHours(0,0,0,0); return isNaN(d)?null:d; }
-      const months = {"janvier":0,"fevrier":1,"février":1,"mars":2,"avril":3,"mai":4,"juin":5,"juillet":6,"aout":7,"août":7,"septembre":8,"octobre":9,"novembre":10,"decembre":11,"décembre":11};
-      const low = s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-      m = low.match(/\b(\d{1,2})\s+(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\b(?:\s+(\d{4}))?/);
-      if (m) { const d = new Date(m[3]?+m[3]:new Date().getFullYear(), months[m[2]], +m[1]); d.setHours(0,0,0,0); return isNaN(d)?null:d; }
+
+      /* Format DD/MM sans année */
+      m = s.match(/^(\d{1,2})[\/-](\d{1,2})$/);
+      if (m) {
+        const d = new Date(new Date().getFullYear(), +m[2]-1, +m[1]);
+        d.setHours(0,0,0,0);
+        return isNaN(d) ? null : d;
+      }
+
+      /* Dictionnaire étendu : noms complets + abréviations (avec et sans point) */
+      const months = {
+        "janvier":0,  "jan":0,
+        "fevrier":1,  "fev":1,
+        "mars":2,
+        "avril":3,    "avr":3,
+        "mai":4,
+        "juin":5,
+        "juillet":6,  "juil":6,
+        "aout":7,     "aou":7,
+        "septembre":8,"sept":8,"sep":8,
+        "octobre":9,  "oct":9,
+        "novembre":10,"nov":10,
+        "decembre":11,"dec":11
+      };
+
+      /* Normalise + supprime les points (avr. → avr, juil. → juil) */
+      const low = s.toLowerCase()
+                   .normalize("NFD")
+                   .replace(/[\u0300-\u036f]/g, "")
+                   .replace(/\./g, "");
+
+      m = low.match(/\b(\d{1,2})\s+([a-z]+)\b(?:\s+(\d{4}))?/);
+      if (m && months[m[2]] !== undefined) {
+        const yr = m[3] ? +m[3] : new Date().getFullYear();
+        const d  = new Date(yr, months[m[2]], +m[1]);
+        d.setHours(0,0,0,0);
+        return isNaN(d) ? null : d;
+      }
+
       return null;
     }
 
@@ -466,7 +507,12 @@
 
         const t0 = todayMidnight();
         const anyParsable = all.some(r => r.dateObj instanceof Date);
-        const data = anyParsable ? all.filter(r => r.dateObj && r.dateObj >= t0) : all;
+
+        /* FIX : si dateObj est null (non parsé) → on inclut quand même la ligne
+           On exclut uniquement les lignes dont la date est parsée ET dans le passé */
+        const data = anyParsable
+          ? all.filter(r => !r.dateObj || r.dateObj >= t0)
+          : all;
 
         render(data, t0);
 
