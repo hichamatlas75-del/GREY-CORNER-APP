@@ -406,19 +406,64 @@
     function sameDay(a, b) {
       return a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
     }
-    function parseDateLabel(label) {
-      const s = String(label ?? "").trim();
-      if (!s) return null;
-      let m = s.match(/\b(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})\b/);
-      if (m) { const d = new Date(+m[1],+m[2]-1,+m[3]); d.setHours(0,0,0,0); return isNaN(d)?null:d; }
-      m = s.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})\b/);
-      if (m) { const d = new Date(+m[3],+m[2]-1,+m[1]); d.setHours(0,0,0,0); return isNaN(d)?null:d; }
-      const months = {"janvier":0,"fevrier":1,"février":1,"mars":2,"avril":3,"mai":4,"juin":5,"juillet":6,"aout":7,"août":7,"septembre":8,"octobre":9,"novembre":10,"decembre":11,"décembre":11};
-      const low = s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-      m = low.match(/\b(\d{1,2})\s+(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\b(?:\s+(\d{4}))?/);
-      if (m) { const d = new Date(m[3]?+m[3]:new Date().getFullYear(),months[m[2]],+m[1]); d.setHours(0,0,0,0); return isNaN(d)?null:d; }
-      return null;
+   function parseDateLabel(label) {
+  if (!label) return null;
+
+  let s = String(label).toLowerCase().trim();
+
+  // Nettoyage accents + points (ex: avr.)
+  s = s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  s = s.replace(/\./g, "");
+
+  // Format YYYY-MM-DD
+  let m = s.match(/\b(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})\b/);
+  if (m) {
+    const d = new Date(+m[1], +m[2]-1, +m[3]);
+    d.setHours(0,0,0,0);
+    return d;
+  }
+
+  // Format DD/MM/YYYY
+  m = s.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})\b/);
+  if (m) {
+    const d = new Date(+m[3], +m[2]-1, +m[1]);
+    d.setHours(0,0,0,0);
+    return d;
+  }
+
+  // Mois FR (complet + abrégé)
+  const months = {
+    "janvier":0,"janv":0,
+    "fevrier":1,"fev":1,
+    "mars":2,
+    "avril":3,"avr":3,
+    "mai":4,
+    "juin":5,
+    "juillet":6,"juil":6,
+    "aout":7,
+    "septembre":8,"sept":8,
+    "octobre":9,"oct":9,
+    "novembre":10,"nov":10,
+    "decembre":11,"dec":11
+  };
+
+  // Format: 1 avr / 1 avril / 1 avr 2026
+  m = s.match(/\b(\d{1,2})\s+([a-z]+)(?:\s+(\d{4}))?/);
+
+  if (m) {
+    const day = +m[1];
+    const monthName = m[2];
+    const year = m[3] ? +m[3] : new Date().getFullYear();
+
+    if (months.hasOwnProperty(monthName)) {
+      const d = new Date(year, months[monthName], day);
+      d.setHours(0,0,0,0);
+      return d;
     }
+  }
+
+  return null;
+}
 
     /* ── main ── */
     async function init() {
