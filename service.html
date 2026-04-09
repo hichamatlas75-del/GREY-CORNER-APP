@@ -1,41 +1,55 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Planning Service — Grey Corner</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Planning Service — Grey Corner</title>
 
-<style>
-/* === AJOUT DOUBLE SHIFT === */
-@keyframes blink-soft {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.55; }
-}
-.staff-name.double-shift {
-  color: #ff3b3b !important;
-  animation: blink-soft 1.6s ease-in-out infinite;
-}
+  <style>
+    :root {
+      --text: #f2ebe4;
+    }
 
-/* === TON CSS EXISTANT (inchangé raccourci visuellement) === */
-body { font-family: Arial; background:#0e0b0d; color:white; }
+    body {
+      font-family: Arial;
+      background:#0e0b0d;
+      color:var(--text);
+    }
 
-.staff-row { display:flex; margin:5px 0; }
-.staff-name {
-  flex:1;
-  padding:10px;
-  background:#222;
-  border-radius:8px;
-  text-align:center;
-}
-.staff-poste {
-  width:80px;
-  text-align:center;
-  background:#333;
-  border-radius:8px;
-}
+    .staff-row { display:flex; gap:8px; margin-bottom:6px; }
 
-/* (tu gardes tout ton vrai CSS ici tel quel) */
-</style>
+    .staff-name {
+      flex:1;
+      padding:10px;
+      background:#222;
+      border-radius:8px;
+      text-align:center;
+    }
+
+    .staff-poste {
+      width:80px;
+      text-align:center;
+      background:#333;
+      border-radius:8px;
+      padding:10px;
+    }
+
+    .repos {
+      text-align:center;
+      opacity:.6;
+    }
+
+    /* 🔴 DOUBLE SHIFT */
+    @keyframes blink-soft {
+      0%,100%{opacity:1;}
+      50%{opacity:.55;}
+    }
+
+    .staff-name.double-shift {
+      color:#ff3b3b !important;
+      animation: blink-soft 1.6s ease-in-out infinite;
+    }
+  </style>
 </head>
 
 <body>
@@ -45,10 +59,7 @@ body { font-family: Arial; background:#0e0b0d; color:white; }
 <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/1aKrmu7Hdf1tb4_0QFCGC6VYjUVlRKeDJYLYs9qIM6Aw/export?format=csv&gid=0";
 
-function cleanPoste(p){
-  return (p||"").substring(0,4).toUpperCase();
-}
-
+/* helpers */
 function escapeHtml(str){
   return String(str||"")
     .replaceAll("&","&amp;")
@@ -56,29 +67,40 @@ function escapeHtml(str){
     .replaceAll(">","&gt;");
 }
 
-async function init(){
-  const res = await fetch(SHEET_URL);
-  const txt = await res.text();
-  const rows = txt.split("\n").slice(1);
-
-  const data = rows.map(r=>{
-    const c = r.split(",");
-    return {
-      date:c[0],
-      matin:c[1],
-      soir:c[2]
-    };
-  });
-
-  render(data);
+function cleanPoste(p){
+  return (p||"").substring(0,4).toUpperCase();
 }
 
+/* init */
+async function init(){
+  try{
+    const res = await fetch(SHEET_URL);
+    const txt = await res.text();
+
+    const rows = txt.split(/\r?\n/).slice(1).filter(r=>r.trim());
+
+    const data = rows.map(r=>{
+      const c = r.split(",");
+      return {
+        date:c[0],
+        matin:c[1],
+        soir:c[2]
+      };
+    });
+
+    render(data);
+  }catch(e){
+    document.getElementById("planning-container").innerHTML="Erreur chargement";
+  }
+}
+
+/* render */
 function render(data){
   const container = document.getElementById("planning-container");
 
   container.innerHTML = data.map(j=>`
-    <div>
-      <h3>${j.date}</h3>
+    <div style="margin-bottom:20px;">
+      <h3>${escapeHtml(j.date)}</h3>
 
       <b>Matin</b>
       ${parseStaff(j.matin, j)}
@@ -89,30 +111,34 @@ function render(data){
   `).join("");
 }
 
-/* === FONCTION MODIFIÉE === */
+/* parse staff avec détection double shift */
 function parseStaff(t, dayObj){
-  if(!t || t==="-" ) return "Repos";
+  if(!t || t==="-" || !t.trim())
+    return `<div class="repos">— Repos —</div>`;
 
-  const allMatin = (dayObj.matin||"").toLowerCase();
-  const allSoir  = (dayObj.soir||"").toLowerCase();
+  const allMatin = (dayObj?.matin || "").toLowerCase();
+  const allSoir  = (dayObj?.soir  || "").toLowerCase();
 
   return t.split(",").map(s=>{
-    s=s.trim();
+    s = s.trim();
 
     let name="", poste="";
 
     if(s.includes(":")){
       const parts=s.split(":");
-      poste=cleanPoste(parts[0]);
-      name=parts[1].trim();
-    }else{
-      name=s;
+      poste = cleanPoste(parts[0]);
+      name  = parts.slice(1).join(":").trim();
+    } else if(s.includes("(") && s.includes(")")){
+      name  = s.substring(0, s.indexOf("(")).trim();
+      poste = cleanPoste(s.substring(s.indexOf("(")+1, s.lastIndexOf(")")));
+    } else {
+      name = s;
     }
 
-    const nameLower=name.toLowerCase();
+    const nameLower = name.toLowerCase();
 
-    // 🔴 DETECTION DOUBLE SHIFT
     const isDouble =
+      name &&
       allMatin.includes(nameLower) &&
       allSoir.includes(nameLower);
 
@@ -121,7 +147,7 @@ function parseStaff(t, dayObj){
         <div class="staff-name ${isDouble ? 'double-shift' : ''}">
           ${escapeHtml(name)}
         </div>
-        ${poste ? `<div class="staff-poste">${poste}</div>` : ""}
+        ${poste ? `<div class="staff-poste">${escapeHtml(poste)}</div>` : ""}
       </div>
     `;
   }).join("");
