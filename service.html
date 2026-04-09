@@ -4,555 +4,150 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Planning Service — Grey Corner</title>
-  <link rel="icon" type="image/jpeg" href="LOGO.jpg" />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
-    :root {
-      --bg: #07060a;
-      --panel: rgba(16,12,14,.82);
-      --panel-strong: rgba(22,17,19,.95);
-      --card: rgba(18,14,16,.90);
-      --card-hover: rgba(24,19,21,.96);
-      --stroke: rgba(255,255,255,.068);
-      --stroke-warm: rgba(200,120,74,.22);
-      --text: #f2ebe4;
-      --muted: rgba(242,235,228,.48);
-      --muted2: rgba(242,235,228,.30);
-      --gold: #c8784a;
-      --gold-dim: rgba(200,120,74,.75);
-      --gold-soft: rgba(200,120,74,.08);
-      --gold-mid: rgba(200,120,74,.15);
-      --shadow: 0 20px 52px rgba(0,0,0,.52);
-      --radius: 20px;
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-    html, body { min-height: 100%; }
-
-    body {
-      font-family: 'DM Sans', sans-serif;
-      color: var(--text);
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-      background:
-        radial-gradient(ellipse 65% 38% at 72% 0%, rgba(200,120,74,.08) 0%, transparent 55%),
-        radial-gradient(ellipse 45% 45% at 8% 92%, rgba(160,60,20,.05) 0%, transparent 50%),
-        linear-gradient(172deg, #0a0709 0%, #0e0b0d 48%, #07060a 100%);
-      background-attachment: fixed;
-    }
-
-    /* Grain */
-    .grain {
-      position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: .032;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      background-size: 160px;
-    }
-
-    /* Ambient */
-    .glow-a, .glow-b { position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; filter: blur(64px); }
-    .glow-a { width: 420px; height: 420px; top: -140px; right: -120px; background: radial-gradient(circle, rgba(200,120,74,.11), transparent 65%); }
-    .glow-b { width: 260px; height: 260px; bottom: 10%; left: -70px; background: radial-gradient(circle, rgba(160,60,20,.06), transparent 65%); }
-
-    /* ── ALERT BANNER ── */
-    #alert-box {
-      display: none;
-      position: fixed; top: 0; left: 0; width: 100%; z-index: 9999;
-      padding: 12px 52px 12px 18px;
-      text-align: center;
-      font-size: 12.5px; font-weight: 600; letter-spacing: .02em;
-      color: var(--text);
-      background: linear-gradient(90deg, rgba(200,120,74,.22), rgba(160,60,20,.18));
-      border-bottom: 1px solid var(--stroke-warm);
-      backdrop-filter: blur(14px);
-    }
-
-    body.has-alert { padding-top: 50px; }
-
-    #alert-close {
-      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-      border: none; background: rgba(200,120,74,.14); color: var(--gold);
-      width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
-      font-size: 14px; display: flex; align-items: center; justify-content: center;
-      transition: background .2s;
-    }
-    #alert-close:hover { background: rgba(200,120,74,.26); }
-
-    /* ── HEADER ── */
-    header {
-      position: relative; z-index: 2;
-      text-align: center;
-      padding: 24px 16px 18px;
-      border-bottom: 1px solid var(--stroke);
-      background: linear-gradient(180deg, rgba(14,11,13,.88), rgba(10,8,10,.72));
-      backdrop-filter: blur(18px);
-    }
-
-    /* Spinning logo ring (same as index) */
-    .logo-wrap {
-      position: relative; width: 80px; height: 80px;
-      margin: 0 auto 16px; border-radius: 50%;
-    }
-    .logo-wrap::before {
-      content: ""; position: absolute; inset: -2px; border-radius: 50%;
-      background: conic-gradient(from 0deg,
-        rgba(200,120,74,.90) 0%, rgba(240,190,150,.55) 25%,
-        rgba(160,80,40,.40) 50%, rgba(240,190,150,.55) 75%,
-        rgba(200,120,74,.90) 100%);
-      animation: rotateBorder 14s linear infinite;
-    }
-    .logo-wrap::after { content: ""; position: absolute; inset: 2px; border-radius: 50%; background: #0c0809; }
-    @keyframes rotateBorder { to { transform: rotate(360deg); } }
-    .logo-wrap img {
-      position: absolute; inset: 4px; z-index: 1;
-      width: calc(100% - 8px); height: calc(100% - 8px);
-      object-fit: cover; border-radius: 50%; background: #fff;
-    }
-
-    .eyebrow {
-      display: inline-flex; align-items: center; gap: 9px;
-      color: var(--gold); font-size: 10px; font-weight: 700;
-      letter-spacing: .36em; text-transform: uppercase; margin-bottom: 8px;
-    }
-    .eyebrow::before, .eyebrow::after {
-      content: ""; width: 18px; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
-    }
-
-    .page-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 36px; font-weight: 700; line-height: 1;
-      letter-spacing: .06em; color: #f2ede7;
-    }
-
-    .page-sub {
-      margin-top: 6px; color: var(--muted);
-      font-size: 12px; font-weight: 400; letter-spacing: .02em;
-    }
-
-    .gold-rule {
-      width: 60px; height: 1px; margin: 14px auto;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      opacity: .65;
-    }
-
-    .back-btn {
-      display: inline-flex; align-items: center; gap: 7px;
-      color: var(--muted); text-decoration: none;
-      font-size: 11.5px; font-weight: 500; letter-spacing: .04em;
-      border: 1px solid var(--stroke); padding: 7px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.032);
-      transition: color .22s, border-color .22s, background .22s;
-    }
-    .back-btn:hover { color: var(--gold); border-color: var(--stroke-warm); background: var(--gold-soft); }
-    .back-btn svg { width: 13px; height: 13px; }
-
-    /* ── CONTAINER ── */
-    .container {
-      position: relative; z-index: 2;
-      width: 100%; max-width: 600px;
-      margin: 0 auto;
-      padding: 18px 14px 36px;
-    }
-
-    /* Loading */
-    .loading-state {
-      text-align: center; padding: 48px 16px;
-      color: var(--muted); font-size: 13px; font-weight: 500; letter-spacing: .06em;
-    }
-    .loading-dot {
-      display: inline-block; width: 6px; height: 6px; border-radius: 50%;
-      background: var(--gold); margin: 0 2px;
-      animation: blink 1.2s ease-in-out infinite;
-    }
-    .loading-dot:nth-child(2) { animation-delay: .2s; }
-    .loading-dot:nth-child(3) { animation-delay: .4s; }
-    @keyframes blink { 0%,80%,100% { opacity:.2; transform: scale(.8); } 40% { opacity:1; transform: scale(1.2); } }
-
-    /* ── DAY CARD ── */
-    .day-card {
-      position: relative; overflow: hidden;
-      border-radius: var(--radius);
-      border: 1px solid var(--stroke);
-      background: linear-gradient(158deg, rgba(255,255,255,.032) 0%, rgba(255,255,255,.008) 100%), var(--card);
-      backdrop-filter: blur(14px);
-      box-shadow: var(--shadow);
-      margin-bottom: 14px;
-      transition: border-color .28s ease, box-shadow .28s ease;
-    }
-
-    /* Color accent bar */
-    .day-card::before {
-      content: ""; position: absolute;
-      left: 0; top: 0; bottom: 0; width: 3px;
-      background: var(--accent, var(--gold));
-      opacity: .85;
-      border-radius: 3px 0 0 3px;
-    }
-
-    /* Today highlight */
-    .is-today {
-      border-color: rgba(200,120,74,.30);
-      box-shadow: 0 24px 56px rgba(0,0,0,.44), 0 0 0 1px rgba(200,120,74,.10) inset;
-    }
-    .is-today::after {
-      content: ""; position: absolute; inset: 0; pointer-events: none;
-      background: radial-gradient(700px 220px at 20% 0%, rgba(200,120,74,.07), transparent 60%);
-    }
-
-    /* Card header */
-    .card-header {
-      padding: 14px 16px 12px 20px;
-      border-bottom: 1px solid var(--stroke);
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-    }
-
-    .day-name {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 19px; font-weight: 600; color: var(--text);
-      letter-spacing: .02em;
-    }
-
-    .today-badge {
-      display: inline-flex; align-items: center; gap: 7px;
-      padding: 4px 12px; border-radius: 999px;
-      font-size: 10px; font-weight: 700; letter-spacing: .26em;
-      text-transform: uppercase; color: var(--gold);
-      background: var(--gold-soft); border: 1px solid rgba(200,120,74,.22);
-    }
-    .today-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--gold);
-      box-shadow: 0 0 0 4px rgba(200,120,74,.18);
-      animation: pulse 2s ease-in-out infinite;
-    }
-    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 4px rgba(200,120,74,.18); } 50% { box-shadow: 0 0 0 7px rgba(200,120,74,.06); } }
-
-    /* Card body */
-    .card-body { padding: 14px 14px 16px 20px; }
-
-    /* Shift header */
-    .shift-header {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 10px; font-weight: 700; letter-spacing: .28em;
-      text-transform: uppercase; padding: 9px 14px;
-      border-radius: 12px; margin-bottom: 10px;
-      border: 1px solid var(--stroke);
-    }
-
-    .shift-header.matin {
-      color: rgba(180,210,255,.85);
-      background: rgba(100,150,255,.06);
-      border-color: rgba(100,150,255,.14);
-    }
-    .shift-header.soir {
-      color: rgba(200,120,74,.90);
-      background: var(--gold-soft);
-      border-color: rgba(200,120,74,.16);
-      margin-top: 14px;
-    }
-
-    .shift-icon { font-size: 13px; }
-
-    .shift-time {
-      font-weight: 500; font-size: 10px; letter-spacing: .06em;
-      color: var(--muted); margin-left: auto;
-    }
-
-    /* Staff rows */
-    .staff-row {
-      display: flex; align-items: stretch; gap: 8px;
-      margin-bottom: 7px;
-    }
+    /* === TON CSS ORIGINAL (résumé, garde le tien complet) === */
 
     .staff-name {
-      flex: 1 1 auto; min-height: 42px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 600; letter-spacing: .04em;
-      text-transform: uppercase; color: var(--text);
-      background: rgba(255,255,255,.038);
-      border: 1px solid var(--stroke);
-      border-radius: 12px; padding: 10px 12px;
-      transition: background .2s;
+      color: #f2ebe4;
     }
 
-    .staff-poste {
-      flex: 0 0 90px; min-height: 42px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 700; letter-spacing: .18em;
-      text-transform: uppercase;
-      color: var(--gold);
-      background: var(--gold-soft);
-      border: 1px solid rgba(200,120,74,.16);
-      border-radius: 12px; padding: 10px 8px;
+    /* 🔴 DOUBLE SHIFT */
+    @keyframes blink-soft {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
     }
 
-    .repos {
-      text-align: center; padding: 12px;
-      font-size: 12px; font-weight: 600; letter-spacing: .16em;
-      text-transform: uppercase; color: var(--muted2);
-      border: 1px dashed rgba(255,255,255,.10);
-      border-radius: 12px;
-    }
-
-    /* Empty state */
-    .empty-state {
-      text-align: center; padding: 40px 16px;
-      color: var(--muted); font-size: 13px; font-weight: 500;
-    }
-
-    /* Fade-up */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(14px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .fade-up { opacity: 0; animation: fadeUp .50s cubic-bezier(.22,.68,0,1) forwards; }
-
-    @media (max-width: 400px) {
-      .page-title { font-size: 30px; }
-      .staff-poste { flex-basis: 78px; font-size: 10px; }
-      .staff-name { font-size: 12px; }
+    .staff-name.double-shift {
+      color: #ff3b3b !important;
+      animation: blink-soft 1.6s ease-in-out infinite;
     }
   </style>
 </head>
 
 <body>
-  <div class="grain"></div>
-  <div class="glow-a"></div>
-  <div class="glow-b"></div>
 
-  <!-- Alert -->
-  <div id="alert-box">
-    <span id="alert-text"></span>
-    <button id="alert-close" onclick="hideAlert()">✕</button>
-  </div>
+<div id="planning-container">Chargement...</div>
 
-  <!-- Header -->
-  <header class="fade-up" style="animation-delay:.0s">
-    <div class="logo-wrap">
-      <img src="LOGO.jpg" alt="Grey Corner" onerror="this.src='https://ui-avatars.com/api/?name=GC&background=111317&color=c8784a&size=256'">
+<script>
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/1aKrmu7Hdf1tb4_0QFCGC6VYjUVlRKeDJYLYs9qIM6Aw/export?format=csv&gid=0";
+
+/* helpers */
+function escapeHtml(str){
+  return String(str||"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
+}
+
+function cleanPoste(raw){
+  return String(raw||"").substring(0,4).toUpperCase();
+}
+
+/* INIT */
+async function init(){
+  try{
+    const res = await fetch(SHEET_URL);
+    const txt = await res.text();
+
+    const rows = txt.split(/\r?\n/).slice(1).filter(r=>r.trim());
+
+    const data = rows.map(r=>{
+      const c = r.split(",");
+      return {
+        date:c[0],
+        matin:c[1],
+        soir:c[2]
+      };
+    });
+
+    render(data);
+
+  }catch(e){
+    document.getElementById("planning-container").innerHTML="Erreur chargement";
+  }
+}
+
+/* RENDER */
+function render(data){
+  const container = document.getElementById("planning-container");
+
+  container.innerHTML = data.map(j=>`
+    <div style="margin-bottom:20px;">
+      <h3>${escapeHtml(j.date)}</h3>
+
+      <b>Matin</b>
+      ${parseStaff(j.matin, j)}
+
+      <b>Soir</b>
+      ${parseStaff(j.soir, j)}
     </div>
-    <div class="eyebrow">Grey Corner</div>
-    <div class="page-title">Planning Service</div>
-    <div class="page-sub">Salle & Hospitalité</div>
-    <div class="gold-rule"></div>
-    <a href="index.html" class="back-btn">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
-      Retour Menu
-    </a>
-  </header>
+  `).join("");
+}
 
-  <!-- Content -->
-  <div class="container" id="planning-container">
-    <div class="loading-state">
-      <span class="loading-dot"></span>
-      <span class="loading-dot"></span>
-      <span class="loading-dot"></span>
-    </div>
-  </div>
+/* 🔥 PARSE STAFF AVEC DÉTECTION EXACTE */
+function parseStaff(t, dayObj){
 
-  <script>
-    const SHEET_ID  = "1aKrmu7Hdf1tb4_0QFCGC6VYjUVlRKeDJYLYs9qIM6Aw";
-    const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+  if (!t || t === "-" || !t.trim())
+    return `<div>— Repos —</div>`;
 
-    const DEFAULT_H_MATIN = "06:30 – 14:30";
-    const DEFAULT_H_SOIR  = "14:15 – Fin service";
+  // extraire noms EXACTS
+  function extractNames(str){
+    if(!str) return [];
 
-    /* Accent colors per day (warm obsidian palette) */
-    const ACCENTS = [
-      "rgba(200,120,74,.90)",   // copper
-      "rgba(180,140,90,.85)",   // bronze
-      "rgba(160,100,60,.90)",   // amber dark
-      "rgba(210,150,90,.80)",   // champagne
-      "rgba(140,90,55,.90)",    // sienna
-      "rgba(190,110,70,.85)",   // terracotta
-    ];
+    return str.split(",").map(s=>{
+      s = s.trim();
+      let name = "";
 
-    /* ── helpers ── */
-    function showAlert(msg) {
-      const box = document.getElementById("alert-box");
-      const txt = document.getElementById("alert-text");
-      if (!box || !txt) return;
-      txt.textContent = msg;
-      box.style.display = "block";
-      document.body.classList.add("has-alert");
-    }
-    function hideAlert() {
-      const box = document.getElementById("alert-box");
-      if (!box) return;
-      box.style.display = "none";
-      document.body.classList.remove("has-alert");
-    }
-    function escapeHtml(str) {
-      return String(str ?? "")
-        .replaceAll("&","&amp;").replaceAll("<","&lt;")
-        .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
-    }
-    function isHtml(t) { return /<html[\s>]/i.test(t) || /<!doctype html/i.test(t); }
-    function splitCsv(line) {
-      return line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g,"").trim());
-    }
-    function cleanPoste(raw) {
-      if (!raw) return "";
-      const p = String(raw).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
-      if (p.includes("loge"))    return "LOGE";
-      if (p.includes("ter1"))    return "TER 1";
-      if (p.includes("ter2"))    return "TER 2";
-      if (p.includes("ter3"))    return "TER 3";
-      if (p.includes("terrasse")||p.includes("ter")) return "TER";
-      if (p.includes("sala2"))   return "SAL 2";
-      if (p.includes("sala1")||p.includes("sala")||p==="sal") return "SAL 1";
-      if (p.includes("bar"))     return "BAR";
-      if (p.includes("caisse"))  return "CAISSE";
-      if (p.includes("run"))     return "RUNNER";
-      if (p.includes("acc"))     return "ACCUEIL";
-      if (p.includes("deb"))     return "DEB";
-      return String(raw).substring(0,4).toUpperCase();
-    }
-    function pickTime(raw, fallback) {
-      const t = String(raw ?? "").trim();
-      return (t && t !== "-") ? t : fallback;
-    }
-    function todayMidnight() { const d = new Date(); d.setHours(0,0,0,0); return d; }
-    function sameDay(a, b) {
-      return a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
-    }
-    function parseDateLabel(label) {
-      const s = String(label ?? "").trim();
-      if (!s) return null;
-      let m = s.match(/\b(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})\b/);
-      if (m) { const d = new Date(+m[1], +m[2]-1, +m[3]); d.setHours(0,0,0,0); return isNaN(d)?null:d; }
-      m = s.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})\b/);
-      if (m) { const d = new Date(+m[3], +m[2]-1, +m[1]); d.setHours(0,0,0,0); return isNaN(d)?null:d; }
-      const months = {"janvier":0,"fevrier":1,"février":1,"mars":2,"avril":3,"mai":4,"juin":5,"juillet":6,"aout":7,"août":7,"septembre":8,"octobre":9,"novembre":10,"decembre":11,"décembre":11};
-      const low = s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-      m = low.match(/\b(\d{1,2})\s+(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\b(?:\s+(\d{4}))?/);
-      if (m) { const d = new Date(m[3]?+m[3]:new Date().getFullYear(), months[m[2]], +m[1]); d.setHours(0,0,0,0); return isNaN(d)?null:d; }
-      return null;
-    }
-
-    /* ── main ── */
-    async function init() {
-      const container = document.getElementById("planning-container");
-      try {
-        const resp = await fetch(SHEET_URL, { cache: "no-store" });
-        const text = await resp.text();
-
-        if (isHtml(text)) {
-          container.innerHTML = `<div class="empty-state">Accès refusé — feuille non publique.</div>`;
-          showAlert("Google Sheet non public. Active le partage 'toute personne avec le lien'.");
-          return;
-        }
-
-        const rows = text.split(/\r?\n/).map(r => r.trim()).filter(r => r.length);
-        if (rows.length <= 1) { container.innerHTML = `<div class="empty-state">Aucune donnée trouvée.</div>`; return; }
-
-        /* Banner from D2 */
-        if (rows.length >= 2) {
-          const c2 = splitCsv(rows[1]);
-          const banner = String(c2[3] ?? "").trim();
-          if (banner && banner !== "-") showAlert(banner);
-        }
-
-        const all = [];
-        for (let i = 1; i < rows.length; i++) {
-          const c = splitCsv(rows[i]);
-          if (c.length >= 3 && c[0] !== "") {
-            all.push({ date: c[0], dateObj: parseDateLabel(c[0]), matin: c[1]??'', soir: c[2]??'', hMatin: c[4]??'', hSoir: c[5]??'' });
-          }
-        }
-
-        const t0 = todayMidnight();
-        const anyParsable = all.some(r => r.dateObj instanceof Date);
-        const data = anyParsable ? all.filter(r => r.dateObj && r.dateObj >= t0) : all;
-
-        render(data, t0);
-
-      } catch (e) {
-        container.innerHTML = `<div class="empty-state">Erreur de chargement.</div>`;
-      }
-    }
-
-    function render(data, t0) {
-      const container = document.getElementById("planning-container");
-      if (!data.length) {
-        container.innerHTML = `<div class="empty-state">Aucun jour à afficher.</div>`;
-        return;
+      if (s.includes(":")) {
+        name = s.split(":").slice(1).join(":").trim();
+      } else if (s.includes("(") && s.includes(")")) {
+        name = s.substring(0, s.indexOf("(")).trim();
+      } else {
+        name = s;
       }
 
-      let todayIdx = data.findIndex(r => r.dateObj && sameDay(r.dateObj, t0));
+      return name.toLowerCase();
+    }).filter(Boolean);
+  }
 
-      container.innerHTML = data.map((j, idx) => {
-        const isToday = idx === todayIdx;
-        const hMatin  = pickTime(j.hMatin, DEFAULT_H_MATIN);
-        const hSoir   = pickTime(j.hSoir,  DEFAULT_H_SOIR);
-        const accent  = ACCENTS[idx % ACCENTS.length];
-        const delay   = (idx * .04).toFixed(2);
+  const matinNames = extractNames(dayObj?.matin);
+  const soirNames  = extractNames(dayObj?.soir);
 
-        return `
-          <div class="day-card ${isToday ? 'is-today' : ''} fade-up"
-               style="--accent:${accent}; animation-delay:${delay}s;"
-               ${isToday ? 'id="today-card"' : ''}>
+  // intersection exacte
+  const doubles = matinNames.filter(n => soirNames.includes(n));
 
-            <div class="card-header">
-              <span class="day-name">${escapeHtml(j.date)}</span>
-              ${isToday ? `<div class="today-badge"><span class="today-dot"></span>Aujourd'hui</div>` : ''}
-            </div>
+  return t.split(",").map(s=>{
+    s = s.trim();
 
-            <div class="card-body">
-              <div class="shift-header matin">
-                <span class="shift-icon">☀️</span> Matin
-                <span class="shift-time">${escapeHtml(hMatin)}</span>
-              </div>
-              ${parseStaff(j.matin)}
+    let name = "", poste = "";
 
-              <div class="shift-header soir">
-                <span class="shift-icon">🌙</span> Soir
-                <span class="shift-time">${escapeHtml(hSoir)}</span>
-              </div>
-              ${parseStaff(j.soir)}
-            </div>
-          </div>
-        `;
-      }).join("");
-
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        const el = document.getElementById("today-card");
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }));
+    if (s.includes(":")) {
+      const parts = s.split(":");
+      poste = cleanPoste(parts[0]);
+      name  = parts.slice(1).join(":").trim();
+    } else if (s.includes("(") && s.includes(")")) {
+      name  = s.substring(0, s.indexOf("(")).trim();
+      poste = cleanPoste(s.substring(s.indexOf("(")+1, s.lastIndexOf(")")));
+    } else {
+      name = s;
     }
 
-    function parseStaff(t) {
-      if (!t || t === "-" || !t.trim())
-        return `<div class="repos">— Repos —</div>`;
+    const isDouble = doubles.includes(name.toLowerCase());
 
-      return t.split(",").map(s => {
-        s = s.trim();
-        let name = "", poste = "";
+    return `
+      <div class="staff-row">
+        <div class="staff-name ${isDouble ? 'double-shift' : ''}">
+          ${escapeHtml(name)}
+        </div>
+        ${poste ? `<div class="staff-poste">${escapeHtml(poste)}</div>` : ''}
+      </div>
+    `;
+  }).join("");
+}
 
-        if (s.includes(":")) {
-          const parts = s.split(":");
-          poste = cleanPoste(parts[0]);
-          name  = parts.slice(1).join(":").trim();
-        } else if (s.includes("(") && s.includes(")")) {
-          name  = s.substring(0, s.indexOf("(")).trim();
-          poste = cleanPoste(s.substring(s.indexOf("(")+1, s.lastIndexOf(")")));
-        } else {
-          name = s;
-        }
+init();
+</script>
 
-        return `
-          <div class="staff-row">
-            <div class="staff-name">${escapeHtml(name)}</div>
-            ${poste ? `<div class="staff-poste">${escapeHtml(poste)}</div>` : ''}
-          </div>
-        `;
-      }).join("");
-    }
-
-    init();
-  </script>
 </body>
 </html>
