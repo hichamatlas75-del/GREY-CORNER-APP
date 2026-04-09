@@ -53,6 +53,7 @@
     .glow-a { width: 420px; height: 420px; top: -140px; right: -120px; background: radial-gradient(circle, rgba(200,120,74,.11), transparent 65%); }
     .glow-b { width: 260px; height: 260px; bottom: 10%; left: -70px; background: radial-gradient(circle, rgba(160,60,20,.06), transparent 65%); }
 
+    /* ── ALERT BANNER ── */
     #alert-box {
       display: none;
       position: fixed; top: 0; left: 0; width: 100%; z-index: 9999;
@@ -76,6 +77,7 @@
     }
     #alert-close:hover { background: rgba(200,120,74,.26); }
 
+    /* ── HEADER ── */
     header {
       position: relative; z-index: 2;
       text-align: center;
@@ -144,6 +146,7 @@
     .back-btn:hover { color: var(--gold); border-color: var(--stroke-warm); background: var(--gold-soft); }
     .back-btn svg { width: 13px; height: 13px; }
 
+    /* ── CONTAINER ── */
     .container {
       position: relative; z-index: 2;
       width: 100%; max-width: 600px;
@@ -164,6 +167,7 @@
     .loading-dot:nth-child(3) { animation-delay: .4s; }
     @keyframes blink { 0%,80%,100% { opacity:.2; transform: scale(.8); } 40% { opacity:1; transform: scale(1.2); } }
 
+    /* ── DAY CARD ── */
     .day-card {
       position: relative; overflow: hidden;
       border-radius: var(--radius);
@@ -264,7 +268,7 @@
       transition: background .2s;
     }
 
-    /* COULEUR ROUGE POUR DOUBLON */
+    /* COULEUR ROUGE SI DOUBLE SHIFT */
     .staff-name.double-shift {
       color: #ff4d4d !important;
       border-color: rgba(255, 77, 77, 0.3);
@@ -444,6 +448,19 @@
           return;
         }
         const rows = text.split(/\r?\n/).map(r => r.trim()).filter(r => r.length);
+        if (rows.length <= 1) { container.innerHTML = `<div class="empty-state">Aucune donnée trouvée.</div>`; return; }
+
+        /* ── NOTIFICATION (COLONNE D / index 3) ── */
+        // On cherche le premier message non vide dans la colonne D des lignes de données
+        for (let i = 1; i < rows.length; i++) {
+          const c = splitCsv(rows[i]);
+          const banner = String(c[3] ?? "").trim();
+          if (banner && banner !== "-") {
+            showAlert(banner);
+            break; // On affiche la première trouvée
+          }
+        }
+
         const all = [];
         for (let i = 1; i < rows.length; i++) {
           const c = splitCsv(rows[i]);
@@ -476,7 +493,7 @@
         const accent  = ACCENTS[idx % ACCENTS.length];
         const delay   = (idx * .04).toFixed(2);
 
-        // --- DÉTECTION DOUBLONS ---
+        // --- DÉTECTION DOUBLONS (COUPURES) ---
         const getNames = (str) => {
           if(!str || str === "-") return [];
           return str.split(",").map(s => {
