@@ -275,6 +275,13 @@
       border-radius: 12px;
     }
 
+    /* Double shift — rouge */
+    .staff-name.is-double {
+      color: #e05555;
+      background: rgba(224,85,85,.08);
+      border-color: rgba(224,85,85,.25);
+    }
+
     /* Empty state */
     .empty-state {
       text-align: center; padding: 40px 16px;
@@ -406,64 +413,47 @@
     function sameDay(a, b) {
       return a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
     }
-   function parseDateLabel(label) {
-  if (!label) return null;
-
-  let s = String(label).toLowerCase().trim();
-
-  // Nettoyage accents + points (ex: avr.)
-  s = s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  s = s.replace(/\./g, "");
-
-  // Format YYYY-MM-DD
-  let m = s.match(/\b(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})\b/);
-  if (m) {
-    const d = new Date(+m[1], +m[2]-1, +m[3]);
-    d.setHours(0,0,0,0);
-    return d;
-  }
-
-  // Format DD/MM/YYYY
-  m = s.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})\b/);
-  if (m) {
-    const d = new Date(+m[3], +m[2]-1, +m[1]);
-    d.setHours(0,0,0,0);
-    return d;
-  }
-
-  // Mois FR (complet + abrégé)
-  const months = {
-    "janvier":0,"janv":0,
-    "fevrier":1,"fev":1,
-    "mars":2,
-    "avril":3,"avr":3,
-    "mai":4,
-    "juin":5,
-    "juillet":6,"juil":6,
-    "aout":7,
-    "septembre":8,"sept":8,
-    "octobre":9,"oct":9,
-    "novembre":10,"nov":10,
-    "decembre":11,"dec":11
-  };
-
-  // Format: 1 avr / 1 avril / 1 avr 2026
-  m = s.match(/\b(\d{1,2})\s+([a-z]+)(?:\s+(\d{4}))?/);
-
-  if (m) {
-    const day = +m[1];
-    const monthName = m[2];
-    const year = m[3] ? +m[3] : new Date().getFullYear();
-
-    if (months.hasOwnProperty(monthName)) {
-      const d = new Date(year, months[monthName], day);
-      d.setHours(0,0,0,0);
-      return d;
+    function parseDateLabel(label) {
+      if (!label) return null;
+      let s = String(label).toLowerCase().trim();
+      s = s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      s = s.replace(/\./g, "");
+      let m = s.match(/\b(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})\b/);
+      if (m) { const d = new Date(+m[1], +m[2]-1, +m[3]); d.setHours(0,0,0,0); return d; }
+      m = s.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})\b/);
+      if (m) { const d = new Date(+m[3], +m[2]-1, +m[1]); d.setHours(0,0,0,0); return d; }
+      const months = {
+        "janvier":0,"janv":0,"fevrier":1,"fev":1,"mars":2,
+        "avril":3,"avr":3,"mai":4,"juin":5,"juillet":6,"juil":6,
+        "aout":7,"septembre":8,"sept":8,"octobre":9,"oct":9,
+        "novembre":10,"nov":10,"decembre":11,"dec":11
+      };
+      m = s.match(/\b(\d{1,2})\s+([a-z]+)(?:\s+(\d{4}))?/);
+      if (m) {
+        const day = +m[1], monthName = m[2], year = m[3] ? +m[3] : new Date().getFullYear();
+        if (months.hasOwnProperty(monthName)) {
+          const d = new Date(year, months[monthName], day);
+          d.setHours(0,0,0,0);
+          return d;
+        }
+      }
+      return null;
     }
-  }
 
-  return null;
-}
+    /* ── Extrait les noms d'un texte de shift (clé normalisée en majuscules) ── */
+    function extractNames(text) {
+      if (!text || text === '-' || !text.trim()) return new Set();
+      return new Set(
+        text.split(',').map(s => {
+          s = s.trim();
+          let nom = "";
+          if (s.includes(':'))              nom = s.split(':').slice(1).join(':').trim();
+          else if (s.includes('(') && s.includes(')')) nom = s.substring(0, s.indexOf('(')).trim();
+          else                              nom = s;
+          return nom.toUpperCase();
+        }).filter(Boolean)
+      );
+    }
 
     /* ── main ── */
     async function init() {
@@ -527,6 +517,11 @@
         const accent  = ACCENTS[idx % ACCENTS.length];
         const delay   = (idx * .04).toFixed(2);
 
+        /* Détection double shift */
+        const matinNames = extractNames(j.matin);
+        const soirNames  = extractNames(j.soir);
+        const doubles    = new Set([...matinNames].filter(n => soirNames.has(n)));
+
         return `
           <div class="day-card ${isToday ? 'is-today' : ''} fade-up"
                style="--accent:${accent}; animation-delay:${delay}s;"
@@ -542,13 +537,13 @@
                 <span class="shift-icon">☀️</span> Matin
                 <span class="shift-time">${escapeHtml(hMatin)}</span>
               </div>
-              ${parseStaff(j.matin)}
+              ${parseStaff(j.matin, doubles)}
 
               <div class="shift-header soir">
                 <span class="shift-icon">🌙</span> Soir
                 <span class="shift-time">${escapeHtml(hSoir)}</span>
               </div>
-              ${parseStaff(j.soir)}
+              ${parseStaff(j.soir, doubles)}
             </div>
           </div>
         `;
@@ -560,7 +555,7 @@
       }));
     }
 
-    function parseStaff(text) {
+    function parseStaff(text, doubles = new Set()) {
       if (!text || text === '-' || !text.trim())
         return `<div class="repos">— Repos —</div>`;
 
@@ -579,10 +574,12 @@
           nom = s.trim(); poste = "BAR";
         }
 
+        const isDouble = doubles.has(nom.toUpperCase());
+
         return `
           <div class="staff-row">
             <div class="poste-badge">${escapeHtml(poste)}</div>
-            <div class="staff-name">${escapeHtml(nom)}</div>
+            <div class="staff-name${isDouble ? ' is-double' : ''}">${escapeHtml(nom)}</div>
           </div>
         `;
       }).join('');
