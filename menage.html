@@ -10,20 +10,39 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
+        :root {
+            --bg: #1e272e;
+            --gold: #d35400;
+            --text: #f1f2f6;
+            --muted: #ced6e0;
+        }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 100% 0%, rgba(211, 84, 0, 0.15) 0%, transparent 45%),
+                radial-gradient(circle at 0% 100%, rgba(72, 84, 96, 0.2) 0%, transparent 40%);
+            color: var(--text);
             scroll-behavior: smooth;
         }
         .vignette-shadow {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
         }
         .today-shadow {
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.6);
         }
         .scroll-mt-24 {
             scroll-margin-top: 6rem;
         }
+        /* Theme overrides for React components */
+        .bg-white { background-color: rgba(47, 53, 66, 0.85) !important; color: #f1f2f6 !important; }
+        .text-slate-900 { color: #f1f2f6 !important; }
+        .text-slate-400 { color: #ced6e0 !important; }
+        .border-slate-100 { border-color: rgba(211, 84, 0, 0.15) !important; }
+        .bg-slate-50 { background-color: transparent !important; }
+        .bg-[#96d35f] { background-color: var(--gold) !important; color: white !important; }
+        .text-orange-400 { color: #E8A88A !important; }
+        .text-amber-500 { color: #d35400 !important; }
     </style>
 </head>
 <body>
