@@ -10,18 +10,18 @@
 
   <style>
     :root {
-      --bg: #07060a;
-      --panel: rgba(16,12,14,.82);
-      --panel-strong: rgba(22,17,19,.95);
-      --stroke: rgba(255,255,255,.065);
-      --stroke-gold: rgba(186,108,58,.34);
-      --text: #f2ebe4;
-      --muted: rgba(242,235,228,.50);
-      --gold: #c8784a;
-      --gold-dim: rgba(200,120,74,.78);
-      --gold-soft: rgba(200,120,74,.08);
-      --gold-mid: rgba(200,120,74,.16);
-      --shadow: 0 24px 60px rgba(0,0,0,.58);
+      --bg: #1e272e;
+      --panel: rgba(47, 53, 66, 0.85);
+      --panel-strong: rgba(47, 53, 66, 0.95);
+      --stroke: rgba(211, 84, 0, 0.2);
+      --stroke-gold: rgba(211, 84, 0, 0.45);
+      --text: #f1f2f6;
+      --muted: #ced6e0;
+      --gold: #d35400;
+      --gold-dim: rgba(211, 84, 0, 0.85);
+      --gold-soft: rgba(211, 84, 0, 0.12);
+      --gold-mid: rgba(211, 84, 0, 0.22);
+      --shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -31,10 +31,10 @@
       font-family: 'DM Sans', sans-serif;
       color: var(--text);
       overflow-x: hidden;
-      background:
-        radial-gradient(ellipse 65% 38% at 72% 0%, rgba(200,120,74,.08) 0%, transparent 55%),
-        radial-gradient(ellipse 45% 45% at 8% 92%, rgba(160,80,40,.04) 0%, transparent 50%),
-        linear-gradient(172deg, #0a0709 0%, #0e0b0d 48%, #07060a 100%);
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 100% 0%, rgba(211, 84, 0, 0.15) 0%, transparent 45%),
+        radial-gradient(circle at 0% 100%, rgba(72, 84, 96, 0.2) 0%, transparent 40%);
     }
 
     body { display: flex; justify-content: center; position: relative; }
@@ -68,7 +68,13 @@
 
     .hero::before {
       content: ""; position: absolute; inset: 0; pointer-events: none;
-      background: radial-gradient(ellipse at top right, rgba(200,120,74,.12), transparent 34%);
+      background-image: url("cuisine_nanobanana_1778437933144.png");
+      background-size: cover; background-position: center;
+      opacity: 0.1; filter: contrast(1.2);
+    }
+    .hero::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at top right, rgba(184, 84, 28, 0.2), transparent 45%);
     }
 
     /* Spinning logo ring */
@@ -176,7 +182,7 @@
 
     .card-scrim {
       position: absolute; inset: 0;
-      background: linear-gradient(100deg, rgba(8,9,14,.94) 0%, rgba(8,9,14,.78) 45%, rgba(8,9,14,.48) 100%);
+      background: linear-gradient(100deg, rgba(30, 39, 46, 0.95) 0%, rgba(30, 39, 46, 0.8) 45%, rgba(30, 39, 46, 0.5) 100%);
     }
 
     .card-inner {
@@ -400,7 +406,7 @@
 
   <script>
     /* ── PIN ── */
-    const PIN_CODE = "2024";
+    const PIN_CODE = "2000";
     let pinValue = "";
 
     const lockscreen = document.getElementById("lockscreen");
@@ -468,7 +474,7 @@
         tag: "Boissons & Coordination",
         desc: "Organisation élégante du service bar et coordination.",
         href: "bar.html",
-        img: "https://images.unsplash.com/photo-1544145945-f904253d0c71?w=1200",
+        img: "bar_nanobanana_1778437896085.png",
         icon: "🥤"
       },
       {
@@ -476,7 +482,7 @@
         tag: "Salle & Hospitalité",
         desc: "Répartition fluide du service et de l'accueil client.",
         href: "service.html",
-        img: "https://images.pexels.com/photos/1556691/pexels-photo-1556691.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        img: "service_nanobanana_1778437913282.png",
         icon: "🍽️"
       },
       {
@@ -484,7 +490,7 @@
         tag: "Production & Préparation",
         desc: "Suivi de l'équipe cuisine et du rythme opérationnel.",
         href: "cuisine.html",
-        img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1200",
+        img: "cuisine_nanobanana_1778437933144.png",
         icon: "👨‍🍳"
       },
       {
@@ -492,7 +498,7 @@
         tag: "Ordre & Entretien",
         desc: "Gestion des tâches de propreté et d'entretien.",
         href: "menage.html",
-        img: "https://images.pexels.com/photos/4099467/pexels-photo-4099467.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        img: "menage_nanobanana_1778437952173.png",
         icon: "✨"
       }
     ];
