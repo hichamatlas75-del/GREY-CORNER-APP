@@ -8,25 +8,28 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:       #1e2025;
-      --surface:  #272a2f;
-      --border:   rgba(193,154,88,0.15);
-      --gold:     #c19a58;
-      --gold-dim: rgba(193,154,88,0.45);
-      --rose:     #b0a99f;
-      --bleu:     #8a9ba8;
-      --off-bg:   rgba(255,255,255,0.04);
-      --off-txt:  rgba(255,255,255,0.2);
-      --fs-txt:   rgba(193,154,88,0.7);
-      --text:     #e8e2d6;
-      --muted:    rgba(232,226,214,0.4);
+      --bg: #1e272e;
+      --surface: rgba(47, 53, 66, 0.85);
+      --border: rgba(211, 84, 0, 0.2);
+      --gold: #d35400;
+      --gold-dim: rgba(211, 84, 0, 0.45);
+      --rose: #E8A88A;
+      --bleu: #ced6e0;
+      --off-bg: rgba(255,255,255,0.04);
+      --off-txt: rgba(255,255,255,0.2);
+      --fs-txt: rgba(211,84,0,0.7);
+      --text: #f1f2f6;
+      --muted: #ced6e0;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 100% 0%, rgba(211, 84, 0, 0.15) 0%, transparent 45%),
+        radial-gradient(circle at 0% 100%, rgba(72, 84, 96, 0.2) 0%, transparent 40%);
       color: var(--text);
       min-height: 100vh;
       padding: 28px 14px 48px;
