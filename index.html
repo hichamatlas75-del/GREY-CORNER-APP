@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grey Corner • Espace Vestiaires</title>
+  <link rel="icon" type="image/jpeg" href="LOGO.jpg" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="global.css">
+</head>
+<body>
+  <div class="grain"></div>
+  <div class="glow-a"></div>
+  <div class="glow-b"></div>
+
+  <!-- ─── LOCKSCREEN ─── -->
+  <div id="lockscreen" class="lockscreen">
+    <div class="pin-panel" id="pinPanel">
+      <div class="pin-top">
+        <div class="pin-badge">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="#006233" stroke="#d4af37" stroke-width="1.8">
+            <polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" />
+          </svg>
+        </div>
+        <h2 class="pin-title">Vestiaire Privé</h2>
+        <p class="pin-sub">Saisissez le code PIN tactique pour ouvrir les plannings Grey Corner 🇲🇦 ⚽</p>
+      </div>
+
+      <div class="pin-dots" id="pinDots">
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+      </div>
+
+      <p class="pin-error" id="pinError"></p>
+
+      <div class="pin-pad">
+        <button class="pin-key" data-num="1">1</button>
+        <button class="pin-key" data-num="2">2</button>
+        <button class="pin-key" data-num="3">3</button>
+        <button class="pin-key" data-num="4">4</button>
+        <button class="pin-key" data-num="5">5</button>
+        <button class="pin-key" data-num="6">6</button>
+        <button class="pin-key" data-num="7">7</button>
+        <button class="pin-key" data-num="8">8</button>
+        <button class="pin-key" data-num="9">9</button>
+        <button class="pin-key func" id="clearPin">⌫</button>
+        <button class="pin-key" data-num="0">0</button>
+        <button class="pin-key func enter" id="submitPin">↵</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── APP ─── -->
+  <div id="root" class="shell hidden-app"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <script>
+    /* ── PIN ── */
+    const PIN_CODE = "2000";
+    let pinValue = "";
+
+    const lockscreen = document.getElementById("lockscreen");
+    const rootShell  = document.getElementById("root");
+    const pinPanel   = document.getElementById("pinPanel");
+    const dots       = Array.from(document.querySelectorAll(".pin-dot"));
+    const pinError   = document.getElementById("pinError");
+
+    const updateDots = () => dots.forEach((d, i) => d.classList.toggle("filled", i < pinValue.length));
+    const clearError = () => { pinError.textContent = ""; };
+
+    function showError(msg) {
+      pinError.textContent = msg;
+      pinPanel.classList.remove("shake");
+      void pinPanel.offsetWidth;
+      pinPanel.classList.add("shake");
+    }
+
+    function unlockApp() {
+      lockscreen.style.opacity = "0";
+      lockscreen.style.pointerEvents = "none";
+      setTimeout(() => { lockscreen.remove(); rootShell.classList.remove("hidden-app"); }, 260);
+    }
+
+    function submitPin() {
+      if (pinValue.length !== 4) { showError("Entrez un code à 4 chiffres."); return; }
+      if (pinValue === PIN_CODE) { clearError(); unlockApp(); }
+      else { showError("Code incorrect. Réessayez."); pinValue = ""; updateDots(); }
+    }
+
+    document.querySelectorAll("[data-num]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (pinValue.length >= 4) return;
+        pinValue += btn.dataset.num;
+        clearError();
+        updateDots();
+        if (pinValue.length === 4) setTimeout(submitPin, 130);
+      });
+    });
+
+    document.getElementById("clearPin").addEventListener("click", () => { pinValue = ""; clearError(); updateDots(); });
+    document.getElementById("submitPin").addEventListener("click", submitPin);
+
+    /* Keyboard support */
+    document.addEventListener("keydown", e => {
+      if (!document.getElementById("lockscreen")) return;
+      if (e.key >= "0" && e.key <= "9") {
+        if (pinValue.length >= 4) return;
+        pinValue += e.key; clearError(); updateDots();
+        if (pinValue.length === 4) setTimeout(submitPin, 130);
+      } else if (e.key === "Backspace") {
+        pinValue = pinValue.slice(0, -1); clearError(); updateDots();
+      } else if (e.key === "Enter") {
+        submitPin();
+      }
+    });
+
+    /* ── REACT ── */
+    const React    = window.React;
+    const ReactDOM = window.ReactDOM;
+
+    const LINKS = [
+      {
+        title: "Planning Bar",
+        tag: "Ravitaillement & Bar",
+        desc: "Organisation tactique du bar et du ravitaillement.",
+        href: "bar.html",
+        img: "bar_nanobanana_1778437896085.png",
+        icon: "🥤"
+      },
+      {
+        title: "Planning Service",
+        tag: "Hospitalité & Terrain",
+        desc: "Positionnement et coordination de l'équipe en salle.",
+        href: "service.html",
+        img: "service_nanobanana_1778437913282.png",
+        icon: "🏃‍♂️"
+      },
+      {
+        title: "Planning Cuisine",
+        tag: "Production & Performance",
+        desc: "Suivi de l'équipe en cuisine et logistique de match.",
+        href: "cuisine.html",
+        img: "cuisine_nanobanana_1778437933144.png",
+        icon: "👨‍🍳"
+      },
+      {
+        title: "Planning Ménage",
+        tag: "Ordre & Vestiaires",
+        desc: "Entretien et propreté de l'espace tactique.",
+        href: "menage.html",
+        img: "menage_nanobanana_1778437952173.png",
+        icon: "✨"
+      }
+    ];
+
+    const ChevronRight = () =>
+      React.createElement('svg', {
+        width: 14, height: 14, fill: 'none', stroke: 'currentColor',
+        viewBox: '0 0 24 24', strokeWidth: '2.4',
+        strokeLinecap: 'round', strokeLinejoin: 'round'
+      },
+        React.createElement('path', { d: 'M9 5l7 7-7 7' })
+      );
+
+    const Card = ({ link, delay }) =>
+      React.createElement('a', {
+        href: link.href,
+        className: 'lux-card fade-up',
+        style: { animationDelay: `${delay}s` }
+      },
+        React.createElement('div', { className: 'card-img', style: { backgroundImage: `url(${link.img})` } }),
+        React.createElement('div', { className: 'card-scrim' }),
+        React.createElement('div', { className: 'card-inner' },
+          React.createElement('div', { className: 'meta' },
+            React.createElement('div', { className: 'card-tag' }, link.tag),
+            React.createElement('div', { className: 'title-row' },
+              React.createElement('div', { className: 'icon-box' }, link.icon),
+              React.createElement('div', null,
+                React.createElement('div', { className: 'card-title' }, link.title),
+                React.createElement('div', { className: 'card-hint' }, link.desc)
+              )
+            )
+          ),
+          React.createElement('div', { className: 'go-btn' },
+            React.createElement(ChevronRight)
+          )
+        )
+      );
+
+    const App = () =>
+      React.createElement('div', null,
+
+        React.createElement('section', { className: 'hero fade-up', style: { animationDelay: '0s' } },
+          React.createElement('div', { className: 'logo-wrap' },
+            React.createElement('img', {
+              src: 'LOGO.jpg', alt: 'Grey Corner',
+              onError: e => { e.target.src = 'https://ui-avatars.com/api/?name=GC&background=111317&color=d6b36a&size=256'; }
+            })
+          ),
+          React.createElement('div', { className: 'eyebrow' }, 'Tactiques Lions de l\'Atlas 🇲🇦'),
+          React.createElement('h1', { className: 'brand' },
+            'Grey ',
+            React.createElement('span', null, 'Corner')
+          ),
+          React.createElement('p', { className: 'sub' },
+            'Vestiaire privé. Organisation stratégique de l\'équipe et feuilles de match par service.'
+          ),
+          React.createElement('div', { className: 'gold-rule' })
+        ),
+
+        React.createElement('div', { className: 'section-header fade-up', style: { animationDelay: '.07s' } },
+          React.createElement('span', { className: 'section-label' }, 'Feuilles de Match'),
+          React.createElement('span', { className: 'section-pill' }, 'Coupe du Monde 🏆')
+        ),
+
+        React.createElement('nav', { className: 'nav-list' },
+          LINKS.map((link, i) =>
+            React.createElement(Card, { key: i, link, delay: 0.12 + i * 0.07 })
+          )
+        ),
+
+        React.createElement('div', { className: 'footer fade-up', style: { animationDelay: '.52s' } },
+          'Grey Corner · Lions de l\'Atlas 🇲🇦 ⚽'
+        )
+      );
+
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+</body>
+</html>

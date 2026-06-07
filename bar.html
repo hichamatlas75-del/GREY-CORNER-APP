@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Planning Bar — Tactique Boissons</title>
+  <link rel="icon" type="image/jpeg" href="LOGO.jpg" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="global.css" />
+</head>
+
+<body>
+  <div class="grain"></div>
+  <div class="glow-a"></div>
+  <div class="glow-b"></div>
+
+  <!-- Alert -->
+  <div id="alert-box">
+    <span id="alert-text"></span>
+    <button id="alert-close" onclick="hideAlert()">✕</button>
+  </div>
+
+  <!-- Header -->
+  <header class="fade-up" style="animation-delay:.0s">
+    <div class="logo-wrap">
+      <img src="LOGO.jpg" alt="Grey Corner" onerror="this.src='https://ui-avatars.com/api/?name=GC&background=111317&color=c8784a&size=256'">
+    </div>
+    <div class="eyebrow">Tactiques Lions de l'Atlas 🇲🇦</div>
+    <div class="page-title">Planning <span>Bar</span></div>
+    <div class="page-sub">Ravitaillement & Hydratation 🥤 ⚽</div>
+    <div class="gold-rule"></div>
+    <a href="index.html" class="back-btn">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
+      Retour Menu
+    </a>
+  </header>
+
+  <!-- Content -->
+  <div class="container" id="planning-container">
+    <div class="loading-state">
+      <span class="loading-dot"></span>
+      <span class="loading-dot"></span>
+      <span class="loading-dot"></span>
+    </div>
+  </div>
+
+  <script>
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/1mfwB4zNHS79YsNH4vTMUGOdWeQwC3htMgPtDWsrMbWg/gviz/tq?tqx=out:csv&gid=294813093";
+
+    const DEFAULT_H_MATIN = "06:30 – 14:30";
+    const DEFAULT_H_SOIR  = "14:15 – Fin service";
+
+    const ACCENTS = [
+      "var(--red)",
+      "var(--green)",
+      "var(--gold)",
+      "var(--red-dim)",
+      "var(--green-dim)"
+    ];
+
+    /* ── helpers ── */
+    function showAlert(msg) {
+      const box = document.getElementById("alert-box");
+      const txt = document.getElementById("alert-text");
+      if (!box || !txt) return;
+      txt.textContent = msg;
+      box.style.display = "block";
+      document.body.classList.add("has-alert");
+    }
+    function hideAlert() {
+      const box = document.getElementById("alert-box");
+      if (!box) return;
+      box.style.display = "none";
+      document.body.classList.remove("has-alert");
+    }
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replaceAll("&","&amp;").replaceAll("<","&lt;")
+        .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+    function isHtml(t) { return /<html[\s>]/i.test(t) || /<!doctype html/i.test(t); }
+
+    function parseCsvLine(line) {
+      const out = []; let cur = ""; let inQ = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') { if (inQ && line[i+1]==='"') { cur+='"'; i++; } else inQ=!inQ; continue; }
+        if (ch === ',' && !inQ) { out.push(cur.trim()); cur=""; continue; }
+        cur += ch;
+      }
+      out.push(cur.trim());
+      return out;
+    }
+
+    function cleanPoste(raw) {
+      if (!raw) return "";
+      const p = String(raw).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+      if (p.includes("loge"))    return "LOGE";
+      if (p.includes("ter1"))    return "TER 1";
+      if (p.includes("ter2"))    return "TER 2";
+      if (p.includes("ter3"))    return "TER 3";
+      if (p.includes("terrasse")||p.includes("ter")) return "TER";
+      if (p.includes("sala2"))   return "SAL 2";
+      if (p.includes("sala1")||p.includes("sala")||p==="sal") return "SAL 1";
+      if (p.includes("bar"))     return "BAR";
+      if (p.includes("caisse"))  return "CAISSE";
+      if (p.includes("run"))     return "RUNNER";
+      if (p.includes("acc"))     return "ACCUEIL";
+      if (p.includes("deb"))     return "DEB";
+      return String(raw).substring(0,5).toUpperCase();
+    }
+
+    function pickTime(raw, fallback) {
+      const t = String(raw ?? "").trim();
+      return (t && t !== "-") ? t : fallback;
+    }
+    function todayMidnight() { const d = new Date(); d.setHours(0,0,0,0); return d; }
+    function sameDay(a, b) {
+      return a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+    }
+   function parseDateLabel(label) {
+  if (!label) return null;
+
+  let s = String(label).toLowerCase().trim();
+
+  // Nettoyage accents + points (ex: avr.)
+  s = s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  s = s.replace(/\./g, "");
+
+  // Format YYYY-MM-DD
+  let m = s.match(/\b(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})\b/);
+  if (m) {
+    const d = new Date(+m[1], +m[2]-1, +m[3]);
+    d.setHours(0,0,0,0);
+    return d;
+  }
+
+  // Format DD/MM/YYYY
+  m = s.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})\b/);
+  if (m) {
+    const d = new Date(+m[3], +m[2]-1, +m[1]);
+    d.setHours(0,0,0,0);
+    return d;
+  }
+
+  // Mois FR (complet + abrégé)
+  const months = {
+    "janvier":0,"janv":0,
+    "fevrier":1,"fev":1,
+    "mars":2,
+    "avril":3,"avr":3,
+    "mai":4,
+    "juin":5,
+    "juillet":6,"juil":6,
+    "aout":7,
+    "septembre":8,"sept":8,
+    "octobre":9,"oct":9,
+    "novembre":10,"nov":10,
+    "decembre":11,"dec":11
+  };
+
+  // Format: 1 avr / 1 avril / 1 avr 2026
+  m = s.match(/\b(\d{1,2})\s+([a-z]+)(?:\s+(\d{4}))?/);
+
+  if (m) {
+    const day = +m[1];
+    const monthName = m[2];
+    const year = m[3] ? +m[3] : new Date().getFullYear();
+
+    if (months.hasOwnProperty(monthName)) {
+      const d = new Date(year, months[monthName], day);
+      d.setHours(0,0,0,0);
+      return d;
+    }
+  }
+
+  return null;
+}
+
+    /* ── main ── */
+    async function init() {
+      const container = document.getElementById("planning-container");
+      try {
+        const resp = await fetch(SHEET_URL, { cache: "no-store" });
+        const text = await resp.text();
+
+        if (isHtml(text)) {
+          container.innerHTML = `<div class="empty-state">Accès refusé — feuille non publique.</div>`;
+          showAlert("Gérer l'accès → Toute personne avec le lien (Lecteur).");
+          return;
+        }
+
+        const rows = text.split(/\r?\n/).map(r => r.trim()).filter(r => r);
+        if (rows.length <= 1) { container.innerHTML = `<div class="empty-state">CSV vide.</div>`; return; }
+
+        /* Banner D2 */
+        if (rows.length >= 2) {
+          const c2 = parseCsvLine(rows[1]);
+          while (c2.length < 6) c2.push("");
+          const banner = String(c2[3] ?? "").trim();
+          if (banner && banner !== "-") showAlert(banner);
+        }
+
+        const all = [];
+        for (let i = 1; i < rows.length; i++) {
+          const c = parseCsvLine(rows[i]);
+          while (c.length < 6) c.push("");
+          const label = (c[0] ?? "").trim();
+          if (label) {
+            all.push({ date: label, dateObj: parseDateLabel(label), matin: c[1]??'', soir: c[2]??'', hMatin: c[4]??'', hSoir: c[5]??'' });
+          }
+        }
+
+        const t0 = todayMidnight();
+        const anyParsable = all.some(r => r.dateObj instanceof Date);
+        const data = anyParsable ? all.filter(r => r.dateObj && r.dateObj >= t0) : all;
+
+        render(data, t0);
+
+      } catch (e) {
+        container.innerHTML = `<div class="empty-state">Erreur réseau / CORS.</div>`;
+        showAlert("Ouvre la page via HTTPS (pas en file://).");
+      }
+    }
+
+    function render(data, t0) {
+      const container = document.getElementById("planning-container");
+      if (!data.length) {
+        container.innerHTML = `<div class="empty-state">Aucun jour à afficher.</div>`;
+        return;
+      }
+
+      const todayIdx = data.findIndex(r => r.dateObj && sameDay(r.dateObj, t0));
+
+      container.innerHTML = data.map((j, idx) => {
+        const isToday = idx === todayIdx;
+        const hMatin  = pickTime(j.hMatin, DEFAULT_H_MATIN);
+        const hSoir   = pickTime(j.hSoir,  DEFAULT_H_SOIR);
+        const accent  = ACCENTS[idx % ACCENTS.length];
+        const delay   = (idx * .04).toFixed(2);
+
+        return `
+          <div class="day-card ${isToday ? 'is-today' : ''} fade-up"
+               style="--accent:${accent}; animation-delay:${delay}s;"
+               ${isToday ? 'id="today-card"' : ''}>
+
+            <div class="card-header">
+              <span class="day-name">${escapeHtml(j.date)}</span>
+              ${isToday ? `<div class="today-badge"><span class="today-dot"></span>Aujourd'hui</div>` : ''}
+            </div>
+
+            <div class="card-body">
+              <div class="shift-header matin">
+                <span class="shift-icon">☀️</span> Matin
+                <span class="shift-time">${escapeHtml(hMatin)}</span>
+              </div>
+              ${parseStaff(j.matin)}
+
+              <div class="shift-header soir">
+                <span class="shift-icon">🌙</span> Soir
+                <span class="shift-time">${escapeHtml(hSoir)}</span>
+              </div>
+              ${parseStaff(j.soir)}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const el = document.getElementById("today-card");
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }));
+    }
+
+    function parseStaff(text) {
+      if (!text || text === '-' || !text.trim())
+        return `<div class="repos">— Repos —</div>`;
+
+      return text.split(',').map(s => {
+        s = s.trim();
+        let nom = "", poste = "BAR";
+
+        if (s.includes(':')) {
+          const p = s.split(':');
+          poste = cleanPoste((p[0]||'').trim()) || "BAR";
+          nom   = (p.slice(1).join(':')||'').trim();
+        } else if (s.includes('(') && s.includes(')')) {
+          nom   = s.substring(0, s.indexOf('(')).trim();
+          poste = cleanPoste(s.substring(s.indexOf('(')+1, s.lastIndexOf(')'))) || "BAR";
+        } else {
+          nom = s.trim(); poste = "BAR";
+        }
+
+        return `
+          <div class="staff-row">
+            <div class="poste-badge">${escapeHtml(poste)}</div>
+            <div class="staff-name">${escapeHtml(nom)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    init();
+  </script>
+</body>
+</html>
