@@ -3,10 +3,278 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Planning Bar — Tactique Boissons</title>
+  <title>Planning Bar — Grey Corner</title>
   <link rel="icon" type="image/jpeg" href="LOGO.jpg" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="global.css" />
+
+  <style>
+  :root{
+    --paper:#faf7f0;
+    --paper2:#fffefb;
+    --ink:#231f1a;
+    --ink-soft:#6b6154;
+    --ink-dim:rgba(35,31,26,0.45);
+
+    --brass:#9c7a3c;
+    --brass-light:#c8ab6a;
+    --brass-deep:#7c5f2c;
+
+    --hairline:rgba(35,31,26,0.10);
+    --hairline-gold:rgba(156,122,60,0.35);
+
+    --err:#a13d2e;
+
+    --shadow:0 18px 40px rgba(35,31,26,0.06);
+    --shadow-lg:0 20px 45px rgba(35,31,26,0.12);
+
+    /* alternating muted day accents — same family, five tones */
+    --acc-1:#9c7a3c; /* brass        */
+    --acc-2:#8b5e3c; /* terracotta   */
+    --acc-3:#6f7a52; /* sage         */
+    --acc-4:#7a4b4b; /* wine         */
+    --acc-5:#5f6f78; /* slate blue   */
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ height:100%; }
+
+  body{
+    font-family:"DM Sans",-apple-system,sans-serif;
+    background:linear-gradient(180deg,#fdfbf6 0%,#f6f1e6 60%,#f1ead9 100%);
+    color:var(--ink);
+    min-height:100vh;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+    padding-bottom:60px;
+  }
+  body.has-alert{ padding-top:44px; }
+
+  .grain{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+  }
+  .glow-a, .glow-b{
+    position:fixed; z-index:0; pointer-events:none; border-radius:50%;
+    filter:blur(70px); opacity:.16;
+  }
+  .glow-a{ width:340px; height:340px; top:-100px; right:-100px; background:radial-gradient(circle,var(--brass-light),transparent 70%); }
+  .glow-b{ width:300px; height:300px; bottom:-80px; left:-100px; background:radial-gradient(circle,var(--brass),transparent 70%); }
+
+  .fade-up{ animation:fadeUp .28s ease both; }
+  @keyframes fadeUp{
+    from{ opacity:0; transform:translateY(8px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  /* ── ALERT ── */
+  #alert-box{
+    display:none;
+    position:fixed; top:0; left:0; right:0; z-index:200;
+    background:var(--paper2);
+    border-bottom:1px solid var(--hairline-gold);
+    box-shadow:0 6px 18px rgba(35,31,26,0.08);
+    padding:12px 44px 12px 18px;
+    font-size:12px; color:var(--ink);
+  }
+  #alert-text{ display:block; line-height:1.4; }
+  #alert-close{
+    position:absolute; top:8px; right:10px;
+    width:26px; height:26px;
+    display:flex; align-items:center; justify-content:center;
+    background:none; border:1px solid var(--hairline-gold);
+    color:var(--brass-deep);
+    font-size:12px; cursor:pointer;
+  }
+
+  /* ── HEADER ── */
+  header{
+    position:relative; z-index:1;
+    max-width:560px; margin:34px auto 8px;
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    gap:10px;
+    padding:32px 22px 26px;
+    background:var(--paper2);
+    border:1px solid var(--hairline-gold);
+    box-shadow:var(--shadow);
+  }
+  header::before, header::after{
+    content:''; position:absolute; left:20px; right:20px; height:1px;
+  }
+  header::before{ top:8px; background:var(--hairline-gold); }
+  header::after{ bottom:8px; background:var(--hairline-gold); }
+
+  .logo-wrap{
+    width:60px; height:60px;
+    border:1px solid var(--hairline-gold);
+    box-shadow:0 8px 20px rgba(35,31,26,0.10);
+    overflow:hidden;
+  }
+  .logo-wrap img{ width:100%; height:100%; object-fit:cover; }
+
+  .eyebrow{
+    font-size:9px; text-transform:uppercase; letter-spacing:.32em;
+    color:var(--brass); margin-top:2px;
+  }
+
+  .page-title{
+    font-family:"Cormorant Garamond",serif;
+    font-size:32px; font-weight:600; letter-spacing:.02em;
+    color:var(--ink); line-height:1;
+  }
+  .page-title span{ color:var(--brass-deep); font-style:italic; }
+
+  .page-sub{
+    font-size:12px; color:var(--ink-soft);
+  }
+
+  .gold-rule{
+    width:100%; max-width:160px; height:1px;
+    margin:6px 0 4px;
+    background:linear-gradient(90deg,transparent,var(--brass),transparent);
+  }
+
+  .back-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:11px; text-transform:uppercase; letter-spacing:.12em;
+    color:var(--brass-deep);
+    text-decoration:none;
+    padding:9px 16px;
+    border:1px solid var(--hairline-gold);
+    background:var(--paper);
+    transition:border-color .15s ease, transform .15s ease;
+  }
+  .back-btn:active{ transform:scale(.97); border-color:var(--brass); }
+  .back-btn svg{ width:13px; height:13px; }
+
+  /* ── CONTAINER / LOADING / EMPTY ── */
+  .container{
+    position:relative; z-index:1;
+    max-width:560px; margin:0 auto;
+    padding:24px 20px 40px;
+    display:flex; flex-direction:column; gap:16px;
+  }
+
+  .loading-state{
+    display:flex; justify-content:center; gap:8px;
+    padding:60px 0;
+  }
+  .loading-dot{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--brass);
+    opacity:.35;
+    animation:pulse 1.1s ease-in-out infinite;
+  }
+  .loading-dot:nth-child(2){ animation-delay:.15s; }
+  .loading-dot:nth-child(3){ animation-delay:.3s; }
+  @keyframes pulse{
+    0%,100%{ opacity:.25; transform:scale(.85); }
+    50%{ opacity:1; transform:scale(1.1); }
+  }
+
+  .empty-state{
+    text-align:center;
+    font-size:13px; color:var(--ink-soft);
+    padding:50px 20px;
+    background:var(--paper2);
+    border:1px solid var(--hairline-gold);
+  }
+
+  /* ── DAY CARD ── */
+  .day-card{
+    position:relative;
+    background:var(--paper2);
+    border:1px solid var(--hairline);
+    border-left:3px solid var(--accent, var(--brass));
+    box-shadow:var(--shadow);
+    padding:0;
+    overflow:hidden;
+  }
+
+  .day-card.is-today{
+    border-left-width:3px;
+    box-shadow:0 20px 45px rgba(35,31,26,0.11);
+  }
+  .day-card.is-today::after{
+    content:'';
+    position:absolute; inset:0;
+    border:1px solid var(--accent, var(--brass));
+    opacity:.35;
+    pointer-events:none;
+  }
+
+  .card-header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 20px;
+    border-bottom:1px solid var(--hairline);
+  }
+
+  .day-name{
+    font-family:"Cormorant Garamond",serif;
+    font-size:21px; font-weight:600;
+    color:var(--ink);
+    text-transform:capitalize;
+  }
+
+  .today-badge{
+    display:flex; align-items:center; gap:6px;
+    font-size:9px; text-transform:uppercase; letter-spacing:.14em;
+    color:var(--accent, var(--brass-deep));
+    border:1px solid currentColor;
+    padding:5px 10px;
+  }
+  .today-dot{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--accent, var(--brass-deep));
+  }
+
+  .card-body{ padding:14px 20px 18px; display:flex; flex-direction:column; gap:6px; }
+
+  .shift-header{
+    display:flex; align-items:center; gap:8px;
+    font-family:"Cormorant Garamond",serif;
+    font-style:italic;
+    font-size:14px;
+    color:var(--ink-soft);
+    margin:10px 0 8px;
+  }
+  .shift-header:first-child{ margin-top:2px; }
+  .shift-icon{ font-size:13px; }
+  .shift-time{
+    margin-left:auto;
+    font-family:"DM Sans",sans-serif;
+    font-style:normal;
+    font-size:10px; letter-spacing:.04em;
+    color:var(--ink-dim);
+  }
+
+  .repos{
+    font-size:11px; color:var(--ink-dim);
+    padding:6px 0 10px;
+    font-style:italic;
+  }
+
+  .staff-row{
+    display:flex; align-items:center; gap:10px;
+    padding:7px 0;
+    border-bottom:1px solid var(--hairline);
+  }
+  .staff-row:last-child{ border-bottom:none; }
+
+  .poste-badge{
+    flex-shrink:0;
+    min-width:52px;
+    text-align:center;
+    font-size:9px; font-weight:600; letter-spacing:.05em;
+    color:var(--accent, var(--brass-deep));
+    border:1px solid var(--accent, var(--hairline-gold));
+    padding:4px 6px;
+  }
+
+  .staff-name{
+    font-size:13px; color:var(--ink);
+  }
+  </style>
 </head>
 
 <body>
@@ -23,11 +291,11 @@
   <!-- Header -->
   <header class="fade-up" style="animation-delay:.0s">
     <div class="logo-wrap">
-      <img src="LOGO.jpg" alt="Grey Corner" onerror="this.src='https://ui-avatars.com/api/?name=GC&background=111317&color=c8784a&size=256'">
+      <img src="LOGO.jpg" alt="Grey Corner" onerror="this.src='https://ui-avatars.com/api/?name=GC&background=faf7f0&color=9c7a3c&size=256'">
     </div>
-    <div class="eyebrow">Tactiques Lions de l'Atlas 🇲🇦</div>
+    <div class="eyebrow">Espace Vestiaires</div>
     <div class="page-title">Planning <span>Bar</span></div>
-    <div class="page-sub">Ravitaillement & Hydratation 🥤 ⚽</div>
+    <div class="page-sub">Ravitaillement & Hydratation 🥤</div>
     <div class="gold-rule"></div>
     <a href="index.html" class="back-btn">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
@@ -51,11 +319,11 @@
     const DEFAULT_H_SOIR  = "14:15 – Fin service";
 
     const ACCENTS = [
-      "var(--red)",
-      "var(--green)",
-      "var(--gold)",
-      "var(--red-dim)",
-      "var(--green-dim)"
+      "var(--acc-1)",
+      "var(--acc-2)",
+      "var(--acc-3)",
+      "var(--acc-4)",
+      "var(--acc-5)"
     ];
 
     /* ── helpers ── */
