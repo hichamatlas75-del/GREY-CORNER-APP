@@ -23,6 +23,7 @@
     --hairline-gold:rgba(156,122,60,0.35);
 
     --err:#a13d2e;
+    --ok:#2e7d32;
 
     --shadow:0 18px 40px rgba(35,31,26,0.06);
     --shadow-lg:0 20px 45px rgba(35,31,26,0.12);
@@ -134,18 +135,34 @@
     background:linear-gradient(90deg,transparent,var(--brass),transparent);
   }
 
-  .back-btn{
+  .header-actions{
+    display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
+    margin-top:6px;
+  }
+
+  .back-btn, .admin-btn{
     display:inline-flex; align-items:center; gap:6px;
     font-size:11px; text-transform:uppercase; letter-spacing:.12em;
     color:var(--brass-deep);
     text-decoration:none;
-    padding:9px 16px;
+    padding:8px 14px;
     border:1px solid var(--hairline-gold);
     background:var(--paper);
-    transition:border-color .15s ease, transform .15s ease;
+    cursor:pointer;
+    font-family:inherit;
+    transition:border-color .15s ease, transform .15s ease, background .15s ease;
   }
-  .back-btn:active{ transform:scale(.97); border-color:var(--brass); }
-  .back-btn svg{ width:13px; height:13px; }
+  .back-btn:active, .admin-btn:active{ transform:scale(.97); border-color:var(--brass); }
+  .admin-btn{
+    background:var(--paper2);
+    border-color:var(--brass);
+    color:var(--brass-deep);
+    font-weight:600;
+  }
+  .admin-btn:hover{
+    background:var(--paper);
+  }
+  .back-btn svg, .admin-btn svg{ width:13px; height:13px; }
 
   /* ── CONTAINER / LOADING / EMPTY ── */
   .container{
@@ -292,6 +309,209 @@
     border:1px solid var(--accent, var(--hairline-gold));
     padding:4px 6px;
   }
+
+  /* ── MODALS (PIN & GENERATEUR) ── */
+  .modal-overlay{
+    position:fixed; inset:0; z-index:1000;
+    background:rgba(35,31,26,0.65);
+    backdrop-filter:blur(6px);
+    display:none; align-items:center; justify-content:center;
+    padding:16px;
+    animation:fadeUp .2s ease;
+  }
+  .modal-overlay.active{ display:flex; }
+
+  .modal-box{
+    position:relative;
+    width:100%; max-width:480px; max-height:92vh;
+    background:var(--paper2);
+    border:1px solid var(--hairline-gold);
+    box-shadow:var(--shadow-lg);
+    display:flex; flex-direction:column;
+    overflow:hidden;
+  }
+  .modal-box.wide{ max-width:920px; }
+
+  .modal-header{
+    padding:18px 24px;
+    border-bottom:1px solid var(--hairline-gold);
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--paper);
+  }
+  .modal-title{
+    font-family:"Cormorant Garamond",serif;
+    font-size:22px; font-weight:600;
+    color:var(--ink);
+  }
+  .modal-close{
+    background:none; border:none;
+    font-size:18px; color:var(--ink-soft);
+    cursor:pointer; padding:4px 8px;
+  }
+  .modal-close:hover{ color:var(--err); }
+
+  .modal-body{
+    padding:20px 24px;
+    overflow-y:auto;
+    display:flex; flex-direction:column; gap:16px;
+  }
+
+  /* PIN Modal specifics */
+  .admin-pin-panel{ text-align:center; padding:10px 0; }
+  .admin-pin-badge{
+    width:52px; height:52px; margin:0 auto 12px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--paper);
+    border:1px solid var(--hairline-gold);
+  }
+  .admin-pin-sub{ font-size:12px; color:var(--ink-soft); margin-bottom:16px; }
+  .admin-pin-dots{ display:flex; justify-content:center; gap:12px; margin-bottom:12px; }
+  .admin-pin-dot{
+    width:10px; height:10px; border-radius:50%;
+    border:1px solid var(--brass);
+    background:transparent;
+    transition:background .15s ease;
+  }
+  .admin-pin-dot.filled{ background:var(--brass-deep); border-color:var(--brass-deep); }
+  .admin-pin-error{ min-height:16px; font-size:11px; color:var(--err); margin-bottom:12px; }
+
+  .pin-pad{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:8px; max-width:280px; margin:0 auto;
+  }
+  .pin-key{
+    aspect-ratio:1;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--paper);
+    border:1px solid var(--hairline);
+    font-family:"DM Sans",sans-serif;
+    font-size:17px; font-weight:500;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .pin-key:active{ transform:scale(.95); border-color:var(--brass); background:var(--paper2); }
+  .pin-key.func{ font-size:14px; color:var(--brass-deep); }
+  .pin-key.enter{ background:var(--brass); color:var(--paper2); border-color:var(--brass); }
+
+  .shake{ animation:shake .32s ease; }
+  @keyframes shake{
+    0%,100%{ transform:translateX(0); }
+    20%{ transform:translateX(-6px); }
+    40%{ transform:translateX(6px); }
+    60%{ transform:translateX(-4px); }
+    80%{ transform:translateX(4px); }
+  }
+
+  /* Form Generator specifics */
+  .form-group{ display:flex; flex-direction:column; gap:6px; }
+  .form-label{ font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--brass-deep); }
+  .form-input, .form-select{
+    width:100%; padding:9px 12px;
+    background:var(--paper);
+    border:1px solid var(--hairline-gold);
+    color:var(--ink);
+    font-family:"DM Sans",sans-serif;
+    font-size:13px;
+    outline:none;
+  }
+  .form-input:focus, .form-select:focus{ border-color:var(--brass-deep); background:var(--paper2); }
+
+  .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media(max-width:540px){ .form-row{ grid-template-columns:1fr; } }
+
+  .btn-primary{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    background:var(--brass); color:var(--paper2);
+    border:1px solid var(--brass);
+    padding:10px 18px;
+    font-family:"DM Sans",sans-serif;
+    font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.1em;
+    cursor:pointer;
+    transition:background .15s ease, transform .15s ease;
+  }
+  .btn-primary:active{ background:var(--brass-deep); transform:scale(.98); }
+
+  .btn-secondary{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    background:var(--paper); color:var(--brass-deep);
+    border:1px solid var(--hairline-gold);
+    padding:9px 14px;
+    font-family:"DM Sans",sans-serif;
+    font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.08em;
+    cursor:pointer;
+    transition:border-color .15s ease;
+  }
+  .btn-secondary:hover{ border-color:var(--brass); }
+
+  /* ── EDITABLE TABLE PREVIEW ── */
+  .preview-section{
+    display:flex; flex-direction:column; gap:12px;
+    border-top:1px solid var(--hairline-gold);
+    padding-top:16px; margin-top:6px;
+  }
+  .preview-notice{
+    font-size:11px; color:var(--ink-soft);
+    background:var(--paper);
+    border-left:3px solid var(--brass);
+    padding:8px 12px;
+    line-height:1.5;
+  }
+  .table-responsive{
+    overflow-x:auto;
+    border:1px solid var(--hairline-gold);
+    background:var(--paper2);
+    max-height:380px;
+  }
+  .table-edit{
+    width:100%; border-collapse:collapse; font-size:12px; text-align:left;
+  }
+  .table-edit th{
+    background:var(--paper);
+    padding:8px 10px;
+    font-weight:600; font-size:10px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--brass-deep);
+    border-bottom:1px solid var(--hairline-gold);
+    position:sticky; top:0; z-index:2;
+  }
+  .table-edit td{
+    padding:6px 8px;
+    border-bottom:1px solid var(--hairline);
+    vertical-align:top;
+  }
+  .table-edit tr:hover{ background:rgba(156,122,60,0.03); }
+  .table-edit input, .table-edit textarea{
+    width:100%; background:transparent; border:1px solid transparent;
+    font-family:inherit; font-size:12px; color:var(--ink);
+    padding:4px 6px; outline:none; resize:vertical;
+  }
+  .table-edit input:focus, .table-edit textarea:focus{
+    background:var(--paper); border-color:var(--brass);
+  }
+  .table-edit .cell-date{ font-weight:600; min-width:130px; }
+  .table-edit .cell-shift{ min-width:220px; }
+  .table-edit .cell-note{ min-width:140px; }
+  .table-edit .cell-time{ width:120px; }
+  .btn-del-row{
+    background:none; border:none; color:var(--err);
+    cursor:pointer; font-size:13px; opacity:.6; padding:4px;
+  }
+  .btn-del-row:hover{ opacity:1; }
+
+  .actions-bar{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;
+    margin-top:8px;
+  }
+
+  /* TOAST NOTIFICATION */
+  #toast{
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+    background:var(--ink); color:var(--paper2);
+    border:1px solid var(--brass);
+    padding:10px 18px; font-size:12px; z-index:2000;
+    box-shadow:var(--shadow-lg);
+    display:none; animation:fadeUp .2s ease;
+    text-align:center;
+  }
+  #toast.active{ display:block; }
   </style>
 </head>
 
@@ -305,6 +525,8 @@
     <button id="alert-close" onclick="hideAlert()">✕</button>
   </div>
 
+  <div id="toast"></div>
+
   <header class="fade-up" style="animation-delay:.0s">
     <div class="logo-wrap">
       <img src="LOGO.jpg" alt="Grey Corner" onerror="this.src='https://ui-avatars.com/api/?name=GC&background=faf7f0&color=9c7a3c&size=256'">
@@ -313,10 +535,15 @@
     <div class="page-title">Planning <span>Service</span></div>
     <div class="page-sub">Hospitalité & Positionnement en Salle 🍽️</div>
     <div class="gold-rule"></div>
-    <a href="index.html" class="back-btn">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
-      Retour Menu
-    </a>
+    <div class="header-actions">
+      <a href="index.html" class="back-btn">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
+        Retour Menu
+      </a>
+      <button class="admin-btn" onclick="openPinModal()">
+        ⚡ Générateur (Admin)
+      </button>
+    </div>
   </header>
 
   <div class="container" id="planning-container">
@@ -324,6 +551,132 @@
       <span class="loading-dot"></span>
       <span class="loading-dot"></span>
       <span class="loading-dot"></span>
+    </div>
+  </div>
+
+  <!-- ─── MODAL 1 : SAISIE DU CODE PIN 1975 ─── -->
+  <div class="modal-overlay" id="pinModal">
+    <div class="modal-box" id="pinBox">
+      <div class="modal-header">
+        <span class="modal-title">Accès Administrateur</span>
+        <button class="modal-close" onclick="closePinModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="admin-pin-panel">
+          <div class="admin-pin-badge">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9c7a3c" stroke-width="1.8">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <p class="admin-pin-sub">Saisissez le code PIN <strong>1975</strong> pour déverrouiller le générateur de planning.</p>
+          <div class="admin-pin-dots">
+            <span class="admin-pin-dot"></span>
+            <span class="admin-pin-dot"></span>
+            <span class="admin-pin-dot"></span>
+            <span class="admin-pin-dot"></span>
+          </div>
+          <div class="admin-pin-error" id="adminPinError"></div>
+
+          <div class="pin-pad">
+            <button class="pin-key" data-digit="1">1</button>
+            <button class="pin-key" data-digit="2">2</button>
+            <button class="pin-key" data-digit="3">3</button>
+            <button class="pin-key" data-digit="4">4</button>
+            <button class="pin-key" data-digit="5">5</button>
+            <button class="pin-key" data-digit="6">6</button>
+            <button class="pin-key" data-digit="7">7</button>
+            <button class="pin-key" data-digit="8">8</button>
+            <button class="pin-key" data-digit="9">9</button>
+            <button class="pin-key func" onclick="clearAdminPin()">⌫</button>
+            <button class="pin-key" data-digit="0">0</button>
+            <button class="pin-key func enter" onclick="submitAdminPin()">↵</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── MODAL 2 : GÉNÉRATEUR & PRÉVISUALISATION ÉDITABLE ─── -->
+  <div class="modal-overlay" id="generatorModal">
+    <div class="modal-box wide">
+      <div class="modal-header">
+        <span class="modal-title">Générateur de Planning Carré</span>
+        <button class="modal-close" onclick="closeGeneratorModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Formulaire de paramétrage -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Lundi de départ</label>
+            <input type="date" id="genStartDate" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Premier Groupe au Matin</label>
+            <select id="genStartGroup" class="form-select">
+              <option value="1">Groupe 1 (Youness, Mokhtar, Aziz)</option>
+              <option value="2">Groupe 2 (Youssef, Mohamed, Zakaria)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nombre de semaines</label>
+            <select id="genWeeksCount" class="form-select">
+              <option value="1">1 Semaine (7 jours)</option>
+              <option value="2">2 Semaines (14 jours)</option>
+              <option value="3">3 Semaines (21 jours)</option>
+              <option value="4" selected>4 Semaines (28 jours — 1 Mois)</option>
+              <option value="6">6 Semaines</option>
+              <option value="8">8 Semaines (2 Mois)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Message d'alerte (Optionnel)</label>
+            <input type="text" id="genAlertMsg" class="form-input" placeholder="Ex: les personnes en rouge doivent pointer..." />
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="generatePlanningData()">
+          ✨ Générer la rotation carrée
+        </button>
+
+        <!-- Section de Prévisualisation Éditable -->
+        <div class="preview-section" id="previewSection" style="display:none;">
+          <div class="preview-notice">
+            ✍️ <strong>Prévisualisation 100% Éditable :</strong> Vous pouvez modifier directement n'importe quel texte ou nom dans le tableau ci-dessous avant d'exporter.
+          </div>
+
+          <div class="table-responsive">
+            <table class="table-edit" id="editTable">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Matin (06:30 - 14:30)</th>
+                  <th>Soir (14:15 - Fin)</th>
+                  <th>Notification</th>
+                  <th>H. Matin</th>
+                  <th>H. Soir</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="editTableBody">
+                <!-- Généré dynamiquement -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="actions-bar">
+            <button class="btn-secondary" onclick="addNewDayRow()">+ Ajouter un jour</button>
+            <button class="btn-secondary" onclick="exportToGoogleSheetsClipboard()">📋 Copier pour Google Sheets</button>
+            <button class="btn-secondary" onclick="downloadCsvFile()">📥 Télécharger CSV</button>
+            <button class="btn-primary" onclick="applyGeneratedToLiveView()">👁️ Appliquer à l'affichage</button>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 
@@ -342,6 +695,7 @@
       "var(--acc-5)"
     ];
 
+    /* ── NOTIFICATIONS & TOAST ── */
     function showAlert(msg) {
       const box = document.getElementById("alert-box");
       const txt = document.getElementById("alert-text");
@@ -356,6 +710,14 @@
       box.style.display = "none";
       document.body.classList.remove("has-alert");
     }
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add("active");
+      setTimeout(() => toast.classList.remove("active"), 3200);
+    }
+
     function escapeHtml(str) {
       return String(str ?? "")
         .replaceAll("&","&amp;").replaceAll("<","&lt;")
@@ -365,23 +727,28 @@
     function splitCsv(line) {
       return line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g,"").trim());
     }
+
+    /* ── NORMALISATION ROBUSTE DES POSTES ── */
     function cleanPoste(raw) {
       if (!raw) return "";
-      const p = String(raw).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
-      if (p.includes("loge"))    return "LOGE";
-      if (p.includes("ter1"))    return "TER 1";
-      if (p.includes("ter2"))    return "TER 2";
-      if (p.includes("ter3"))    return "TER 3";
-      if (p.includes("terrasse")||p.includes("ter")) return "TER";
-      if (p.includes("sala2"))   return "SAL 2";
-      if (p.includes("sala1")||p.includes("sala")||p==="sal") return "SAL 1";
-      if (p.includes("bar"))     return "BAR";
-      if (p.includes("caisse"))  return "CAISSE";
-      if (p.includes("run"))     return "RUNNER";
-      if (p.includes("acc"))     return "ACCUEIL";
-      if (p.includes("deb"))     return "DEB";
-      return String(raw).substring(0,4).toUpperCase();
+      const p = String(raw).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[\s_]/g,"").trim();
+      if (p.includes("ter1")) return "TER 1";
+      if (p.includes("ter2")) return "TER 2";
+      if (p.includes("ter3")) return "TER 3";
+      if (p.includes("ter"))  return "TER";
+      if (p.includes("sal1") || p.includes("sala1")) return "SAL 1";
+      if (p.includes("sal2") || p.includes("sala2")) return "SAL 2";
+      if (p.includes("sal3") || p.includes("sala3")) return "SAL 3";
+      if (p.includes("sal")  || p.includes("sala"))  return "SAL 1";
+      if (p.includes("log"))  return "LOGE";
+      if (p.includes("deb"))  return "DEB";
+      if (p.includes("bar"))  return "BAR";
+      if (p.includes("cais")) return "CAISSE";
+      if (p.includes("run"))  return "RUNNER";
+      if (p.includes("acc"))  return "ACCUEIL";
+      return String(raw).substring(0,6).toUpperCase();
     }
+
     function pickTime(raw, fallback) {
       const t = String(raw ?? "").trim();
       return (t && t !== "-") ? t : fallback;
@@ -393,7 +760,7 @@
 
     function parseDateLabel(label) {
       const s = String(label ?? "").trim();
-      if (!s) return null;
+      if (!s || s.toUpperCase() === "DATE") return null;
       let m = s.match(/\b(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})\b/);
       if (m) { const d = new Date(+m[1], +m[2]-1, +m[3]); d.setHours(0,0,0,0); return isNaN(d)?null:d; }
       m = s.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})\b/);
@@ -405,9 +772,18 @@
         return isNaN(d) ? null : d;
       }
       const months = {
-        "janvier":0, "jan":0, "fevrier":1, "fev":1, "mars":2, "avril":3, "avr":3,
-        "mai":4, "juin":5, "juillet":6, "juil":6, "aout":7, "aou":7,
-        "septembre":8,"sept":8,"sep":8, "octobre":9, "oct":9, "novembre":10,"nov":10, "decembre":11,"dec":11
+        "janvier":0, "janv":0, "jan":0,
+        "fevrier":1, "fevr":1, "fev":1,
+        "mars":2, "mar":2,
+        "avril":3, "avr":3,
+        "mai":4,
+        "juin":5,
+        "juillet":6, "juil":6, "jui":6,
+        "aout":7, "aou":7,
+        "septembre":8, "sept":8, "sep":8,
+        "octobre":9, "oct":9,
+        "novembre":10, "nov":10,
+        "decembre":11, "dec":11
       };
       const low = s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\./g, "");
       m = low.match(/\b(\d{1,2})\s+([a-z]+)\b(?:\s+(\d{4}))?/);
@@ -420,6 +796,7 @@
       return null;
     }
 
+    /* ── CHARGEMENT INITIAL (GOOGLE SHEETS) ── */
     async function init() {
       const container = document.getElementById("planning-container");
       try {
@@ -432,22 +809,29 @@
         const rows = text.split(/\r?\n/).map(r => r.trim()).filter(r => r.length);
         if (rows.length <= 1) { container.innerHTML = `<div class="empty-state">Aucune donnée trouvée.</div>`; return; }
 
-        /* ── NOTIFICATION (COLONNE D / index 3) ── */
-        // On cherche le premier message non vide dans la colonne D des lignes de données
+        /* ── NOTIFICATION (COLONNE D) ── */
         for (let i = 1; i < rows.length; i++) {
           const c = splitCsv(rows[i]);
           const banner = String(c[3] ?? "").trim();
-          if (banner && banner !== "-") {
+          if (banner && banner !== "-" && !banner.toLowerCase().includes("notification")) {
             showAlert(banner);
-            break; // On affiche la première trouvée
+            break;
           }
         }
 
         const all = [];
         for (let i = 1; i < rows.length; i++) {
           const c = splitCsv(rows[i]);
-          if (c.length >= 3 && c[0] !== "") {
-            all.push({ date: c[0], dateObj: parseDateLabel(c[0]), matin: c[1]??'', soir: c[2]??'', hMatin: c[4]??'', hSoir: c[5]??'' });
+          // Ignorer les lignes d'en-tête répétées
+          if (c.length >= 3 && c[0] && !c[0].toUpperCase().includes("DATE")) {
+            all.push({
+              date: c[0],
+              dateObj: parseDateLabel(c[0]),
+              matin: c[1]??'',
+              soir: c[2]??'',
+              hMatin: c[4]??'',
+              hSoir: c[5]??''
+            });
           }
         }
         const t0 = todayMidnight();
@@ -459,7 +843,8 @@
       }
     }
 
-    function render(data, t0) {
+    /* ── RENDU DE LA VUE PRINCIPALE DES CARTES ── */
+    function render(data, t0 = todayMidnight()) {
       const container = document.getElementById("planning-container");
       if (!data.length) {
         container.innerHTML = `<div class="empty-state">Aucun jour à afficher.</div>`;
@@ -475,14 +860,15 @@
         const accent  = ACCENTS[idx % ACCENTS.length];
         const delay   = (idx * .04).toFixed(2);
 
-        // --- DÉTECTION DOUBLONS (COUPURES) ---
+        // Détection des coupures (présence dans les 2 shifts)
         const getNames = (str) => {
           if(!str || str === "-") return [];
           return str.split(",").map(s => {
+            s = s.trim();
             if (s.includes(":")) return s.split(":")[1].trim().toLowerCase();
             if (s.includes("(")) return s.substring(0, s.indexOf("(")).trim().toLowerCase();
             return s.trim().toLowerCase();
-          });
+          }).filter(Boolean);
         };
         const mNames = getNames(j.matin);
         const sNames = getNames(j.soir);
@@ -520,28 +906,339 @@
 
     function parseStaff(t, duplicates = []) {
       if (!t || t === "-" || !t.trim()) return `<div class="repos">— Repos —</div>`;
-      return t.split(",").map(s => {
-        s = s.trim();
-        let name = "", poste = "";
-        if (s.includes(":")) {
-          const parts = s.split(":");
-          poste = cleanPoste(parts[0]);
-          name  = parts.slice(1).join(":").trim();
-        } else if (s.includes("(") && s.includes(")")) {
-          name  = s.substring(0, s.indexOf("(")).trim();
-          poste = cleanPoste(s.substring(s.indexOf("(")+1, s.lastIndexOf(")")));
-        } else { name = s; }
+      return t.split(",")
+        .map(s => s.trim())
+        .filter(Boolean)
+        .map(s => {
+          let name = "", poste = "";
+          if (s.includes(":")) {
+            const parts = s.split(":");
+            poste = cleanPoste(parts[0]);
+            name  = parts.slice(1).join(":").trim();
+          } else if (s.includes("(") && s.includes(")")) {
+            name  = s.substring(0, s.indexOf("(")).trim();
+            poste = cleanPoste(s.substring(s.indexOf("(")+1, s.lastIndexOf(")")));
+          } else {
+            name = s;
+          }
 
-        const isDouble = duplicates.includes(name.toLowerCase());
-        return `
-          <div class="staff-row">
-            <div class="staff-name ${isDouble ? 'double-shift' : ''}">${escapeHtml(name)}</div>
-            ${poste ? `<div class="staff-poste">${escapeHtml(poste)}</div>` : ''}
-          </div>
-        `;
-      }).join("");
+          const isDouble = duplicates.includes(name.toLowerCase());
+          return `
+            <div class="staff-row">
+              <div class="staff-name ${isDouble ? 'double-shift' : ''}">${escapeHtml(name)}</div>
+              ${poste ? `<div class="staff-poste">${escapeHtml(poste)}</div>` : ''}
+            </div>
+          `;
+        }).join("");
     }
 
+    /* ════════════════════════════════════════════════════════════════════
+       GÉNÉRATEUR DE PLANNING — PIN 1975 & ROTATION CARRÉE ÉDITABLE
+       ════════════════════════════════════════════════════════════════════ */
+
+    const ADMIN_PIN = "1975";
+    let adminPinInput = "";
+
+    const pinModal        = document.getElementById("pinModal");
+    const pinBox          = document.getElementById("pinBox");
+    const adminPinDots    = Array.from(document.querySelectorAll(".admin-pin-dot"));
+    const adminPinError   = document.getElementById("adminPinError");
+    const generatorModal  = document.getElementById("generatorModal");
+
+    function openPinModal() {
+      adminPinInput = "";
+      updateAdminDots();
+      adminPinError.textContent = "";
+      pinModal.classList.add("active");
+    }
+    function closePinModal() { pinModal.classList.remove("active"); }
+
+    function updateAdminDots() {
+      adminPinDots.forEach((d, i) => d.classList.toggle("filled", i < adminPinInput.length));
+    }
+    function clearAdminPin() {
+      adminPinInput = "";
+      adminPinError.textContent = "";
+      updateAdminDots();
+    }
+
+    function submitAdminPin() {
+      if (adminPinInput.length !== 4) {
+        adminPinError.textContent = "Entrez le code à 4 chiffres.";
+        return;
+      }
+      if (adminPinInput === ADMIN_PIN) {
+        closePinModal();
+        openGeneratorDashboard();
+      } else {
+        adminPinError.textContent = "Code PIN incorrect (1975).";
+        adminPinInput = "";
+        updateAdminDots();
+        pinBox.classList.remove("shake");
+        void pinBox.offsetWidth;
+        pinBox.classList.add("shake");
+      }
+    }
+
+    document.querySelectorAll(".admin-pin-panel [data-digit]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (adminPinInput.length >= 4) return;
+        adminPinInput += btn.dataset.digit;
+        adminPinError.textContent = "";
+        updateAdminDots();
+        if (adminPinInput.length === 4) setTimeout(submitAdminPin, 130);
+      });
+    });
+
+    // Keyboard support pour PIN 1975
+    document.addEventListener("keydown", (e) => {
+      if (!pinModal.classList.contains("active")) return;
+      if (e.key >= "0" && e.key <= "9") {
+        if (adminPinInput.length >= 4) return;
+        adminPinInput += e.key;
+        adminPinError.textContent = "";
+        updateAdminDots();
+        if (adminPinInput.length === 4) setTimeout(submitAdminPin, 130);
+      } else if (e.key === "Backspace") {
+        adminPinInput = adminPinInput.slice(0, -1);
+        updateAdminDots();
+      } else if (e.key === "Enter") {
+        submitAdminPin();
+      }
+    });
+
+    /* ── GESTIONNAIRE DU DASHBOARD GÉNÉRATEUR ── */
+    function openGeneratorDashboard() {
+      const d = new Date();
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(d.setDate(diff));
+      
+      const yyyy = monday.getFullYear();
+      const mm = String(monday.getMonth() + 1).padStart(2, '0');
+      const dd = String(monday.getDate()).padStart(2, '0');
+      document.getElementById("genStartDate").value = `${yyyy}-${mm}-${dd}`;
+
+      generatorModal.classList.add("active");
+    }
+    function closeGeneratorModal() { generatorModal.classList.remove("active"); }
+
+    /* ── MOTEUR DE ROTATION CARRÉE EXACTE ── */
+    const G1 = ["youness", "mokhtar", "aziz"];
+    const G2 = ["youssef", "mohamed", "zakaria"];
+
+    const FRENCH_DAYS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+    const FRENCH_MONTHS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+
+    function formatFrenchDate(dateObj) {
+      const dayName = FRENCH_DAYS[dateObj.getDay()];
+      const dayNum  = dateObj.getDate();
+      const month   = FRENCH_MONTHS[dateObj.getMonth()];
+      return `${dayName} ${dayNum} ${month}`;
+    }
+
+    function generatePlanningData() {
+      const startStr = document.getElementById("genStartDate").value;
+      if (!startStr) { alert("Veuillez sélectionner une date de départ."); return; }
+      
+      const startGroup = parseInt(document.getElementById("genStartGroup").value, 10);
+      const weeksCount = parseInt(document.getElementById("genWeeksCount").value, 10);
+      const alertMsg   = document.getElementById("genAlertMsg").value.trim();
+
+      const [sy, sm, sd] = startStr.split("-").map(Number);
+      let currDate = new Date(sy, sm - 1, sd);
+
+      const generatedRows = [];
+
+      for (let w = 0; w < weeksCount; w++) {
+        // Alternance hebdomadaire des groupes
+        const isG1Matin = (startGroup === 1 && w % 2 === 0) || (startGroup === 2 && w % 2 === 1);
+        const matinGroup = isG1Matin ? G1 : G2;
+        const soirGroup  = isG1Matin ? G2 : G1;
+
+        // Ligne d'en-tête de semaine pour Google Sheets
+        generatedRows.push({
+          isHeader: true,
+          date: "DATE",
+          matin: "MATIN (06:30 - 14:30)",
+          soir: "SOIR (14:15 - Fin)",
+          note: (w === 0 && alertMsg) ? alertMsg : "",
+          hMatin: "06:30-14:30",
+          hSoir: "14:15- Fin service"
+        });
+
+        // 7 Jours de la semaine
+        for (let d = 0; d < 7; d++) {
+          const dateLabel = formatFrenchDate(currDate);
+          let matinStr = "";
+          let soirStr  = "";
+
+          if (d === 0) { // Lundi
+            matinStr = `${matinGroup[0]} (SAL1), ${matinGroup[0]} (TER2), ${matinGroup[1]} (TER1), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (LOG)`;
+            soirStr  = `${soirGroup[1]} (sal1), ${soirGroup[1]} (TER3), ${soirGroup[2]} (SAL2), ${matinGroup[2]} (TER1), ${matinGroup[2]} (TER2), ${soirGroup[2]} (LOG)`;
+          } else if (d === 1) { // Mardi
+            matinStr = `${soirGroup[2]} (SAL1), ${soirGroup[2]} (TER2), ${matinGroup[2]} (SAL2), ${matinGroup[2]} (TER1), ${matinGroup[2]} (LOG)`;
+            soirStr  = `${matinGroup[1]} (SAL1), ${matinGroup[1]} (TER3), ${matinGroup[0]} (TER2), ${matinGroup[0]} (TER1), ${soirGroup[1]} (LOG), ${soirGroup[1]} (SAL2)`;
+          } else if (d === 2) { // Mercredi
+            matinStr = `${matinGroup[2]} (SAL1), ${matinGroup[2]} (TER2), ${matinGroup[0]} (SAL2), ${matinGroup[0]} (TER1), ${matinGroup[0]} (LOG)`;
+            soirStr  = `${soirGroup[1]} (SAL1), ${soirGroup[1]} (TER3), ${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (LOG)`;
+          } else if (d === 3) { // Jeudi
+            matinStr = `${matinGroup[2]} (SAL1), ${matinGroup[2]} (TER2), ${matinGroup[1]} (LOG), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (TER1)`;
+            soirStr  = `${matinGroup[0]} (LOG), ${matinGroup[0]} (SAL2), ${soirGroup[2]} (SAL1), ${soirGroup[2]} (TER3), ${soirGroup[1]} (TER1), ${soirGroup[1]} (TER2)`;
+          } else if (d === 4) { // Vendredi
+            matinStr = `${matinGroup[0]} (SAL1), ${matinGroup[0]} (TER3), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (TER1), ${matinGroup[1]} (LOG)`;
+            soirStr  = `${matinGroup[2]} (LOG), ${matinGroup[2]} (SAL2), ${soirGroup[1]} (SAL1), ${soirGroup[1]} (TER3), ${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2)`;
+          } else if (d === 5) { // Samedi (3 Matin / 3 Soir)
+            matinStr = `${matinGroup[2]} (LOG), ${matinGroup[2]} (SAL2), ${matinGroup[1]} (SAL1), ${matinGroup[1]} (TER3), ${matinGroup[0]} (TER1), ${matinGroup[0]} (TER2)`;
+            soirStr  = `${soirGroup[1]} (LOG), ${soirGroup[1]} (SAL2), ${soirGroup[2]} (SAL1), ${soirGroup[2]} (TER3), ${soirGroup[0]} (TER1), ${soirGroup[0]} (TER2)`;
+          } else if (d === 6) { // Dimanche (5 Matin avec DEB / 3 Soir)
+            const debList = [soirGroup[1], matinGroup[1], soirGroup[0], matinGroup[0]];
+            const deb = debList[w % debList.length];
+            matinStr = `${soirGroup[0]} (LOG), ${matinGroup[2]} (SAL1), ${matinGroup[0]} (TER1), ${matinGroup[0]} (TER2), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (TER3), ${deb} (deb)`;
+            soirStr  = `${soirGroup[0]} (LOG), ${soirGroup[0]} (SAL2), ${soirGroup[2]} (SAL1), ${soirGroup[2]} (TER3), ${soirGroup[1]} (TER1), ${soirGroup[1]} (TER2)`;
+          }
+
+          generatedRows.push({
+            isHeader: false,
+            date: dateLabel,
+            matin: matinStr,
+            soir: soirStr,
+            note: "",
+            hMatin: "06:30-14:30",
+            hSoir: "14:15- Fin service"
+          });
+
+          currDate.setDate(currDate.getDate() + 1);
+        }
+      }
+
+      renderEditableTable(generatedRows);
+    }
+
+    /* ── RENDU DU TABLEAU ÉDITABLE DANS LE MODAL ── */
+    function renderEditableTable(rows) {
+      const tbody = document.getElementById("editTableBody");
+      tbody.innerHTML = "";
+
+      rows.forEach((r) => {
+        const tr = document.createElement("tr");
+        if (r.isHeader) {
+          tr.style.background = "var(--paper)";
+          tr.style.fontWeight = "bold";
+        }
+
+        tr.innerHTML = `
+          <td><input type="text" class="cell-date" value="${escapeHtml(r.date)}" /></td>
+          <td><textarea rows="2" class="cell-shift">${escapeHtml(r.matin)}</textarea></td>
+          <td><textarea rows="2" class="cell-shift">${escapeHtml(r.soir)}</textarea></td>
+          <td><input type="text" class="cell-note" value="${escapeHtml(r.note)}" placeholder="Note/Alerte..." /></td>
+          <td><input type="text" class="cell-time" value="${escapeHtml(r.hMatin)}" /></td>
+          <td><input type="text" class="cell-time" value="${escapeHtml(r.hSoir)}" /></td>
+          <td><button class="btn-del-row" onclick="this.closest('tr').remove()" title="Supprimer">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("previewSection").style.display = "flex";
+      showToast("✨ Planning généré avec rotation carrée ! Vous pouvez modifier les cellules.");
+    }
+
+    function addNewDayRow() {
+      const tbody = document.getElementById("editTableBody");
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><input type="text" class="cell-date" value="lundi..." /></td>
+        <td><textarea rows="2" class="cell-shift"></textarea></td>
+        <td><textarea rows="2" class="cell-shift"></textarea></td>
+        <td><input type="text" class="cell-note" value="" placeholder="Note/Alerte..." /></td>
+        <td><input type="text" class="cell-time" value="06:30-14:30" /></td>
+        <td><input type="text" class="cell-time" value="14:15- Fin service" /></td>
+        <td><button class="btn-del-row" onclick="this.closest('tr').remove()">✕</button></td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    function extractTableData() {
+      const rows = Array.from(document.querySelectorAll("#editTableBody tr"));
+      return rows.map(tr => {
+        const inputs = tr.querySelectorAll("input, textarea");
+        return {
+          date: inputs[0]?.value.trim() ?? "",
+          matin: inputs[1]?.value.trim() ?? "",
+          soir: inputs[2]?.value.trim() ?? "",
+          note: inputs[3]?.value.trim() ?? "",
+          hMatin: inputs[4]?.value.trim() ?? "",
+          hSoir: inputs[5]?.value.trim() ?? ""
+        };
+      }).filter(r => r.date || r.matin || r.soir);
+    }
+
+    /* ── COPIER POUR GOOGLE SHEETS (TABULÉ Ctrl+V) ── */
+    function exportToGoogleSheetsClipboard() {
+      const data = extractTableData();
+      if (!data.length) { alert("Aucune donnée à copier."); return; }
+
+      // Format TSV (séparé par des tabulations) : se colle parfaitement dans Google Sheets
+      const tsvContent = data.map(r => {
+        return [r.date, r.matin, r.soir, r.note, r.hMatin, r.hSoir].join("\t");
+      }).join("\n");
+
+      navigator.clipboard.writeText(tsvContent).then(() => {
+        showToast("📋 Copié ! Allez dans Google Sheets (cellule A1) et faites Ctrl+V.");
+      }).catch(() => {
+        alert("Impossible de copier automatiquement. Veuillez autoriser le presse-papier.");
+      });
+    }
+
+    /* ── TÉLÉCHARGER EN FICHIER CSV ── */
+    function downloadCsvFile() {
+      const data = extractTableData();
+      if (!data.length) { alert("Aucune donnée à exporter."); return; }
+
+      const csvLines = data.map(r => {
+        const escapeCsv = (val) => `"${String(val ?? '').replaceAll('"', '""')}"`;
+        return [escapeCsv(r.date), escapeCsv(r.matin), escapeCsv(r.soir), escapeCsv(r.note), escapeCsv(r.hMatin), escapeCsv(r.hSoir)].join(",");
+      });
+
+      const csvContent = "\uFEFF" + csvLines.join("\r\n"); // UTF-8 BOM
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `planning-service-rotation-${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("📥 Fichier CSV téléchargé avec succès.");
+    }
+
+    /* ── APPLIQUER DIRECTEMENT À L'AFFICHAGE DU SITE ── */
+    function applyGeneratedToLiveView() {
+      const data = extractTableData();
+      if (!data.length) { alert("Aucune donnée à afficher."); return; }
+
+      // Récupérer le premier message d'alerte non vide
+      const banner = data.find(r => r.note && r.note !== "-" && !r.note.toLowerCase().includes("notification"));
+      if (banner) showAlert(banner.note);
+      else hideAlert();
+
+      // Filtrer les lignes d'en-tête "DATE"
+      const cleanData = data.filter(r => !r.date.toUpperCase().includes("DATE")).map(r => ({
+        date: r.date,
+        dateObj: parseDateLabel(r.date),
+        matin: r.matin,
+        soir: r.soir,
+        hMatin: r.hMatin,
+        hSoir: r.hSoir
+      }));
+
+      render(cleanData);
+      closeGeneratorModal();
+      showToast("👁️ Nouveau planning appliqué directement à l'affichage !");
+    }
+
+    // Initialisation
     init();
   </script>
 </body>
