@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Générateur de Planning Bar — Grey Corner</title>
+  <link rel="icon" type="image/jpeg" href="LOGO.jpg" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+  :root{
+    --paper:#faf7f0;
+    --paper2:#fffefb;
+    --ink:#231f1a;
+    --ink-soft:#6b6154;
+    --ink-dim:rgba(35,31,26,0.45);
+
+    --brass:#9c7a3c;
+    --brass-light:#c8ab6a;
+    --brass-deep:#7c5f2c;
+
+    --hairline:rgba(35,31,26,0.10);
+    --hairline-gold:rgba(156,122,60,0.35);
+
+    --success:#2e7d32;
+    --success-bg:#e8f5e9;
+    --err:#a13d2e;
+
+    --shadow:0 18px 40px rgba(35,31,26,0.06);
+    --shadow-lg:0 20px 45px rgba(35,31,26,0.12);
+
+    --acc-1:#9c7a3c;
+    --acc-2:#8b5e3c;
+    --acc-3:#6f7a52;
+    --acc-4:#7a4b4b;
+    --acc-5:#5f6f78;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ height:100%; }
+
+  body{
+    font-family:"DM Sans",-apple-system,sans-serif;
+    background:linear-gradient(180deg,#fdfbf6 0%,#f6f1e6 60%,#f1ead9 100%);
+    color:var(--ink);
+    min-height:100vh;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+    padding-bottom:80px;
+  }
+
+  .grain{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+  }
+  .glow-a, .glow-b{
+    position:fixed; z-index:0; pointer-events:none; border-radius:50%;
+    filter:blur(70px); opacity:.16;
+  }
+  .glow-a{ width:340px; height:340px; top:-100px; right:-100px; background:radial-gradient(circle,var(--brass-light),transparent 70%); }
+  .glow-b{ width:300px; height:300px; bottom:-80px; left:-100px; background:radial-gradient(circle,var(--brass),transparent 70%); }
+
+  .fade-up{ animation:fadeUp .28s ease both; }
+  @keyframes fadeUp{
+    from{ opacity:0; transform:translateY(8px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  /* ── TOAST NOTIFICATION ── */
+  #toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(100px);
+    z-index:999;
+    background:var(--ink);
+    color:var(--paper2);
+    border:1px solid var(--hairline-gold);
+    box-shadow:var(--shadow-lg);
+    padding:14px 24px;
+    font-size:13px; font-weight:500;
+    display:flex; align-items:center; gap:10px;
+    transition:transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events:none;
+  }
+  #toast.show{
+    transform:translateX(-50%) translateY(0);
+  }
+
+  /* ── HEADER ── */
+  header{
+    position:relative; z-index:1;
+    max-width:720px; margin:28px auto 14px;
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    gap:10px;
+    padding:28px 24px 22px;
+    background:var(--paper2);
+    border:1px solid var(--hairline-gold);
+    box-shadow:var(--shadow);
+  }
+  header::before, header::after{
+    content:''; position:absolute; left:20px; right:20px; height:1px;
+  }
+  header::before{ top:8px; background:var(--hairline-gold); }
+  header::after{ bottom:8px; background:var(--hairline-gold); }
+
+  .logo-wrap{
+    width:56px; height:56px;
+    border:1px solid var(--hairline-gold);
+    box-shadow:0 8px 20px rgba(35,31,26,0.10);
+    overflow:hidden;
+  }
+  .logo-wrap img{ width:100%; height:100%; object-fit:cover; }
+
+  .eyebrow{
+    font-size:9px; text-transform:uppercase; letter-spacing:.32em;
+    color:var(--brass); margin-top:2px;
+  }
+
+  .page-title{
+    font-family:"Cormorant Garamond",serif;
+    font-size:30px; font-weight:600; letter-spacing:.02em;
+    color:var(--ink); line-height:1.1;
+  }
+  .page-title span{ color:var(--brass-deep); font-style:italic; }
+
+  .page-sub{
+    font-size:12px; color:var(--ink-soft); max-width:440px; line-height:1.5;
+  }
+
+  .header-nav{
+    display:flex; gap:10px; margin-top:4px; flex-wrap:wrap; justify-content:center;
+  }
+
+  .nav-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:11px; text-transform:uppercase; letter-spacing:.12em;
+    color:var(--brass-deep);
+    text-decoration:none;
+    padding:8px 14px;
+    border:1px solid var(--hairline-gold);
+    background:var(--paper);
+    cursor:pointer;
+    transition:border-color .15s ease, transform .15s ease, background .15s ease;
+  }
+  .nav-btn:active{ transform:scale(.97); border-color:var(--brass); }
+  .nav-btn svg{ width:13px; height:13px; }
+
+  /* ── MAIN CONTAINER ── */
+  .container{
+    position:relative; z-index:1;
+    max-width:720px; margin:0 auto;
+    padding:0 20px;
+    display:flex; flex-direction:column; gap:20px;
+  }
+
+  /* ── CARD PANEL ── */
+  .panel{
+    background:var(--paper2);
+    border:1px solid var(--hairline);
+    border-top:3px solid var(--brass);
+    box-shadow:var(--shadow);
+    padding:24px;
+    display:flex; flex-direction:column; gap:18px;
+  }
+
+  .panel-title{
+    font-family:"Cormorant Garamond",serif;
+    font-size:20px; font-weight:600;
+    color:var(--ink);
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px solid var(--hairline);
+    padding-bottom:10px;
+  }
+  .panel-title span{
+    font-family:"DM Sans",sans-serif;
+    font-size:11px; font-weight:normal;
+    color:var(--ink-soft);
+    text-transform:uppercase; letter-spacing:.1em;
+  }
+
+  /* ── FORM CONTROLS ── */
+  .grid-controls{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+    gap:18px;
+  }
+
+  .control-group{
+    display:flex; flex-direction:column; gap:8px;
+  }
+
+  .label{
+    font-size:11px; text-transform:uppercase; letter-spacing:.14em;
+    font-weight:600; color:var(--brass-deep);
+  }
+
+  .sublabel{
+    font-size:11px; color:var(--ink-soft);
+  }
+
+  input[type="date"], input[type="text"], select{
+    width:100%;
+    padding:10px 14px;
+    font-family:"DM Sans",sans-serif;
+    font-size:13px;
+    color:var(--ink);
+    background:var(--paper);
+    border:1px solid var(--hairline-gold);
+    outline:none;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  input[type="date"]:focus, input[type="text"]:focus, select:focus{
+    border-color:var(--brass);
+    background:#fff;
+  }
+
+  .preset-buttons{
+    display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;
+  }
+  .preset-btn{
+    font-size:10px; text-transform:uppercase; letter-spacing:.08em;
+    padding:5px 10px;
+    border:1px solid var(--hairline-gold);
+    background:var(--paper);
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:all .12s ease;
+  }
+  .preset-btn:hover, .preset-btn.active{
+    background:var(--brass);
+    color:var(--paper2);
+    border-color:var(--brass);
+  }
+
+  /* Segmented radio control */
+  .segmented{
+    display:flex;
+    border:1px solid var(--hairline-gold);
+    background:var(--paper);
+    padding:3px;
+    gap:4px;
+  }
+  .segment-opt{
+    flex:1;
+    text-align:center;
+    padding:9px 8px;
+    font-size:12px; font-weight:600;
+    cursor:pointer;
+    transition:all .15s ease;
+    user-select:none;
+    color:var(--ink-soft);
+  }
+  .segment-opt.active{
+    background:var(--paper2);
+    color:var(--brass-deep);
+    box-shadow:0 2px 8px rgba(35,31,26,0.08);
+    border:1px solid var(--hairline-gold);
+  }
+
+  /* ── RULES SUMMARY CALLOUT ── */
+  .callout{
+    background:var(--paper);
+    border:1px solid var(--hairline-gold);
+    border-left:3px solid var(--brass);
+    padding:12px 16px;
+    font-size:12px; line-height:1.5; color:var(--ink-soft);
+  }
+  .callout strong{ color:var(--ink); }
+
+  /* ── BIG GENERATE BUTTON ── */
+  .generate-btn{
+    width:100%;
+    padding:14px 20px;
+    background:linear-gradient(135deg, var(--brass-deep) 0%, var(--brass) 100%);
+    color:#fff;
+    border:none;
+    font-family:"DM Sans",sans-serif;
+    font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:.15em;
+    cursor:pointer;
+    box-shadow:0 8px 20px rgba(156,122,60,0.25);
+    transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .generate-btn:hover{ opacity:.95; }
+  .generate-btn:active{ transform:scale(.985); }
+
+  /* ── PREVIEW TABLE / EXCEL GRID ── */
+  .table-wrap{
+    overflow-x:auto;
+    border:1px solid var(--hairline-gold);
+    background:var(--paper2);
+  }
+  table.planning-table{
+    width:100%;
+    border-collapse:collapse;
+    text-align:left;
+    font-size:12px;
+  }
+  table.planning-table th{
+    background:#f4eee1;
+    color:var(--brass-deep);
+    font-weight:600;
+    text-transform:uppercase; letter-spacing:.1em;
+    font-size:10px;
+    padding:12px 14px;
+    border-bottom:1px solid var(--hairline-gold);
+    border-right:1px solid var(--hairline-gold);
+  }
+  table.planning-table th:last-child{ border-right:none; }
+  table.planning-table td{
+    padding:12px 14px;
+    border-bottom:1px solid var(--hairline);
+    border-right:1px solid var(--hairline);
+    vertical-align:middle;
+  }
+  table.planning-table td:last-child{ border-right:none; }
+  table.planning-table tr:last-child td{ border-bottom:none; }
+  table.planning-table tr:hover td{ background:rgba(250,247,240,0.8); }
+
+  .editable-cell{
+    width:100%;
+    background:transparent;
+    border:1px dashed transparent;
+    padding:4px 6px;
+    font-family:"DM Sans",sans-serif;
+    font-size:12px;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s, background .15s;
+  }
+  .editable-cell:focus{
+    border-color:var(--brass);
+    background:#fff;
+  }
+
+  .date-col{
+    font-weight:600;
+    white-space:nowrap;
+    color:var(--ink);
+  }
+  .repos-tag{
+    display:inline-block;
+    font-size:10px;
+    padding:3px 7px;
+    background:#f2efe9;
+    color:var(--ink-dim);
+    font-style:italic;
+  }
+
+  /* ── EXPORT ACTIONS ── */
+  .action-bar{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .action-btn{
+    flex:1;
+    min-width:200px;
+    padding:12px 18px;
+    font-family:"DM Sans",sans-serif;
+    font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.12em;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    cursor:pointer;
+    transition:all .15s ease;
+    border:1px solid var(--hairline-gold);
+    text-decoration:none;
+  }
+  .action-btn.primary{
+    background:var(--brass-deep);
+    color:#fff;
+    border-color:var(--brass-deep);
+  }
+  .action-btn.primary:hover{ background:var(--brass); }
+  .action-btn.secondary{
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .action-btn.secondary:hover{ background:var(--paper2); border-color:var(--brass); }
+
+  /* ── STEP-BY-STEP GUIDE ── */
+  .guide-steps{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    gap:12px;
+  }
+  .step-card{
+    background:var(--paper);
+    border:1px solid var(--hairline-gold);
+    padding:14px;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .step-num{
+    font-size:9px; text-transform:uppercase; letter-spacing:.18em;
+    color:var(--brass); font-weight:700;
+  }
+  .step-text{
+    font-size:12px; line-height:1.4; color:var(--ink-soft);
+  }
+  .step-text strong{ color:var(--ink); }
+
+  /* Summary badges */
+  .metrics-row{
+    display:flex; gap:10px; flex-wrap:wrap;
+  }
+  .metric-badge{
+    flex:1; min-width:130px;
+    background:var(--paper);
+    border:1px solid var(--hairline-gold);
+    padding:10px 12px;
+    text-align:center;
+  }
+  .metric-name{ font-size:11px; font-weight:600; color:var(--brass-deep); margin-bottom:2px; }
+  /* ── LOCKSCREEN ── */
+  .gen-lock-overlay{
+    position:fixed; inset:0; z-index:1000;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,#fdfbf6 0%,#f6f1e6 60%,#f1ead9 100%);
+    padding:20px;
+  }
+  .gen-lock-panel{
+    position:relative;
+    width:100%; max-width:330px;
+    background:var(--paper2);
+    border:1px solid var(--hairline-gold);
+    box-shadow:var(--shadow-lg);
+    padding:36px 26px 30px;
+    text-align:center;
+  }
+  .gen-lock-panel::before, .gen-lock-panel::after{
+    content:''; position:absolute; left:20px; right:20px; height:1px;
+  }
+  .gen-lock-panel::before{ top:8px; background:var(--hairline-gold); }
+  .gen-lock-panel::after{ bottom:8px; background:var(--hairline-gold); }
+  .gen-lock-panel.shake{ animation:shake .32s ease; }
+
+  @keyframes shake{
+    0%,100%{ transform:translateX(0); }
+    20%{ transform:translateX(-6px); }
+    40%{ transform:translateX(6px); }
+    60%{ transform:translateX(-4px); }
+    80%{ transform:translateX(4px); }
+  }
+
+  .pin-dots{ display:flex; justify-content:center; gap:12px; margin:16px 0 10px; }
+  .pin-dot{
+    width:10px; height:10px; border-radius:50%;
+    border:1px solid var(--brass);
+    background:transparent;
+    transition:all .15s ease;
+  }
+  .pin-dot.filled{ background:var(--brass-deep); border-color:var(--brass-deep); }
+  .pin-error-msg{ min-height:16px; font-size:11px; color:var(--err); margin-bottom:14px; }
+
+  .pin-pad-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
+  .pin-key-btn{
+    aspect-ratio:1.1;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--paper);
+    border:1px solid var(--hairline);
+    font-family:"DM Sans",sans-serif;
+    font-size:17px; font-weight:500;
+    color:var(--ink);
+    cursor:pointer;
+    transition:transform .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .pin-key-btn:active{ transform:scale(.95); border-color:var(--brass); background:var(--paper2); }
+  .pin-key-btn.func{ font-size:14px; color:var(--brass-deep); }
+  .pin-key-btn.enter{ background:var(--brass); color:#fff; border-color:var(--brass); }
+  .pin-key-btn.enter:active{ background:var(--brass-deep); border-color:var(--brass-deep); }
+  </style>
+</head>
+
+<body>
+  <div class="grain"></div>
+  <div class="glow-a"></div>
+  <div class="glow-b"></div>
+
+  <!-- Lockscreen for standalone visits -->
+  <div class="gen-lock-overlay" id="genLockscreen" style="display:none;">
+    <div class="gen-lock-panel" id="genPinPanel">
+      <div style="width:52px; height:52px; margin:0 auto 14px; display:flex; align-items:center; justify-content:center; background:var(--paper); border:1px solid var(--hairline-gold); color:var(--brass-deep);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0110 0v4"></path>
+        </svg>
+      </div>
+      <h2 style="font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:600; color:var(--ink); margin-bottom:4px;">Générateur Protégé</h2>
+      <p style="font-size:11px; color:var(--ink-soft); line-height:1.5; margin-bottom:12px;">Saisissez le code PIN Manager (1975) pour générer le planning.</p>
+
+      <div class="pin-dots" id="genPinDots">
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+      </div>
+
+      <div class="pin-error-msg" id="genPinError"></div>
+
+      <div class="pin-pad-grid">
+        <button class="pin-key-btn" onclick="pressGenPin('1')">1</button>
+        <button class="pin-key-btn" onclick="pressGenPin('2')">2</button>
+        <button class="pin-key-btn" onclick="pressGenPin('3')">3</button>
+        <button class="pin-key-btn" onclick="pressGenPin('4')">4</button>
+        <button class="pin-key-btn" onclick="pressGenPin('5')">5</button>
+        <button class="pin-key-btn" onclick="pressGenPin('6')">6</button>
+        <button class="pin-key-btn" onclick="pressGenPin('7')">7</button>
+        <button class="pin-key-btn" onclick="pressGenPin('8')">8</button>
+        <button class="pin-key-btn" onclick="pressGenPin('9')">9</button>
+        <button class="pin-key-btn func" onclick="clearGenPin()">⌫</button>
+        <button class="pin-key-btn" onclick="pressGenPin('0')">0</button>
+        <button class="pin-key-btn func enter" onclick="submitGenPin()">↵</button>
+      </div>
+
+      <div style="margin-top:16px;">
+        <a href="bar.html" style="font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--brass-deep); text-decoration:none;">← Retour Planning Bar</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Authenticated App -->
+  <div id="mainShell" style="display:none;">
+
+    <!-- Toast Notification -->
+    <div id="toast">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c8ab6a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      <span id="toast-msg">Tableau copié pour Google Sheets !</span>
+    </div>
+
+    <!-- Header -->
+    <header class="fade-up">
+      <div class="logo-wrap">
+        <img src="LOGO.jpg" alt="Grey Corner" onerror="this.src='https://ui-avatars.com/api/?name=GC&background=faf7f0&color=9c7a3c&size=256'">
+      </div>
+      <div class="eyebrow">Administration & Rotation</div>
+      <div class="page-title">Générateur <span>Planning Bar</span></div>
+      <div class="page-sub">Génération automatique hebdomadaire — Système 24h & Roulement des binômes.</div>
+      <div class="header-nav">
+        <a href="bar.html" class="nav-btn">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
+          Voir le Planning Live
+        </a>
+        <a href="index.html" class="nav-btn">
+          Menu Vestiaires
+        </a>
+      </div>
+    </header>
+
+    <!-- Container -->
+    <div class="container fade-up" style="animation-delay:.08s;">
+
+    <!-- Control Panel -->
+    <div class="panel">
+      <div class="panel-title">
+        1. Paramètres de la semaine
+        <span>Configuration</span>
+      </div>
+
+      <div class="grid-controls">
+        <!-- Date selector -->
+        <div class="control-group">
+          <label class="label" for="startDate">Date de départ (Lundi)</label>
+          <input type="date" id="startDate" />
+          <div class="preset-buttons">
+            <button type="button" class="preset-btn" onclick="setMondayOffset(0)">Cette semaine</button>
+            <button type="button" class="preset-btn active" onclick="setMondayOffset(7)">Lundi prochain</button>
+            <button type="button" class="preset-btn" onclick="setMondayOffset(14)">Dans 2 sem.</button>
+          </div>
+        </div>
+
+        <!-- Barman starter -->
+        <div class="control-group">
+          <label class="label">Barman qui commence le Lundi matin</label>
+          <div class="segmented" id="segStarter">
+            <div class="segment-opt active" data-val="RACHID" onclick="selectStarter('RACHID')">🍸 RACHID</div>
+            <div class="segment-opt" data-val="YOUSSEF" onclick="selectStarter('YOUSSEF')">🍸 YOUSSEF</div>
+          </div>
+          <span class="sublabel">Règle : Rachid et Youssef ne travaillent jamais sur le même service.</span>
+        </div>
+      </div>
+
+      <!-- Binômes selection -->
+      <div class="control-group">
+        <label class="label">Attribution des Binômes (Roulement Hebdomadaire)</label>
+        <div class="segmented" id="segBinome">
+          <div class="segment-opt active" data-val="A" onclick="selectBinomeConfig('A')">
+            Option A : [Rachid + Mostafa] &amp; [Youssef + Nassim]
+          </div>
+          <div class="segment-opt" data-val="B" onclick="selectBinomeConfig('B')">
+            Option B : [Rachid + Nassim] &amp; [Youssef + Mostafa]
+          </div>
+        </div>
+        <span class="sublabel">Chaque semaine, les 2 aides-barmans (Mostafa et Nassim) alternent de binôme avec un barman différent.</span>
+      </div>
+
+      <!-- Notification text D2 -->
+      <div class="control-group">
+        <label class="label" for="notifText">Message de notification (Optionnel)</label>
+        <input type="text" id="notifText" placeholder="Ex: les personnes en rouge doivent pointer a 10h du matin" value="les personnes en rouge doivent pointer a 10h du matin" />
+      </div>
+
+      <!-- Quick rules callout -->
+      <div class="callout">
+        🔄 <strong>Système 24h actif</strong> : Le serveur ou le binôme qui effectue le <strong>Soir</strong> assure automatiquement le <strong>Lendemain Matin</strong>. Du Lundi au Jeudi, 1 personne a son jour de repos garanti chaque jour. Du Vendredi au Dimanche, effectif complet à 4 (2 Matin, 2 Soir).
+      </div>
+
+      <button type="button" class="generate-btn" onclick="generatePlanning()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
+        Générer le Planning Automatique
+      </button>
+    </div>
+
+    <!-- Preview & Excel Table -->
+    <div class="panel" id="previewPanel">
+      <div class="panel-title">
+        2. Aperçu du Tableau (Format Google Sheets)
+        <span id="weekLabel">Semaine du Lundi</span>
+      </div>
+
+      <div class="table-wrap">
+        <table class="planning-table" id="planningTable">
+          <thead>
+            <tr>
+              <th>DATE</th>
+              <th>MATIN</th>
+              <th>SOIR</th>
+              <th>REPOS DU JOUR</th>
+            </tr>
+          </thead>
+          <tbody id="planningTbody">
+            <!-- Will be populated by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Metric summary -->
+      <div class="metrics-row" id="metricsSummary">
+        <!-- Will be populated by JS -->
+      </div>
+
+      <!-- Export Buttons -->
+      <div class="action-bar">
+        <button type="button" class="action-btn primary" onclick="copyForGoogleSheets()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+          📋 Copier pour Google Sheets
+        </button>
+
+        <button type="button" class="action-btn secondary" onclick="downloadCsv()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          📥 Télécharger CSV
+        </button>
+      </div>
+
+      <!-- Guide steps -->
+      <div class="guide-steps">
+        <div class="step-card">
+          <div class="step-num">Étape 1</div>
+          <div class="step-text">Cliquez sur le bouton vert <strong>Copier pour Google Sheets</strong>.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">Étape 2</div>
+          <div class="step-text">Ouvrez votre feuille Google Sheets (<em>Copie de PLANNING-BAR</em>).</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">Étape 3</div>
+          <div class="step-text">Placez-vous sur la case <strong>A1</strong> (ou la suite du tableau) et faites <strong>Ctrl + V</strong>.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">Étape 4</div>
+          <div class="step-text">L'application mobile des barmans (<code>bar.html</code>) est instantanément à jour !</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <!-- End #mainShell -->
+
+  <script>
+    let currentStarter = "RACHID";
+    let currentBinomeConfig = "A"; // 'A' = Rachid+Mostafa / Youssef+Nassim, 'B' = Rachid+Nassim / Youssef+Mostafa
+    let generatedData = [];
+
+    const MONTHS_FR = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+    const DAYS_FR = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+
+    /* ── Date Helpers ── */
+    function getNextMonday(fromDate = new Date(), offsetDays = 0) {
+      const d = new Date(fromDate);
+      d.setHours(0,0,0,0);
+      const day = d.getDay(); // 0 is Sun, 1 is Mon
+      const diffToMonday = (day === 1) ? 0 : ((8 - day) % 7);
+      d.setDate(d.getDate() + diffToMonday + offsetDays);
+      return d;
+    }
+
+    function formatDateInput(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatDateLabel(d) {
+      const dayName = DAYS_FR[d.getDay()];
+      const dayNum = d.getDate();
+      const monthName = MONTHS_FR[d.getMonth()];
+      return `${dayName} ${dayNum} ${monthName}`;
+    }
+
+    function setMondayOffset(days) {
+      document.querySelectorAll(".preset-btn").forEach(btn => btn.classList.remove("active"));
+      if (event && event.target) event.target.classList.add("active");
+      
+      const mon = getNextMonday(new Date(), days === 0 ? 0 : days);
+      document.getElementById("startDate").value = formatDateInput(mon);
+      generatePlanning();
+    }
+
+    /* ── Segment controls ── */
+    function selectStarter(starter) {
+      currentStarter = starter;
+      document.querySelectorAll("#segStarter .segment-opt").forEach(opt => {
+        opt.classList.toggle("active", opt.dataset.val === starter);
+      });
+      generatePlanning();
+    }
+
+    function selectBinomeConfig(cfg) {
+      currentBinomeConfig = cfg;
+      document.querySelectorAll("#segBinome .segment-opt").forEach(opt => {
+        opt.classList.toggle("active", opt.dataset.val === cfg);
+      });
+      generatePlanning();
+    }
+
+    /* ── Toast ── */
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      const txt = document.getElementById("toast-msg");
+      txt.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3200);
+    }
+
+    /* ── Core Planning Algorithm (24h System + Binômes) ── */
+    function generatePlanning() {
+      const dateInput = document.getElementById("startDate").value;
+      if (!dateInput) return;
+
+      const [y, m, d] = dateInput.split("-").map(Number);
+      const startDate = new Date(y, m - 1, d);
+
+      const starter = currentStarter; // "RACHID" or "YOUSSEF"
+      const otherBarman = (starter === "RACHID") ? "YOUSSEF" : "RACHID";
+
+      // Determine aides based on config A vs B
+      let aideRachid, aideYoussef;
+      if (currentBinomeConfig === "A") {
+        aideRachid = "MOSTAFA";
+        aideYoussef = "NASSIM";
+      } else {
+        aideRachid = "NASSIM";
+        aideYoussef = "MOSTAFA";
+      }
+
+      const binomeStarter = (starter === "RACHID") ? [ "RACHID", aideRachid ] : [ "YOUSSEF", aideYoussef ];
+      const binomeOther   = (starter === "RACHID") ? [ "YOUSSEF", aideYoussef ] : [ "RACHID", aideRachid ];
+
+      const bStartBarman = binomeStarter[0];
+      const bStartAide   = binomeStarter[1];
+      const bOtherBarman = binomeOther[0];
+      const bOtherAide   = binomeOther[1];
+
+      // Schedule matrix respecting 24h & alternating roles
+      const weekPattern = [
+        // Lundi
+        {
+          dayIndex: 0,
+          matin: `${bStartBarman}`,
+          soir: `${bOtherBarman}, ${bOtherAide}`,
+          repos: `${bStartAide}`
+        },
+        // Mardi (bOtherBarman comes from Lundi Soir)
+        {
+          dayIndex: 1,
+          matin: `${bOtherBarman}`,
+          soir: `${bStartBarman}, ${bStartAide}`,
+          repos: `${bOtherAide}`
+        },
+        // Mercredi (bStartAide comes from Mardi Soir)
+        {
+          dayIndex: 2,
+          matin: `${bStartAide}`,
+          soir: `${bOtherBarman}, ${bOtherAide}`,
+          repos: `${bStartBarman}`
+        },
+        // Jeudi (bOtherAide comes from Mercredi Soir + bStartBarman renfort)
+        {
+          dayIndex: 3,
+          matin: `${bOtherAide}, ${bStartBarman}`,
+          soir: `${bStartBarman}, ${bStartAide}`,
+          repos: `${bOtherBarman}`
+        },
+        // Vendredi (Week-end commence : 2 Matin / 2 Soir)
+        {
+          dayIndex: 4,
+          matin: `${bStartBarman}, ${bStartAide}`,
+          soir: `${bOtherBarman}, ${bOtherAide}`,
+          repos: "—"
+        },
+        // Samedi (2 Matin / 2 Soir - alternance des binômes)
+        {
+          dayIndex: 5,
+          matin: `${bOtherBarman}, ${bOtherAide}`,
+          soir: `${bStartBarman}, ${bStartAide}`,
+          repos: "—"
+        },
+        // Dimanche (2 Matin / 2 Soir - alternance des binômes)
+        {
+          dayIndex: 6,
+          matin: `${bStartBarman}, ${bStartAide}`,
+          soir: `${bOtherBarman}, ${bOtherAide}`,
+          repos: "—"
+        }
+      ];
+
+      generatedData = weekPattern.map(item => {
+        const curDate = new Date(startDate);
+        curDate.setDate(startDate.getDate() + item.dayIndex);
+        return {
+          dateObj: curDate,
+          dateLabel: formatDateLabel(curDate),
+          matin: item.matin,
+          soir: item.soir,
+          repos: item.repos
+        };
+      });
+
+      renderTable();
+      renderMetrics();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("planningTbody");
+      if (!tbody || !generatedData.length) return;
+
+      const firstDate = generatedData[0].dateLabel;
+      const lastDate  = generatedData[generatedData.length - 1].dateLabel;
+      document.getElementById("weekLabel").textContent = `Du ${firstDate} au ${lastDate}`;
+
+      tbody.innerHTML = generatedData.map((row, idx) => `
+        <tr>
+          <td class="date-col">${row.dateLabel}</td>
+          <td>
+            <input type="text" class="editable-cell" value="${escapeHtml(row.matin)}" onchange="updateCell(${idx}, 'matin', this.value)" />
+          </td>
+          <td>
+            <input type="text" class="editable-cell" value="${escapeHtml(row.soir)}" onchange="updateCell(${idx}, 'soir', this.value)" />
+          </td>
+          <td>
+            <span class="repos-tag">${escapeHtml(row.repos)}</span>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function updateCell(rowIdx, field, val) {
+      if (generatedData[rowIdx]) {
+        generatedData[rowIdx][field] = val.trim();
+        renderMetrics();
+      }
+    }
+
+    function renderMetrics() {
+      const counts = {
+        "RACHID": { m: 0, s: 0, tot: 0 },
+        "YOUSSEF": { m: 0, s: 0, tot: 0 },
+        "MOSTAFA": { m: 0, s: 0, tot: 0 },
+        "NASSIM": { m: 0, s: 0, tot: 0 }
+      };
+
+      generatedData.forEach(row => {
+        const mStaff = row.matin.toLowerCase();
+        const sStaff = row.soir.toLowerCase();
+
+        Object.keys(counts).forEach(name => {
+          const lower = name.toLowerCase();
+          const inM = mStaff.includes(lower);
+          const inS = sStaff.includes(lower);
+          if (inM) counts[name].m++;
+          if (inS) counts[name].s++;
+          if (inM || inS) counts[name].tot++;
+        });
+      });
+
+      const container = document.getElementById("metricsSummary");
+      if (!container) return;
+
+      container.innerHTML = Object.entries(counts).map(([name, stat]) => `
+        <div class="metric-badge">
+          <div class="metric-name">${name}</div>
+          <div class="metric-val"><strong>${stat.tot} jours</strong> (Matin: ${stat.m} | Soir: ${stat.s})</div>
+        </div>
+      `).join("");
+    }
+
+    /* ── Export Copy to Clipboard (TSV format for Google Sheets) ── */
+    function copyForGoogleSheets() {
+      if (!generatedData.length) return;
+
+      const notif = document.getElementById("notifText").value.trim();
+
+      // Building exact TSV lines:
+      // Row 1: DATE \t MATIN \t SOIR \t notification
+      // Row 2: Date1 \t Matin1 \t Soir1 \t notifMsg
+      // Row 3..N: DateX \t MatinX \t SoirX
+      const lines = [];
+      lines.push(["DATE", "MATIN", "SOIR", "notification"].join("\t"));
+
+      generatedData.forEach((row, i) => {
+        const notifCell = (i === 0 && notif) ? notif : "";
+        lines.push([row.dateLabel, row.matin, row.soir, notifCell].join("\t"));
+      });
+
+      const tsvContent = lines.join("\r\n");
+
+      navigator.clipboard.writeText(tsvContent).then(() => {
+        showToast("Tableau copié ! Ouvrez Google Sheets et faites Ctrl+V.");
+      }).catch(err => {
+        // Fallback for older browsers
+        const textarea = document.createElement("textarea");
+        textarea.value = tsvContent;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        showToast("Tableau copié ! Ouvrez Google Sheets et faites Ctrl+V.");
+      });
+    }
+
+    /* ── Export CSV File ── */
+    function downloadCsv() {
+      if (!generatedData.length) return;
+
+      const notif = document.getElementById("notifText").value.trim();
+      const lines = [];
+      lines.push('"DATE","MATIN","SOIR","notification"');
+
+      generatedData.forEach((row, i) => {
+        const notifCell = (i === 0 && notif) ? notif : "";
+        lines.push(`"${row.dateLabel}","${row.matin}","${row.soir}","${notifCell}"`);
+      });
+
+      const csvContent = "\uFEFF" + lines.join("\r\n"); // UTF-8 BOM
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `planning_bar_${formatDateInput(generatedData[0].dateObj)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("Fichier CSV téléchargé avec succès !");
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replaceAll("&","&amp;").replaceAll("<","&lt;")
+        .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+
+    /* ── PIN 1975 Security Lock ── */
+    const MANAGER_PIN = "1975";
+    let genPinVal = "";
+
+    function checkAuth() {
+      const lock = document.getElementById("genLockscreen");
+      if (!lock) return;
+      if (sessionStorage.getItem("gc_bar_admin") === "1") {
+        lock.style.display = "none";
+        document.getElementById("mainShell").style.display = "block";
+      } else {
+        lock.style.display = "flex";
+        document.getElementById("mainShell").style.display = "none";
+      }
+    }
+
+    function pressGenPin(digit) {
+      if (genPinVal.length >= 4) return;
+      genPinVal += digit;
+      document.getElementById("genPinError").textContent = "";
+      updateGenPinDots();
+      if (genPinVal.length === 4) setTimeout(submitGenPin, 140);
+    }
+
+    function clearGenPin() {
+      genPinVal = "";
+      document.getElementById("genPinError").textContent = "";
+      updateGenPinDots();
+    }
+
+    function updateGenPinDots() {
+      const dots = document.querySelectorAll("#genPinDots .pin-dot");
+      dots.forEach((d, i) => d.classList.toggle("filled", i < genPinVal.length));
+    }
+
+    function submitGenPin() {
+      const err = document.getElementById("genPinError");
+      const panel = document.getElementById("genPinPanel");
+
+      if (genPinVal === MANAGER_PIN) {
+        sessionStorage.setItem("gc_bar_admin", "1");
+        const lock = document.getElementById("genLockscreen");
+        if (lock) lock.style.display = "none";
+        document.getElementById("mainShell").style.display = "block";
+      } else {
+        if (err) err.textContent = "Code PIN incorrect.";
+        if (panel) {
+          panel.classList.remove("shake");
+          void panel.offsetWidth;
+          panel.classList.add("shake");
+        }
+        genPinVal = "";
+        updateGenPinDots();
+      }
+    }
+
+    /* Keyboard support */
+    document.addEventListener("keydown", e => {
+      const lock = document.getElementById("genLockscreen");
+      if (!lock || lock.style.display === "none") return;
+
+      if (e.key >= "0" && e.key <= "9") {
+        pressGenPin(e.key);
+      } else if (e.key === "Backspace") {
+        genPinVal = genPinVal.slice(0, -1);
+        updateGenPinDots();
+      } else if (e.key === "Enter") {
+        submitGenPin();
+      }
+    });
+
+    /* ── Initialize ── */
+    window.addEventListener("DOMContentLoaded", () => {
+      checkAuth();
+      // Default to next Monday
+      const nextMon = getNextMonday(new Date(), 7);
+      document.getElementById("startDate").value = formatDateInput(nextMon);
+      generatePlanning();
+    });
+  </script>
+</body>
+</html>

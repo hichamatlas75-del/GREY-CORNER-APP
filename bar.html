@@ -274,6 +274,101 @@
   .staff-name{
     font-size:13px; color:var(--ink);
   }
+
+  /* ── PIN MODAL ── */
+  .modal-overlay{
+    position:fixed; inset:0; z-index:1000;
+    display:none; align-items:center; justify-content:center;
+    background:rgba(35,31,26,0.55);
+    backdrop-filter:blur(5px);
+    padding:20px;
+    animation:fadeIn .2s ease;
+  }
+  .modal-overlay.active{ display:flex; }
+  @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+
+  .pin-modal-panel{
+    position:relative;
+    width:100%; max-width:320px;
+    background:var(--paper2);
+    border:1px solid var(--hairline-gold);
+    box-shadow:var(--shadow-lg);
+    padding:32px 22px 26px;
+    text-align:center;
+  }
+  .pin-modal-panel::before, .pin-modal-panel::after{
+    content:''; position:absolute; left:20px; right:20px; height:1px;
+  }
+  .pin-modal-panel::before{ top:8px; background:var(--hairline-gold); }
+  .pin-modal-panel::after{ bottom:8px; background:var(--hairline-gold); }
+
+  .pin-modal-panel.shake{ animation:shake .32s ease; }
+  @keyframes shake{
+    0%,100%{ transform:translateX(0); }
+    20%{ transform:translateX(-6px); }
+    40%{ transform:translateX(6px); }
+    60%{ transform:translateX(-4px); }
+    80%{ transform:translateX(4px); }
+  }
+
+  .modal-close{
+    position:absolute; top:10px; right:12px;
+    background:none; border:none;
+    color:var(--ink-dim); font-size:18px;
+    cursor:pointer; padding:4px 8px; line-height:1;
+  }
+  .modal-close:hover{ color:var(--ink); }
+
+  .pin-m-badge{
+    width:48px; height:48px; margin:0 auto 12px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--paper);
+    border:1px solid var(--hairline-gold);
+    color:var(--brass-deep);
+  }
+
+  .pin-m-title{
+    font-family:"Cormorant Garamond",serif;
+    font-size:22px; font-weight:600;
+    color:var(--ink);
+    margin-bottom:4px;
+  }
+  .pin-m-sub{
+    font-size:11px; color:var(--ink-soft);
+    line-height:1.4; margin-bottom:14px;
+  }
+
+  .pin-dots{ display:flex; justify-content:center; gap:12px; margin-bottom:10px; }
+  .pin-dot{
+    width:10px; height:10px; border-radius:50%;
+    border:1px solid var(--brass);
+    background:transparent;
+    transition:all .15s ease;
+  }
+  .pin-dot.filled{ background:var(--brass-deep); border-color:var(--brass-deep); }
+
+  .pin-error-msg{
+    min-height:16px; font-size:11px; color:var(--err); margin-bottom:12px; letter-spacing:.02em;
+  }
+
+  .pin-pad-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;
+  }
+  .pin-key-btn{
+    aspect-ratio:1.1;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--paper);
+    border:1px solid var(--hairline);
+    font-family:"DM Sans",sans-serif;
+    font-size:17px; font-weight:500;
+    color:var(--ink);
+    cursor:pointer;
+    transition:transform .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .pin-key-btn:active{ transform:scale(.95); border-color:var(--brass); background:var(--paper2); }
+  .pin-key-btn.func{ font-size:14px; color:var(--brass-deep); }
+  .pin-key-btn.enter{ background:var(--brass); color:#fff; border-color:var(--brass); }
+  .pin-key-btn.enter:active{ background:var(--brass-deep); border-color:var(--brass-deep); }
   </style>
 </head>
 
@@ -288,6 +383,45 @@
     <button id="alert-close" onclick="hideAlert()">✕</button>
   </div>
 
+  <!-- PIN Modal for Generator Access -->
+  <div class="modal-overlay" id="pinModal" onclick="handleBackdropClick(event)">
+    <div class="pin-modal-panel" id="pinPanel">
+      <button class="modal-close" onclick="closePinModal()" title="Fermer">✕</button>
+      <div class="pin-m-badge">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0110 0v4"></path>
+        </svg>
+      </div>
+      <h3 class="pin-m-title">Accès Manager</h3>
+      <p class="pin-m-sub">Saisissez le code PIN pour ouvrir le générateur de planning.</p>
+
+      <div class="pin-dots" id="mPinDots">
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+      </div>
+
+      <div class="pin-error-msg" id="mPinError"></div>
+
+      <div class="pin-pad-grid">
+        <button class="pin-key-btn" onclick="pressPin('1')">1</button>
+        <button class="pin-key-btn" onclick="pressPin('2')">2</button>
+        <button class="pin-key-btn" onclick="pressPin('3')">3</button>
+        <button class="pin-key-btn" onclick="pressPin('4')">4</button>
+        <button class="pin-key-btn" onclick="pressPin('5')">5</button>
+        <button class="pin-key-btn" onclick="pressPin('6')">6</button>
+        <button class="pin-key-btn" onclick="pressPin('7')">7</button>
+        <button class="pin-key-btn" onclick="pressPin('8')">8</button>
+        <button class="pin-key-btn" onclick="pressPin('9')">9</button>
+        <button class="pin-key-btn func" onclick="clearPin()">⌫</button>
+        <button class="pin-key-btn" onclick="pressPin('0')">0</button>
+        <button class="pin-key-btn func enter" onclick="submitPin()">↵</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Header -->
   <header class="fade-up" style="animation-delay:.0s">
     <div class="logo-wrap">
@@ -296,11 +430,16 @@
     <div class="eyebrow">Espace Vestiaires</div>
     <div class="page-title">Planning <span>Bar</span></div>
     <div class="page-sub">Ravitaillement & Hydratation 🥤</div>
-    <div class="gold-rule"></div>
-    <a href="index.html" class="back-btn">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
-      Retour Menu
-    </a>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+      <a href="index.html" class="back-btn">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
+        Retour Menu
+      </a>
+      <button onclick="openPinModal()" class="back-btn" style="background:var(--paper2); border-color:var(--brass); color:var(--brass-deep); cursor:pointer;">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+        ⚙️ Générateur
+      </button>
+    </div>
   </header>
 
   <!-- Content -->
@@ -567,6 +706,84 @@
         `;
       }).join('');
     }
+
+    /* ── MANAGER PIN MODAL (PIN 1975) ── */
+    const MANAGER_PIN = "1975";
+    let mPinValue = "";
+
+    function openPinModal() {
+      const modal = document.getElementById("pinModal");
+      if (!modal) return;
+      mPinValue = "";
+      updateMPinDots();
+      document.getElementById("mPinError").textContent = "";
+      modal.classList.add("active");
+    }
+
+    function closePinModal() {
+      const modal = document.getElementById("pinModal");
+      if (modal) modal.classList.remove("active");
+      mPinValue = "";
+    }
+
+    function handleBackdropClick(e) {
+      if (e.target.id === "pinModal") closePinModal();
+    }
+
+    function updateMPinDots() {
+      const dots = document.querySelectorAll("#mPinDots .pin-dot");
+      dots.forEach((d, i) => d.classList.toggle("filled", i < mPinValue.length));
+    }
+
+    function pressPin(digit) {
+      if (mPinValue.length >= 4) return;
+      mPinValue += digit;
+      document.getElementById("mPinError").textContent = "";
+      updateMPinDots();
+      if (mPinValue.length === 4) setTimeout(submitPin, 140);
+    }
+
+    function clearPin() {
+      mPinValue = "";
+      document.getElementById("mPinError").textContent = "";
+      updateMPinDots();
+    }
+
+    function submitPin() {
+      const err = document.getElementById("mPinError");
+      const panel = document.getElementById("pinPanel");
+
+      if (mPinValue === MANAGER_PIN) {
+        sessionStorage.setItem("gc_bar_admin", "1");
+        window.location.href = "generateur.html";
+      } else {
+        if (err) err.textContent = "Code PIN incorrect.";
+        if (panel) {
+          panel.classList.remove("shake");
+          void panel.offsetWidth;
+          panel.classList.add("shake");
+        }
+        mPinValue = "";
+        updateMPinDots();
+      }
+    }
+
+    /* Keyboard support for PIN */
+    document.addEventListener("keydown", e => {
+      const modal = document.getElementById("pinModal");
+      if (!modal || !modal.classList.contains("active")) return;
+
+      if (e.key >= "0" && e.key <= "9") {
+        pressPin(e.key);
+      } else if (e.key === "Backspace") {
+        mPinValue = mPinValue.slice(0, -1);
+        updateMPinDots();
+      } else if (e.key === "Enter") {
+        submitPin();
+      } else if (e.key === "Escape") {
+        closePinModal();
+      }
+    });
 
     init();
   </script>
