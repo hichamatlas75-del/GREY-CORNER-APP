@@ -442,6 +442,78 @@
   }
   .btn-secondary:hover{ border-color:var(--brass); }
 
+  /* ── BADGES MÉMOIRE & CONFIG ÉQUIPE ── */
+  .team-config-card{
+    background:var(--paper);
+    border:1px solid var(--hairline-gold);
+    padding:12px 14px;
+    margin-bottom:12px;
+  }
+  .team-config-header{
+    display:flex; align-items:center; justify-content:space-between;
+    cursor:pointer; user-select:none;
+  }
+  .team-config-title{
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+    color:var(--brass-deep); display:flex; align-items:center; gap:6px;
+  }
+  .team-config-toggle{ font-size:11px; color:var(--brass); }
+  .team-config-body{
+    display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px;
+    padding-top:10px; border-top:1px dashed var(--hairline-gold);
+  }
+  @media(max-width:540px){ .team-config-body{ grid-template-columns:1fr; } }
+  .team-subgroup{ display:flex; flex-direction:column; gap:6px; }
+  .team-subgroup-title{ font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--brass); }
+  .name-input-row{ display:flex; gap:6px; }
+  .name-input-row input{
+    flex:1; padding:6px 8px; font-size:12px;
+    background:var(--paper2); border:1px solid var(--hairline-gold);
+    color:var(--ink); font-family:inherit; outline:none;
+  }
+  .name-input-row input:focus{ border-color:var(--brass); }
+
+  /* ── QUICK INSERT BADGES BAR ── */
+  .quick-badges-bar{
+    display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+    background:var(--paper); padding:8px 10px;
+    border:1px solid var(--hairline-gold);
+    margin-bottom:6px;
+  }
+  .quick-badges-label{
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--brass-deep); margin-right:4px; flex-shrink:0;
+  }
+  .name-chip{
+    display:inline-flex; align-items:center; gap:4px;
+    padding:4px 8px; font-size:11px; font-weight:600;
+    background:var(--paper2);
+    border:1px solid var(--hairline-gold);
+    color:var(--ink); cursor:pointer;
+    border-radius:2px;
+    transition:background .12s ease, transform .12s ease, border-color .12s ease;
+    user-select:none;
+  }
+  .name-chip:hover{
+    background:var(--paper); border-color:var(--brass); transform:translateY(-1px);
+  }
+  .name-chip:active{ transform:scale(0.96); }
+  .name-chip.g1{ border-left:3px solid var(--brass); }
+  .name-chip.g2{ border-left:3px solid #8b5e3c; }
+  .name-chip.special{ border-left:3px solid var(--ink-dim); color:var(--ink-soft); font-style:italic; }
+
+  /* ── REPLACE TOOL ── */
+  .replace-tool{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    background:var(--paper); padding:8px 10px;
+    border:1px solid var(--hairline-gold);
+    margin-bottom:8px; font-size:11px;
+  }
+  .replace-tool select, .replace-tool input{
+    padding:5px 8px; font-size:11px; background:var(--paper2);
+    border:1px solid var(--hairline-gold); color:var(--ink); font-family:inherit; outline:none;
+  }
+
   /* ── EDITABLE TABLE PREVIEW ── */
   .preview-section{
     display:flex; flex-direction:column; gap:12px;
@@ -606,6 +678,34 @@
       </div>
       <div class="modal-body">
         
+        <!-- Carte Équipe & Badges Mémoire (Personnalisation des 6 noms) -->
+        <div class="team-config-card">
+          <div class="team-config-header" onclick="toggleTeamConfig()">
+            <span class="team-config-title">
+              👥 Badges Mémoire de l'Équipe (6 Noms)
+            </span>
+            <span class="team-config-toggle" id="teamConfigToggle">Personnaliser les 6 noms ▼</span>
+          </div>
+          <div class="team-config-body" id="teamConfigBody" style="display:none;">
+            <div class="team-subgroup">
+              <span class="team-subgroup-title">Groupe 1 (Youness, Mokhtar, Aziz)</span>
+              <div class="name-input-row">
+                <input type="text" id="cfg_g1_0" placeholder="Serveur 1" value="youness" oninput="saveTeamNames()" />
+                <input type="text" id="cfg_g1_1" placeholder="Serveur 2" value="mokhtar" oninput="saveTeamNames()" />
+                <input type="text" id="cfg_g1_2" placeholder="Serveur 3" value="aziz" oninput="saveTeamNames()" />
+              </div>
+            </div>
+            <div class="team-subgroup">
+              <span class="team-subgroup-title">Groupe 2 (Youssef, Zakaria, Mohamed)</span>
+              <div class="name-input-row">
+                <input type="text" id="cfg_g2_0" placeholder="Serveur 1" value="youssef" oninput="saveTeamNames()" />
+                <input type="text" id="cfg_g2_1" placeholder="Serveur 2" value="zakaria" oninput="saveTeamNames()" />
+                <input type="text" id="cfg_g2_2" placeholder="Serveur 3" value="mohamed" oninput="saveTeamNames()" />
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Formulaire de paramétrage -->
         <div class="form-row">
           <div class="form-group">
@@ -615,8 +715,8 @@
           <div class="form-group">
             <label class="form-label">Premier Groupe au Matin</label>
             <select id="genStartGroup" class="form-select">
-              <option value="1">Groupe 1 (Youness, Mokhtar, Aziz)</option>
-              <option value="2">Groupe 2 (Youssef, Zakaria, Mohamed)</option>
+              <option value="1" id="opt_g1">Groupe 1 (Youness, Mokhtar, Aziz)</option>
+              <option value="2" id="opt_g2">Groupe 2 (Youssef, Zakaria, Mohamed)</option>
             </select>
           </div>
         </div>
@@ -646,7 +746,23 @@
         <!-- Section de Prévisualisation Éditable -->
         <div class="preview-section" id="previewSection" style="display:none;">
           <div class="preview-notice">
-            ✍️ <strong>Prévisualisation 100% Éditable :</strong> Vous pouvez modifier directement n'importe quel texte ou nom dans le tableau ci-dessous avant d'exporter.
+            ✍️ <strong>Prévisualisation 100% Éditable :</strong> Cliquez sur une cellule pour la modifier. Cliquez sur un <strong>Badge Mémoire</strong> ci-dessous pour insérer directement un nom au curseur.
+          </div>
+
+          <!-- Barre de Badges Raccourcis Cliquables -->
+          <div class="quick-badges-bar">
+            <span class="quick-badges-label">🏷️ Insérer un nom :</span>
+            <div id="quickBadgesContainer" style="display:inline-flex; gap:6px; flex-wrap:wrap;"></div>
+          </div>
+
+          <!-- Outil de remplacement rapide -->
+          <div class="replace-tool">
+            <span style="font-weight:600; color:var(--brass-deep);">🔄 Remplacer partout :</span>
+            <span>Remplacer</span>
+            <select id="repOldName"></select>
+            <span>par</span>
+            <input type="text" id="repNewName" placeholder="Nouveau nom..." style="width:130px;" />
+            <button class="btn-secondary" style="padding:4px 10px; font-size:11px;" onclick="replaceNameGlobally()">Remplacer dans tout le planning</button>
           </div>
 
           <div class="table-responsive">
@@ -1029,16 +1145,139 @@
       const dd = String(monday.getDate()).padStart(2, '0');
       document.getElementById("genStartDate").value = `${yyyy}-${mm}-${dd}`;
 
+      loadTeamNames();
       generatorModal.classList.add("active");
     }
     function closeGeneratorModal() { generatorModal.classList.remove("active"); }
 
-    /* ── MOTEUR DE ROTATION CARRÉE EXACTE ── */
-    // Groupe 1 : Youness, Mokhtar, Aziz
-    // Groupe 2 : Youssef, Zakaria, Mohamed
-    const G1 = ["youness", "mokhtar", "aziz"];
-    const G2 = ["youssef", "zakaria", "mohamed"];
+    /* ── GESTION DES BADGES MÉMOIRE & ÉQUIPE ── */
+    let G1 = ["youness", "mokhtar", "aziz"];
+    let G2 = ["youssef", "zakaria", "mohamed"];
 
+    function toggleTeamConfig() {
+      const body = document.getElementById("teamConfigBody");
+      const toggle = document.getElementById("teamConfigToggle");
+      if (!body) return;
+      const isOpen = body.style.display !== "none";
+      body.style.display = isOpen ? "none" : "grid";
+      if (toggle) toggle.textContent = isOpen ? "Personnaliser les 6 noms ▼" : "Fermer ▲";
+    }
+
+    function loadTeamNames() {
+      try {
+        const stored = localStorage.getItem("gc_team_names");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed.g1) && parsed.g1.length === 3) G1 = parsed.g1;
+          if (Array.isArray(parsed.g2) && parsed.g2.length === 3) G2 = parsed.g2;
+        }
+      } catch (e) {}
+
+      for (let i = 0; i < 3; i++) {
+        const el1 = document.getElementById(`cfg_g1_${i}`);
+        if (el1) el1.value = G1[i];
+        const el2 = document.getElementById(`cfg_g2_${i}`);
+        if (el2) el2.value = G2[i];
+      }
+      updateTeamLabelsAndBadges();
+    }
+
+    function saveTeamNames() {
+      const newG1 = [
+        document.getElementById("cfg_g1_0")?.value.trim().toLowerCase() || "youness",
+        document.getElementById("cfg_g1_1")?.value.trim().toLowerCase() || "mokhtar",
+        document.getElementById("cfg_g1_2")?.value.trim().toLowerCase() || "aziz"
+      ];
+      const newG2 = [
+        document.getElementById("cfg_g2_0")?.value.trim().toLowerCase() || "youssef",
+        document.getElementById("cfg_g2_1")?.value.trim().toLowerCase() || "zakaria",
+        document.getElementById("cfg_g2_2")?.value.trim().toLowerCase() || "mohamed"
+      ];
+      G1 = newG1;
+      G2 = newG2;
+      try {
+        localStorage.setItem("gc_team_names", JSON.stringify({ g1: G1, g2: G2 }));
+      } catch (e) {}
+      updateTeamLabelsAndBadges();
+    }
+
+    function updateTeamLabelsAndBadges() {
+      // Options dropdown
+      const opt1 = document.getElementById("opt_g1");
+      if (opt1) opt1.textContent = `Groupe 1 (${G1.map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(', ')})`;
+      const opt2 = document.getElementById("opt_g2");
+      if (opt2) opt2.textContent = `Groupe 2 (${G2.map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(', ')})`;
+
+      // Quick badges
+      const container = document.getElementById("quickBadgesContainer");
+      if (container) {
+        let html = "";
+        G1.forEach(name => {
+          const cap = name.charAt(0).toUpperCase() + name.slice(1);
+          html += `<button class="name-chip g1" type="button" onclick="insertNameBadge('${escapeHtml(name)}')">+ ${escapeHtml(cap)}</button>`;
+        });
+        G2.forEach(name => {
+          const cap = name.charAt(0).toUpperCase() + name.slice(1);
+          html += `<button class="name-chip g2" type="button" onclick="insertNameBadge('${escapeHtml(name)}')">+ ${escapeHtml(cap)}</button>`;
+        });
+        html += `<button class="name-chip special" type="button" onclick="insertNameBadge('— Repos —')">+ Repos</button>`;
+        container.innerHTML = html;
+      }
+
+      // Replace tool select
+      const repSelect = document.getElementById("repOldName");
+      if (repSelect) {
+        const allNames = [...G1, ...G2];
+        repSelect.innerHTML = allNames.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n.charAt(0).toUpperCase() + n.slice(1))}</option>`).join("");
+      }
+    }
+
+    let lastFocusedCell = null;
+    document.addEventListener("focusin", (e) => {
+      if (e.target && (e.target.classList.contains("cell-shift") || e.target.classList.contains("cell-date") || e.target.classList.contains("cell-note"))) {
+        lastFocusedCell = e.target;
+      }
+    });
+
+    function insertNameBadge(name) {
+      if (lastFocusedCell && document.body.contains(lastFocusedCell)) {
+        const start = lastFocusedCell.selectionStart || 0;
+        const end = lastFocusedCell.selectionEnd || 0;
+        const val = lastFocusedCell.value;
+        const insertText = (start > 0 && val[start-1] !== ' ' && val[start-1] !== ',' ? ', ' : '') + name;
+        lastFocusedCell.value = val.substring(0, start) + insertText + val.substring(end);
+        lastFocusedCell.focus();
+        const newPos = start + insertText.length;
+        lastFocusedCell.setSelectionRange(newPos, newPos);
+        showToast(`🏷️ Inséré : ${name}`);
+      } else {
+        navigator.clipboard.writeText(name).then(() => {
+          showToast(`📋 Nom copié : ${name}`);
+        });
+      }
+    }
+
+    function replaceNameGlobally() {
+      const oldName = document.getElementById("repOldName")?.value.trim().toLowerCase();
+      const newName = document.getElementById("repNewName")?.value.trim().toLowerCase();
+      if (!oldName || !newName) {
+        alert("Veuillez choisir un nom existant et saisir le nouveau nom.");
+        return;
+      }
+      const inputs = document.querySelectorAll("#editTableBody textarea, #editTableBody input");
+      let count = 0;
+      const regex = new RegExp(`\\b${oldName}\\b`, "gi");
+      inputs.forEach(input => {
+        if (regex.test(input.value)) {
+          input.value = input.value.replace(regex, newName);
+          count++;
+        }
+      });
+      showToast(`✨ "${oldName}" remplacé par "${newName}" (${count} occurrences modifiées).`);
+      document.getElementById("repNewName").value = "";
+    }
+
+    /* ── MOTEUR DE ROTATION CARRÉE EXACTE ── */
     const FRENCH_DAYS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
     const FRENCH_MONTHS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
 
@@ -1086,56 +1325,40 @@
           let soirStr  = "";
 
           if (d === 0) {
-            // LUNDI : Repos Mohamed & Aziz — 2 Matin / 2 Soir
-            // Carrés Lundi-Mercredi : (SAL1 & TER2) et (TER1, SAL2 & LOG)
-            if (isG1Matin) {
-              // G1 Matin (Youness, Mokhtar) / G2 Soir (Youssef, Zakaria)
-              matinStr = `youness (SAL1), youness (TER2), mokhtar (TER1), mokhtar (SAL2), mokhtar (LOG)`;
-              soirStr  = `youssef (SAL1), youssef (TER2), zakaria (TER1), zakaria (SAL2), zakaria (LOG)`;
-            } else {
-              // G2 Matin (Youssef, Zakaria) / G1 Soir (Youness, Mokhtar)
-              matinStr = `youssef (SAL1), youssef (TER2), zakaria (TER1), zakaria (SAL2), zakaria (LOG)`;
-              soirStr  = `youness (SAL1), youness (TER2), mokhtar (TER1), mokhtar (SAL2), mokhtar (LOG)`;
-            }
+            // LUNDI : Repos Mohamed (G2) & Aziz (G1) — 2 Matin / 2 Soir
+            // matinGroup[0] -> (SAL1, TER2), matinGroup[1] -> (TER1, SAL2, LOG)
+            // soirGroup[0]  -> (SAL1, TER2), soirGroup[1]  -> (TER1, SAL2, LOG)
+            matinStr = `${matinGroup[0]} (SAL1), ${matinGroup[0]} (TER2), ${matinGroup[1]} (TER1), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (LOG)`;
+            soirStr  = `${soirGroup[0]} (SAL1), ${soirGroup[0]} (TER2), ${soirGroup[1]} (TER1), ${soirGroup[1]} (SAL2), ${soirGroup[1]} (LOG)`;
           } else if (d === 1) {
-            // MARDI : Repos Zakaria & Youness — 2 Matin / 2 Soir
-            // Actifs : Mokhtar & Aziz (G1) / Youssef & Mohamed (G2)
-            if (isG1Matin) {
-              matinStr = `mokhtar (SAL1), mokhtar (TER2), aziz (TER1), aziz (SAL2), aziz (LOG)`;
-              soirStr  = `youssef (SAL1), youssef (TER2), mohamed (TER1), mohamed (SAL2), mohamed (LOG)`;
-            } else {
-              matinStr = `youssef (SAL1), youssef (TER2), mohamed (TER1), mohamed (SAL2), mohamed (LOG)`;
-              soirStr  = `mokhtar (SAL1), mokhtar (TER2), aziz (TER1), aziz (SAL2), aziz (LOG)`;
-            }
+            // MARDI : Repos Zakaria (G2) & Youness (G1) — 2 Matin / 2 Soir
+            // matinGroup: [1] alterne vers (SAL1, TER2), [2] prend (TER1, SAL2, LOG)
+            // soirGroup:  [0] alterne vers (TER1, SAL2, LOG), [2] prend (SAL1, TER2)
+            matinStr = `${matinGroup[1]} (SAL1), ${matinGroup[1]} (TER2), ${matinGroup[2]} (TER1), ${matinGroup[2]} (SAL2), ${matinGroup[2]} (LOG)`;
+            soirStr  = `${soirGroup[2]} (SAL1), ${soirGroup[2]} (TER2), ${soirGroup[0]} (TER1), ${soirGroup[0]} (SAL2), ${soirGroup[0]} (LOG)`;
           } else if (d === 2) {
-            // MERCREDI : Repos Mokhtar & Youssef — 2 Matin / 2 Soir
-            // Actifs : Youness & Aziz (G1) / Zakaria & Mohamed (G2)
-            if (isG1Matin) {
-              matinStr = `youness (SAL1), youness (TER2), aziz (TER1), aziz (SAL2), aziz (LOG)`;
-              soirStr  = `zakaria (SAL1), zakaria (TER2), mohamed (TER1), mohamed (SAL2), mohamed (LOG)`;
-            } else {
-              matinStr = `zakaria (SAL1), zakaria (TER2), mohamed (TER1), mohamed (SAL2), mohamed (LOG)`;
-              soirStr  = `youness (SAL1), youness (TER2), aziz (TER1), aziz (SAL2), aziz (LOG)`;
-            }
+            // MERCREDI : Repos Mokhtar (G1) & Youssef (G2) — 2 Matin / 2 Soir
+            // matinGroup: [2] alterne vers (SAL1, TER2), [0] prend (TER1, SAL2, LOG)
+            // soirGroup:  [1] prend (SAL1, TER2), [2] alterne vers (TER1, SAL2, LOG)
+            matinStr = `${matinGroup[2]} (SAL1), ${matinGroup[2]} (TER2), ${matinGroup[0]} (TER1), ${matinGroup[0]} (SAL2), ${matinGroup[0]} (LOG)`;
+            soirStr  = `${soirGroup[1]} (SAL1), ${soirGroup[1]} (TER2), ${soirGroup[2]} (TER1), ${soirGroup[2]} (SAL2), ${soirGroup[2]} (LOG)`;
           } else if (d === 3) {
-            // JEUDI : 3 Matin / 3 Soir (Rotation Carré 1)
-            // Carrés : (SAL1 & TER3), (SAL2 & LOG), (TER1 & TER2)
-            matinStr = `${matinGroup[0]} (SAL1), ${matinGroup[0]} (TER3), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (LOG), ${matinGroup[2]} (TER1), ${matinGroup[2]} (TER2)`;
-            soirStr  = `${soirGroup[0]} (SAL1), ${soirGroup[0]} (TER3), ${soirGroup[1]} (SAL2), ${soirGroup[1]} (LOG), ${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2)`;
+            // JEUDI : 3 Matin / 3 Soir (Aucun doublon par rapport à Mercredi)
+            // Carré A: (SAL1, TER3), Carré B: (SAL2, LOG), Carré C: (TER1, TER2)
+            matinStr = `${matinGroup[0]} (SAL1), ${matinGroup[0]} (TER3), ${matinGroup[2]} (SAL2), ${matinGroup[2]} (LOG), ${matinGroup[1]} (TER1), ${matinGroup[1]} (TER2)`;
+            soirStr  = `${soirGroup[2]} (SAL1), ${soirGroup[2]} (TER3), ${soirGroup[1]} (SAL2), ${soirGroup[1]} (LOG), ${soirGroup[0]} (TER1), ${soirGroup[0]} (TER2)`;
           } else if (d === 4) {
-            // VENDREDI : 3 Matin / 3 Soir (Rotation Carré 2)
-            matinStr = `${matinGroup[2]} (TER1), ${matinGroup[2]} (TER2), ${matinGroup[0]} (SAL1), ${matinGroup[0]} (TER3), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (LOG)`;
-            soirStr  = `${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2), ${soirGroup[0]} (SAL1), ${soirGroup[0]} (TER3), ${soirGroup[1]} (SAL2), ${soirGroup[1]} (LOG)`;
+            // VENDREDI : 3 Matin / 3 Soir (Rotation stricte anti-doublon consécutif)
+            matinStr = `${matinGroup[2]} (SAL1), ${matinGroup[2]} (TER3), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (LOG), ${matinGroup[0]} (TER1), ${matinGroup[0]} (TER2)`;
+            soirStr  = `${soirGroup[1]} (SAL1), ${soirGroup[1]} (TER3), ${soirGroup[0]} (SAL2), ${soirGroup[0]} (LOG), ${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2)`;
           } else if (d === 5) {
-            // SAMEDI : 3 Matin / 3 Soir (Rotation Carré 3)
-            matinStr = `${matinGroup[1]} (SAL2), ${matinGroup[1]} (LOG), ${matinGroup[2]} (TER1), ${matinGroup[2]} (TER2), ${matinGroup[0]} (SAL1), ${matinGroup[0]} (TER3)`;
-            soirStr  = `${soirGroup[1]} (SAL2), ${soirGroup[1]} (LOG), ${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2), ${soirGroup[0]} (SAL1), ${soirGroup[0]} (TER3)`;
+            // SAMEDI : 3 Matin / 3 Soir (Rotation stricte anti-doublon consécutif)
+            matinStr = `${matinGroup[1]} (SAL1), ${matinGroup[1]} (TER3), ${matinGroup[0]} (SAL2), ${matinGroup[0]} (LOG), ${matinGroup[2]} (TER1), ${matinGroup[2]} (TER2)`;
+            soirStr  = `${soirGroup[0]} (SAL1), ${soirGroup[0]} (TER3), ${soirGroup[2]} (SAL2), ${soirGroup[2]} (LOG), ${soirGroup[1]} (TER1), ${soirGroup[1]} (TER2)`;
           } else if (d === 6) {
-            // DIMANCHE : Cas spécial
-            // Matin (5 personnes) : SAL1 seul, SAL2 & TER3, TER1 & TER2, LOGE à part, DEB
-            // Soir (3 personnes)  : (SAL1 & TER3), (SAL2 & LOG), (TER1 & TER2)
-            matinStr = `${matinGroup[0]} (SAL1), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (TER3), ${matinGroup[2]} (TER1), ${matinGroup[2]} (TER2), ${soirGroup[0]} (LOG), ${soirGroup[1]} (deb)`;
-            soirStr  = `${soirGroup[0]} (SAL1), ${soirGroup[0]} (TER3), ${soirGroup[1]} (SAL2), ${soirGroup[1]} (LOG), ${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2)`;
+            // DIMANCHE : Cas spécial 5 Matin / 3 Soir (Anti-doublon avec Samedi)
+            matinStr = `${matinGroup[0]} (SAL1), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (TER3), ${matinGroup[2]} (TER1), ${matinGroup[2]} (TER2), ${soirGroup[2]} (LOG), ${soirGroup[0]} (deb)`;
+            soirStr  = `${soirGroup[1]} (SAL1), ${soirGroup[1]} (TER3), ${soirGroup[0]} (SAL2), ${soirGroup[0]} (LOG), ${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2)`;
           }
 
           generatedRows.push({
@@ -1280,6 +1503,7 @@
 
     // Initialisation
     init();
+    loadTeamNames();
   </script>
 </body>
 </html>
