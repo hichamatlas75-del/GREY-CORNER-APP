@@ -371,8 +371,8 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
   <script>
-    /* ── PIN ── */
-    const PIN_CODE = "2000";
+    /* ── ACCÈS SÉCURISÉ ── */
+    const PIN_HASH = "81a83544cf93c245178cbc1620030f1123f435af867c79d87135983c52ab39d9";
     let pinValue = "";
 
     const lockscreen = document.getElementById("lockscreen");
@@ -397,9 +397,19 @@
       setTimeout(() => { lockscreen.remove(); rootShell.classList.remove("hidden-app"); }, 260);
     }
 
-    function submitPin() {
+    async function hashPin(str) {
+      if (window.crypto && crypto.subtle) {
+        const enc = new TextEncoder().encode(str);
+        const buf = await crypto.subtle.digest("SHA-256", enc);
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+      return "";
+    }
+
+    async function submitPin() {
       if (pinValue.length !== 4) { showError("Entrez un code à 4 chiffres."); return; }
-      if (pinValue === PIN_CODE) { clearError(); unlockApp(); }
+      const hashed = await hashPin(pinValue);
+      if (hashed === PIN_HASH) { clearError(); unlockApp(); }
       else { showError("Code incorrect. Réessayez."); pinValue = ""; updateDots(); }
     }
 
