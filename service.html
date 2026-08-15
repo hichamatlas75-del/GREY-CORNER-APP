@@ -1087,52 +1087,55 @@
 
           if (d === 0) {
             // LUNDI : Repos Mohamed & Aziz — 2 Matin / 2 Soir
-            // Actifs : Youness & Mokhtar (G1) / Youssef & Zakaria (G2)
+            // Carrés Lundi-Mercredi : (SAL1 & TER2) et (TER1, SAL2 & LOG)
             if (isG1Matin) {
               // G1 Matin (Youness, Mokhtar) / G2 Soir (Youssef, Zakaria)
               matinStr = `youness (SAL1), youness (TER2), mokhtar (TER1), mokhtar (SAL2), mokhtar (LOG)`;
-              soirStr  = `youssef (SAL1), youssef (TER3), zakaria (SAL2), zakaria (TER1), zakaria (LOG)`;
+              soirStr  = `youssef (SAL1), youssef (TER2), zakaria (TER1), zakaria (SAL2), zakaria (LOG)`;
             } else {
               // G2 Matin (Youssef, Zakaria) / G1 Soir (Youness, Mokhtar)
               matinStr = `youssef (SAL1), youssef (TER2), zakaria (TER1), zakaria (SAL2), zakaria (LOG)`;
-              soirStr  = `youness (SAL1), youness (TER3), mokhtar (SAL2), mokhtar (TER1), mokhtar (LOG)`;
+              soirStr  = `youness (SAL1), youness (TER2), mokhtar (TER1), mokhtar (SAL2), mokhtar (LOG)`;
             }
           } else if (d === 1) {
             // MARDI : Repos Zakaria & Youness — 2 Matin / 2 Soir
             // Actifs : Mokhtar & Aziz (G1) / Youssef & Mohamed (G2)
             if (isG1Matin) {
               matinStr = `mokhtar (SAL1), mokhtar (TER2), aziz (TER1), aziz (SAL2), aziz (LOG)`;
-              soirStr  = `youssef (SAL1), youssef (TER3), mohamed (SAL2), mohamed (TER1), mohamed (LOG)`;
+              soirStr  = `youssef (SAL1), youssef (TER2), mohamed (TER1), mohamed (SAL2), mohamed (LOG)`;
             } else {
               matinStr = `youssef (SAL1), youssef (TER2), mohamed (TER1), mohamed (SAL2), mohamed (LOG)`;
-              soirStr  = `mokhtar (SAL1), mokhtar (TER3), aziz (SAL2), aziz (TER1), aziz (LOG)`;
+              soirStr  = `mokhtar (SAL1), mokhtar (TER2), aziz (TER1), aziz (SAL2), aziz (LOG)`;
             }
           } else if (d === 2) {
             // MERCREDI : Repos Mokhtar & Youssef — 2 Matin / 2 Soir
             // Actifs : Youness & Aziz (G1) / Zakaria & Mohamed (G2)
             if (isG1Matin) {
               matinStr = `youness (SAL1), youness (TER2), aziz (TER1), aziz (SAL2), aziz (LOG)`;
-              soirStr  = `zakaria (SAL1), zakaria (TER3), mohamed (SAL2), mohamed (TER1), mohamed (LOG)`;
+              soirStr  = `zakaria (SAL1), zakaria (TER2), mohamed (TER1), mohamed (SAL2), mohamed (LOG)`;
             } else {
               matinStr = `zakaria (SAL1), zakaria (TER2), mohamed (TER1), mohamed (SAL2), mohamed (LOG)`;
-              soirStr  = `youness (SAL1), youness (TER3), aziz (SAL2), aziz (TER1), aziz (LOG)`;
+              soirStr  = `youness (SAL1), youness (TER2), aziz (TER1), aziz (SAL2), aziz (LOG)`;
             }
           } else if (d === 3) {
-            // JEUDI : 3 Matin / 3 Soir (Aucun repos)
-            matinStr = `${matinGroup[2]} (SAL1), ${matinGroup[2]} (TER2), ${matinGroup[1]} (LOG), ${matinGroup[1]} (SAL2), ${matinGroup[0]} (TER1), ${matinGroup[0]} (TER3)`;
-            soirStr  = `${soirGroup[0]} (LOG), ${soirGroup[0]} (SAL2), ${soirGroup[1]} (SAL1), ${soirGroup[1]} (TER3), ${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2)`;
+            // JEUDI : 3 Matin / 3 Soir (Rotation Carré 1)
+            // Carrés : (SAL1 & TER3), (SAL2 & LOG), (TER1 & TER2)
+            matinStr = `${matinGroup[0]} (SAL1), ${matinGroup[0]} (TER3), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (LOG), ${matinGroup[2]} (TER1), ${matinGroup[2]} (TER2)`;
+            soirStr  = `${soirGroup[0]} (SAL1), ${soirGroup[0]} (TER3), ${soirGroup[1]} (SAL2), ${soirGroup[1]} (LOG), ${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2)`;
           } else if (d === 4) {
-            // VENDREDI : 3 Matin / 3 Soir (Aucun repos)
-            matinStr = `${matinGroup[0]} (SAL1), ${matinGroup[0]} (TER3), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (TER1), ${matinGroup[2]} (LOG), ${matinGroup[2]} (TER2)`;
-            soirStr  = `${soirGroup[1]} (LOG), ${soirGroup[1]} (SAL2), ${soirGroup[2]} (SAL1), ${soirGroup[2]} (TER3), ${soirGroup[0]} (TER1), ${soirGroup[0]} (TER2)`;
+            // VENDREDI : 3 Matin / 3 Soir (Rotation Carré 2)
+            matinStr = `${matinGroup[2]} (TER1), ${matinGroup[2]} (TER2), ${matinGroup[0]} (SAL1), ${matinGroup[0]} (TER3), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (LOG)`;
+            soirStr  = `${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2), ${soirGroup[0]} (SAL1), ${soirGroup[0]} (TER3), ${soirGroup[1]} (SAL2), ${soirGroup[1]} (LOG)`;
           } else if (d === 5) {
-            // SAMEDI : 3 Matin / 3 Soir (Aucun repos)
-            matinStr = `${matinGroup[2]} (LOG), ${matinGroup[2]} (SAL2), ${matinGroup[1]} (SAL1), ${matinGroup[1]} (TER3), ${matinGroup[0]} (TER1), ${matinGroup[0]} (TER2)`;
-            soirStr  = `${soirGroup[0]} (LOG), ${soirGroup[0]} (SAL2), ${soirGroup[1]} (SAL1), ${soirGroup[1]} (TER3), ${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2)`;
+            // SAMEDI : 3 Matin / 3 Soir (Rotation Carré 3)
+            matinStr = `${matinGroup[1]} (SAL2), ${matinGroup[1]} (LOG), ${matinGroup[2]} (TER1), ${matinGroup[2]} (TER2), ${matinGroup[0]} (SAL1), ${matinGroup[0]} (TER3)`;
+            soirStr  = `${soirGroup[1]} (SAL2), ${soirGroup[1]} (LOG), ${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2), ${soirGroup[0]} (SAL1), ${soirGroup[0]} (TER3)`;
           } else if (d === 6) {
-            // DIMANCHE : Exception 5 Matin / 3 Soir (2 personnes en renfort / coupure)
-            matinStr = `${soirGroup[0]} (LOG), ${matinGroup[2]} (SAL1), ${matinGroup[0]} (TER1), ${matinGroup[0]} (TER2), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (TER3), ${soirGroup[1]} (deb)`;
-            soirStr  = `${soirGroup[0]} (LOG), ${soirGroup[0]} (SAL2), ${soirGroup[1]} (SAL1), ${soirGroup[1]} (TER3), ${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2)`;
+            // DIMANCHE : Cas spécial
+            // Matin (5 personnes) : SAL1 seul, SAL2 & TER3, TER1 & TER2, LOGE à part, DEB
+            // Soir (3 personnes)  : (SAL1 & TER3), (SAL2 & LOG), (TER1 & TER2)
+            matinStr = `${matinGroup[0]} (SAL1), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (TER3), ${matinGroup[2]} (TER1), ${matinGroup[2]} (TER2), ${soirGroup[0]} (LOG), ${soirGroup[1]} (deb)`;
+            soirStr  = `${soirGroup[0]} (SAL1), ${soirGroup[0]} (TER3), ${soirGroup[1]} (SAL2), ${soirGroup[1]} (LOG), ${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2)`;
           }
 
           generatedRows.push({
