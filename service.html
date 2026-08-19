@@ -849,6 +849,50 @@
           </div>
         </div>
 
+        <!-- Carte Congés & Absences (Paramétrage direct dans le formulaire) -->
+        <div class="team-config-card" style="border-left:3px solid #c89b3c;">
+          <div class="team-config-header" onclick="toggleLeaveConfigCard()">
+            <span class="team-config-title">
+              🏖️ Gestion des Congés & Absences (Date à Date)
+            </span>
+            <span class="team-config-toggle" id="leaveConfigToggle">Ouvrir l'outil Congés ▼</span>
+          </div>
+          <div class="team-config-body" id="leaveConfigCardBody" style="display:none; grid-template-columns:1fr;">
+            <div class="leave-tool-body">
+              <div class="leave-field">
+                <span style="font-weight:600;">Personne :</span>
+                <select id="leaveStaffSelect"></select>
+              </div>
+              <div class="leave-field">
+                <span>Du :</span>
+                <input type="date" id="leaveDateStart" />
+              </div>
+              <div class="leave-field">
+                <span>Au :</span>
+                <input type="date" id="leaveDateEnd" />
+              </div>
+              <div class="leave-field">
+                <span>Action :</span>
+                <select id="leaveActionType" onchange="toggleLeaveActionInputs()">
+                  <option value="remove">🗑️ Retirer le nom (Postes libérés)</option>
+                  <option value="replace">🔄 Remplacer par un autre serveur</option>
+                  <option value="repos">💤 Marquer en Repos</option>
+                </select>
+              </div>
+              <div class="leave-field" id="leaveReplacementField" style="display:none;">
+                <span>Remplaçant :</span>
+                <select id="leaveReplacementSelect"></select>
+              </div>
+              <button class="btn-leave-apply" type="button" onclick="applyLeavePeriod()">
+                🏖️ Appliquer le congé
+              </button>
+            </div>
+            <p style="font-size:10px; color:var(--ink-soft); margin-top:4px;">
+              💡 <em>Vous pouvez générer votre planning avec le bouton ci-dessous, puis appliquer les congés à tout moment.</em>
+            </p>
+          </div>
+        </div>
+
         <!-- Formulaire de paramétrage -->
         <div class="form-row">
           <div class="form-group">
@@ -1683,6 +1727,15 @@ function doGet(e) {
       const isOpen = body.style.display !== "none";
       body.style.display = isOpen ? "none" : "grid";
       if (toggle) toggle.textContent = isOpen ? "Personnaliser les 6 noms ▼" : "Fermer ▲";
+    }
+
+    function toggleLeaveConfigCard() {
+      const body = document.getElementById("leaveConfigCardBody");
+      const toggle = document.getElementById("leaveConfigToggle");
+      if (!body) return;
+      const isOpen = body.style.display !== "none";
+      body.style.display = isOpen ? "none" : "block";
+      if (toggle) toggle.textContent = isOpen ? "Ouvrir l'outil Congés ▼" : "Fermer ▲";
     }
 
     function loadTeamNames() {
