@@ -514,6 +514,47 @@
     border:1px solid var(--hairline-gold); color:var(--ink); font-family:inherit; outline:none;
   }
 
+  /* ── LEAVE & ABSENCE TOOL (DATE À DATE) ── */
+  .leave-tool{
+    background:var(--paper);
+    border:1px solid var(--hairline-gold);
+    border-left:3px solid #c89b3c;
+    padding:10px 12px;
+    margin-bottom:8px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    font-size:11px;
+  }
+  .leave-tool-header{
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .leave-tool-title{
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--brass-deep); display:flex; align-items:center; gap:6px;
+  }
+  .leave-tool-body{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  }
+  .leave-field{
+    display:inline-flex; align-items:center; gap:5px;
+  }
+  .leave-tool select, .leave-tool input{
+    padding:5px 8px; font-size:11px; background:var(--paper2);
+    border:1px solid var(--hairline-gold); color:var(--ink); font-family:inherit; outline:none;
+  }
+  .leave-tool select:focus, .leave-tool input:focus{
+    border-color:var(--brass);
+  }
+  .btn-leave-apply{
+    background:var(--brass); color:var(--paper2);
+    border:1px solid var(--brass-deep);
+    padding:6px 12px; font-family:"DM Sans",sans-serif; font-size:11px; font-weight:700;
+    cursor:pointer; transition:background .15s ease, transform .15s ease;
+  }
+  .btn-leave-apply:hover{ background:var(--brass-deep); }
+  .btn-leave-apply:active{ transform:scale(0.97); }
+
   /* ── EDITABLE TABLE PREVIEW ── */
   .preview-section{
     display:flex; flex-direction:column; gap:12px;
@@ -874,6 +915,42 @@
             <span>par</span>
             <input type="text" id="repNewName" placeholder="Nouveau nom..." style="width:130px;" />
             <button class="btn-secondary" style="padding:4px 10px; font-size:11px;" onclick="replaceNameGlobally()">Remplacer dans tout le planning</button>
+          </div>
+
+          <!-- Outil de gestion des congés et absences par période (Date à Date) -->
+          <div class="leave-tool">
+            <div class="leave-tool-header">
+              <span class="leave-tool-title">🏖️ Gestion des Congés & Absences (Date à Date) :</span>
+            </div>
+            <div class="leave-tool-body">
+              <div class="leave-field">
+                <span style="font-weight:600;">Personne :</span>
+                <select id="leaveStaffSelect"></select>
+              </div>
+              <div class="leave-field">
+                <span>Du :</span>
+                <input type="date" id="leaveDateStart" />
+              </div>
+              <div class="leave-field">
+                <span>Au :</span>
+                <input type="date" id="leaveDateEnd" />
+              </div>
+              <div class="leave-field">
+                <span>Action :</span>
+                <select id="leaveActionType" onchange="toggleLeaveActionInputs()">
+                  <option value="remove">🗑️ Retirer le nom (Postes libérés)</option>
+                  <option value="replace">🔄 Remplacer par un autre serveur</option>
+                  <option value="repos">💤 Marquer en Repos</option>
+                </select>
+              </div>
+              <div class="leave-field" id="leaveReplacementField" style="display:none;">
+                <span>Remplaçant :</span>
+                <select id="leaveReplacementSelect"></select>
+              </div>
+              <button class="btn-leave-apply" type="button" onclick="applyLeavePeriod()">
+                🏖️ Appliquer le congé
+              </button>
+            </div>
           </div>
 
           <div class="table-responsive">
@@ -1669,12 +1746,18 @@ function doGet(e) {
         container.innerHTML = html;
       }
 
-      // Replace tool select
+      // Options dropdowns (Remplacement & Congés)
+      const allNames = [...G1, ...G2];
+      const nameOptionsHtml = allNames.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n.charAt(0).toUpperCase() + n.slice(1))}</option>`).join("");
+
       const repSelect = document.getElementById("repOldName");
-      if (repSelect) {
-        const allNames = [...G1, ...G2];
-        repSelect.innerHTML = allNames.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n.charAt(0).toUpperCase() + n.slice(1))}</option>`).join("");
-      }
+      if (repSelect) repSelect.innerHTML = nameOptionsHtml;
+
+      const leaveStaffSelect = document.getElementById("leaveStaffSelect");
+      if (leaveStaffSelect) leaveStaffSelect.innerHTML = nameOptionsHtml;
+
+      const leaveRepSelect = document.getElementById("leaveReplacementSelect");
+      if (leaveRepSelect) leaveRepSelect.innerHTML = nameOptionsHtml;
     }
 
     let lastFocusedCell = null;
@@ -1722,6 +1805,129 @@ function doGet(e) {
       showToast(`✨ "${oldName}" remplacé par "${newName}" (${count} occurrences modifiées).`);
       document.getElementById("repNewName").value = "";
       updateSyncStatus("editing");
+    }
+
+    /* ── GESTION DES CONGÉS & ABSENCES SUR PÉRIODE (DATE À DATE) ── */
+    function toggleLeaveActionInputs() {
+      const action = document.getElementById("leaveActionType")?.value;
+      const repField = document.getElementById("leaveReplacementField");
+      if (repField) {
+        repField.style.display = (action === "replace") ? "inline-flex" : "none";
+      }
+    }
+
+    function applyLeavePeriod() {
+      const staffName = document.getElementById("leaveStaffSelect")?.value.trim().toLowerCase();
+      const startStr = document.getElementById("leaveDateStart")?.value;
+      const endStr = document.getElementById("leaveDateEnd")?.value;
+      const action = document.getElementById("leaveActionType")?.value;
+      const replacementName = document.getElementById("leaveReplacementSelect")?.value.trim().toLowerCase();
+
+      if (!staffName) {
+        alert("Veuillez sélectionner un employé.");
+        return;
+      }
+      if (!startStr || !endStr) {
+        alert("Veuillez sélectionner la date de début et la date de fin du congé.");
+        return;
+      }
+
+      const [sy, sm, sd] = startStr.split("-").map(Number);
+      const [ey, em, ed] = endStr.split("-").map(Number);
+      const startDate = new Date(sy, sm - 1, sd); startDate.setHours(0,0,0,0);
+      const endDate = new Date(ey, em - 1, ed); endDate.setHours(0,0,0,0);
+
+      if (endDate < startDate) {
+        alert("La date de fin doit être égale ou postérieure à la date de début.");
+        return;
+      }
+
+      if (action === "replace" && staffName === replacementName) {
+        alert("Veuillez choisir un remplaçant différent de la personne en congé.");
+        return;
+      }
+
+      const rows = Array.from(document.querySelectorAll("#editTableBody tr"));
+      let affectedDays = 0;
+      let totalModifs = 0;
+
+      function processShift(shiftVal, name, act, repName) {
+        if (!shiftVal || !shiftVal.trim() || shiftVal.includes("— Repos —")) return { val: shiftVal, changed: false };
+
+        if (act === "replace") {
+          const reg = new RegExp(`\\b${name}\\b`, "gi");
+          if (reg.test(shiftVal)) {
+            const newVal = shiftVal.replace(reg, repName);
+            return { val: newVal, changed: true };
+          }
+          return { val: shiftVal, changed: false };
+        }
+
+        if (act === "remove" || act === "repos") {
+          const segments = shiftVal.split(",").map(s => s.trim()).filter(Boolean);
+          const reg = new RegExp(`\\b${name}\\b`, "i");
+          let hadMatch = false;
+          const filtered = segments.filter(s => {
+            if (reg.test(s)) {
+              hadMatch = true;
+              return false;
+            }
+            return true;
+          });
+
+          if (hadMatch) {
+            if (filtered.length === 0) {
+              return { val: "— Repos —", changed: true };
+            }
+            return { val: filtered.join(", "), changed: true };
+          }
+          return { val: shiftVal, changed: false };
+        }
+
+        return { val: shiftVal, changed: false };
+      }
+
+      rows.forEach(tr => {
+        const dateInput = tr.querySelector(".cell-date");
+        const shiftInputs = tr.querySelectorAll(".cell-shift");
+        if (!dateInput || shiftInputs.length < 2) return;
+
+        const rowDateObj = parseDateLabel(dateInput.value);
+        if (rowDateObj && rowDateObj >= startDate && rowDateObj <= endDate) {
+          let rowChanged = false;
+
+          // Matin
+          const resMatin = processShift(shiftInputs[0].value, staffName, action, replacementName);
+          if (resMatin.changed) {
+            shiftInputs[0].value = resMatin.val;
+            rowChanged = true;
+            totalModifs++;
+          }
+
+          // Soir
+          const resSoir = processShift(shiftInputs[1].value, staffName, action, replacementName);
+          if (resSoir.changed) {
+            shiftInputs[1].value = resSoir.val;
+            rowChanged = true;
+            totalModifs++;
+          }
+
+          if (rowChanged) affectedDays++;
+        }
+      });
+
+      if (affectedDays > 0) {
+        const staffCap = staffName.charAt(0).toUpperCase() + staffName.slice(1);
+        let msg = `🏖️ Congé appliqué : ${staffCap} retiré sur ${affectedDays} jour(s) du ${startStr} au ${endStr}.`;
+        if (action === "replace") {
+          const repCap = replacementName.charAt(0).toUpperCase() + replacementName.slice(1);
+          msg = `🔄 Remplacement de ${staffCap} par ${repCap} appliqué sur ${affectedDays} jour(s) du ${startStr} au ${endStr}.`;
+        }
+        showToast(msg);
+        updateSyncStatus("editing");
+      } else {
+        alert(`Aucune affectation trouvée pour "${staffName}" sur la période sélectionnée (${startStr} au ${endStr}).`);
+      }
     }
 
     /* ── MOTEUR DE ROTATION CARRÉE EXACTE ── */
@@ -1844,6 +2050,23 @@ function doGet(e) {
       });
 
       document.getElementById("previewSection").style.display = "flex";
+
+      // Pré-remplissage des dates par défaut pour l'outil Congés
+      const startInput = document.getElementById("genStartDate");
+      if (startInput && startInput.value) {
+        const leaveStart = document.getElementById("leaveDateStart");
+        const leaveEnd = document.getElementById("leaveDateEnd");
+        if (leaveStart && !leaveStart.value) leaveStart.value = startInput.value;
+        if (leaveEnd && !leaveEnd.value) {
+          const [sy, sm, sd] = startInput.value.split("-").map(Number);
+          const endD = new Date(sy, sm - 1, sd + 6);
+          const ey = endD.getFullYear();
+          const em = String(endD.getMonth() + 1).padStart(2, '0');
+          const ed = String(endD.getDate()).padStart(2, '0');
+          leaveEnd.value = `${ey}-${em}-${ed}`;
+        }
+      }
+
       showToast("✨ Planning généré avec rotation carrée ! Vous pouvez modifier les cellules.");
     }
 
