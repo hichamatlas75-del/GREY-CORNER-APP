@@ -573,6 +573,78 @@
     margin-top:8px;
   }
 
+  /* ── SYNC & WORKFLOW DE VALIDATION ADMIN ── */
+  .sync-config-card{
+    background:var(--paper);
+    border:1px solid var(--hairline-gold);
+    padding:12px 14px;
+    margin-bottom:12px;
+  }
+  .sync-config-header{
+    display:flex; align-items:center; justify-content:space-between;
+    cursor:pointer; user-select:none;
+  }
+  .sync-config-title{
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+    color:var(--brass-deep); display:flex; align-items:center; gap:6px;
+  }
+  .sync-config-toggle{ font-size:11px; color:var(--brass); }
+  .sync-config-body{
+    display:flex; flex-direction:column; gap:10px; margin-top:10px;
+    padding-top:10px; border-top:1px dashed var(--hairline-gold);
+  }
+  .guide-box{
+    font-size:11px; line-height:1.5; color:var(--ink-soft);
+    background:var(--paper2); padding:10px 12px; border:1px solid var(--hairline-gold);
+  }
+  .guide-box ol{ margin-left:18px; margin-top:6px; }
+  .guide-box li{ margin-bottom:4px; }
+  .code-container{ position:relative; margin-top:8px; }
+  .code-snippet{
+    font-family:monospace; font-size:10px; max-height:110px; overflow-y:auto;
+    background:#1f1c18; color:#d6c9b3; padding:8px 10px;
+    border:1px solid var(--hairline-gold); white-space:pre-wrap;
+  }
+
+  /* Status Bar */
+  .draft-status-bar{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;
+    background:var(--paper); border:1px solid var(--hairline-gold);
+    padding:8px 12px; font-size:11px; font-weight:600;
+  }
+  .status-tag{
+    display:inline-flex; align-items:center; gap:5px;
+    padding:3px 8px; font-size:10px; text-transform:uppercase; letter-spacing:.08em;
+    border-radius:2px; font-weight:700;
+  }
+  .status-tag.draft{ background:#fdf4db; color:#8c6b12; border:1px solid #e0c878; }
+  .status-tag.published{ background:#e8f5e9; color:#1b5e20; border:1px solid #a5d6a7; }
+  .status-tag.editing{ background:var(--paper2); color:var(--ink-soft); border:1px solid var(--hairline-gold); }
+
+  /* Boutons de Workflow */
+  .btn-save-draft{
+    background:#c89b3c; color:#fff; border:1px solid #9c7a3c;
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    padding:9px 14px; font-family:"DM Sans",sans-serif; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.08em; cursor:pointer;
+    transition:background .15s ease, transform .15s ease;
+  }
+  .btn-save-draft:hover{ background:#b5882e; }
+  .btn-save-draft:active{ transform:scale(0.98); }
+
+  .btn-publish-live{
+    background:#2e7d32; color:#fff; border:1px solid #1b5e20;
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    padding:9px 16px; font-family:"DM Sans",sans-serif; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.08em; cursor:pointer;
+    box-shadow:0 2px 8px rgba(46,125,50,0.25);
+    transition:background .15s ease, transform .15s ease;
+  }
+  .btn-publish-live:hover{ background:#256628; }
+  .btn-publish-live:active{ transform:scale(0.98); }
+
+  .btn-disabled{ opacity:0.6; pointer-events:none; }
+
   /* TOAST NOTIFICATION */
   #toast{
     position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
@@ -678,6 +750,36 @@
       </div>
       <div class="modal-body">
         
+        <!-- Carte Synchronisation Google Sheets & Workflow Admin -->
+        <div class="sync-config-card">
+          <div class="sync-config-header" onclick="toggleSyncConfig()">
+            <span class="sync-config-title">
+              ☁️ Synchronisation Google Sheets (Brouillon & Feu Vert)
+            </span>
+            <span class="sync-config-toggle" id="syncConfigToggle">Configurer le Webhook ▼</span>
+          </div>
+          <div class="sync-config-body" id="syncConfigBody" style="display:none;">
+            <div class="guide-box">
+              <strong>Configuration du Webhook Google Apps Script (1 seule fois) :</strong>
+              <ol>
+                <li>Dans votre feuille Google Sheets, ouvrez <strong>Extensions &gt; Apps Script</strong>.</li>
+                <li>Supprimez le code existant, collez le script ci-dessous puis cliquez sur <strong>Enregistrer</strong>.</li>
+                <li>Cliquez sur <strong>Déployer &gt; Nouveau déploiement</strong> &gt; Type : <em>Application Web</em> &gt; Accès : <em>Tout le monde (Anyone)</em>.</li>
+                <li>Copiez l'URL Web App fournie et collez-la dans le champ ci-dessous :</li>
+              </ol>
+              <div class="code-container">
+                <button class="btn-secondary" type="button" style="padding:4px 8px; font-size:10px; margin-bottom:4px;" onclick="copyAppsScriptCode()">📋 Copier le code Google Apps Script (Code.gs)</button>
+                <pre class="code-snippet" id="appsScriptCodePreview">// Chargement du code...</pre>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top:4px;">
+              <label class="form-label">URL Webhook Google Apps Script (Web App URL)</label>
+              <input type="text" id="cfg_webhook_url" class="form-input" placeholder="https://script.google.com/macros/s/.../exec" oninput="saveWebhookUrl()" />
+            </div>
+          </div>
+        </div>
+
         <!-- Carte Équipe & Badges Mémoire (Personnalisation des 6 noms) -->
         <div class="team-config-card">
           <div class="team-config-header" onclick="toggleTeamConfig()">
@@ -749,6 +851,15 @@
             ✍️ <strong>Prévisualisation 100% Éditable :</strong> Cliquez sur une cellule pour la modifier. Cliquez sur un <strong>Badge Mémoire</strong> ci-dessous pour insérer directement un nom au curseur.
           </div>
 
+          <!-- Barre d'état du Workflow -->
+          <div class="draft-status-bar">
+            <div>
+              <span>Statut : </span>
+              <span id="syncStatusBadge" class="status-tag editing">✍️ En cours de modification</span>
+            </div>
+            <div id="syncStatusMsg" style="font-size:10px; color:var(--ink-soft); font-weight:normal;"></div>
+          </div>
+
           <!-- Barre de Badges Raccourcis Cliquables -->
           <div class="quick-badges-bar">
             <span class="quick-badges-label">🏷️ Insérer un nom :</span>
@@ -786,9 +897,15 @@
 
           <div class="actions-bar">
             <button class="btn-secondary" onclick="addNewDayRow()">+ Ajouter un jour</button>
-            <button class="btn-secondary" onclick="exportToGoogleSheetsClipboard()">📋 Copier pour Google Sheets</button>
-            <button class="btn-secondary" onclick="downloadCsvFile()">📥 Télécharger CSV</button>
-            <button class="btn-primary" onclick="applyGeneratedToLiveView()">👁️ Appliquer à l'affichage</button>
+            <button class="btn-secondary" onclick="loadDraftData()">📥 Charger le Brouillon Cloud</button>
+            <button class="btn-save-draft" id="btnSaveDraft" onclick="saveToGoogleSheets(false)">
+              💾 Sauvegarder en Brouillon (Cloud)
+            </button>
+            <button class="btn-publish-live" id="btnPublishLive" onclick="saveToGoogleSheets(true)">
+              🟢 Feu Vert Admin : Diffuser à l'Équipe
+            </button>
+            <button class="btn-secondary" onclick="exportToGoogleSheetsClipboard()" title="Copier pour Google Sheets (Ctrl+V)">📋 Copier TSV</button>
+            <button class="btn-secondary" onclick="downloadCsvFile()" title="Télécharger CSV">📥 CSV</button>
           </div>
         </div>
 
@@ -919,44 +1036,57 @@
         const resp = await fetch(SHEET_URL, { cache: "no-store" });
         const text = await resp.text();
         if (isHtml(text)) {
-          container.innerHTML = `<div class="empty-state">Accès refusé.</div>`;
-          return;
+          throw new Error("Accès non autorisé ou HTML renvoyé");
         }
-        const rows = text.split(/\r?\n/).map(r => r.trim()).filter(r => r.length);
-        if (rows.length <= 1) { container.innerHTML = `<div class="empty-state">Aucune donnée trouvée.</div>`; return; }
-
-        /* ── NOTIFICATION (COLONNE D) ── */
-        for (let i = 1; i < rows.length; i++) {
-          const c = splitCsv(rows[i]);
-          const banner = String(c[3] ?? "").trim();
-          if (banner && banner !== "-" && !banner.toLowerCase().includes("notification")) {
-            showAlert(banner);
-            break;
-          }
-        }
-
-        const all = [];
-        for (let i = 1; i < rows.length; i++) {
-          const c = splitCsv(rows[i]);
-          // Ignorer les lignes d'en-tête répétées
-          if (c.length >= 3 && c[0] && !c[0].toUpperCase().includes("DATE")) {
-            all.push({
-              date: c[0],
-              dateObj: parseDateLabel(c[0]),
-              matin: c[1]??'',
-              soir: c[2]??'',
-              hMatin: c[4]??'',
-              hSoir: c[5]??''
-            });
-          }
-        }
-        const t0 = todayMidnight();
-        const anyParsable = all.some(r => r.dateObj instanceof Date);
-        const data = anyParsable ? all.filter(r => !r.dateObj || r.dateObj >= t0) : all;
-        render(data, t0);
+        // Mise en cache locale
+        localStorage.setItem("gc_sheet_cache", text);
+        parseAndRenderPlanning(text);
       } catch (e) {
-        container.innerHTML = `<div class="empty-state">Erreur de chargement.</div>`;
+        console.warn("Échec chargement en ligne, tentative via cache local:", e);
+        const cached = localStorage.getItem("gc_sheet_cache");
+        if (cached) {
+          parseAndRenderPlanning(cached);
+          showToast("📡 Mode hors-ligne : affichage des données en cache.");
+        } else {
+          container.innerHTML = `<div class="empty-state">Erreur de chargement. Veuillez vérifier votre connexion.</div>`;
+        }
       }
+    }
+
+    function parseAndRenderPlanning(text) {
+      const container = document.getElementById("planning-container");
+      const rows = text.split(/\r?\n/).map(r => r.trim()).filter(r => r.length);
+      if (rows.length <= 1) { container.innerHTML = `<div class="empty-state">Aucune donnée trouvée.</div>`; return; }
+
+      /* ── NOTIFICATION (COLONNE D) ── */
+      for (let i = 1; i < rows.length; i++) {
+        const c = splitCsv(rows[i]);
+        const banner = String(c[3] ?? "").trim();
+        if (banner && banner !== "-" && !banner.toLowerCase().includes("notification")) {
+          showAlert(banner);
+          break;
+        }
+      }
+
+      const all = [];
+      for (let i = 1; i < rows.length; i++) {
+        const c = splitCsv(rows[i]);
+        // Ignorer les lignes d'en-tête répétées
+        if (c.length >= 3 && c[0] && !c[0].toUpperCase().includes("DATE")) {
+          all.push({
+            date: c[0],
+            dateObj: parseDateLabel(c[0]),
+            matin: c[1]??'',
+            soir: c[2]??'',
+            hMatin: c[4]??'',
+            hSoir: c[5]??''
+          });
+        }
+      }
+      const t0 = todayMidnight();
+      const anyParsable = all.some(r => r.dateObj instanceof Date);
+      const data = anyParsable ? all.filter(r => !r.dateObj || r.dateObj >= t0) : all;
+      render(data, t0);
     }
 
     /* ── RENDU DE LA VUE PRINCIPALE DES CARTES ── */
@@ -1146,9 +1276,293 @@
       document.getElementById("genStartDate").value = `${yyyy}-${mm}-${dd}`;
 
       loadTeamNames();
+      loadWebhookUrl();
+      initAppsScriptPreview();
       generatorModal.classList.add("active");
     }
     function closeGeneratorModal() { generatorModal.classList.remove("active"); }
+
+    /* ════════════════════════════════════════════════════════════════════
+       GOOGLE APPS SCRIPT WEBHOOK & WORKFLOW BROUILLON / FEU VERT
+       ════════════════════════════════════════════════════════════════════ */
+
+    const APPS_SCRIPT_CODE = `/**
+ * GREY CORNER — WEBHOOK PLANNING SERVICE
+ * Workflow en 2 étapes : Sauvegarde Brouillon vs Feu Vert Admin
+ */
+function doPost(e) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const payload = JSON.parse(e.postData.contents);
+    const action = payload.action || "save_draft"; // "save_draft" ou "publish_live"
+    const rows = payload.rows || [];
+
+    // Récupérer ou créer les deux onglets nécessaires
+    let liveSheet = ss.getSheetByName("PUBLIE") || ss.getSheetByName("Feuille 1") || ss.getSheets()[0];
+    let draftSheet = ss.getSheetByName("BROUILLON");
+    if (!draftSheet) {
+      draftSheet = ss.insertSheet("BROUILLON");
+    }
+
+    // Préparation de la matrice tabulaire
+    const output = [["DATE", "MATIN (06:30 - 14:30)", "SOIR (14:15 - Fin)", "Notification", "H. Matin", "H. Soir"]];
+    rows.forEach(function(r) {
+      output.push([r.date || "", r.matin || "", r.soir || "", r.note || "", r.hMatin || "", r.hSoir || ""]);
+    });
+
+    if (action === "save_draft") {
+      // 1. Sauvegarde uniquement dans le Brouillon (sans diffuser à l'équipe)
+      draftSheet.clearContents();
+      if (output.length > 0) {
+        draftSheet.getRange(1, 1, output.length, 6).setValues(output);
+      }
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        stage: "draft",
+        message: "Brouillon sauvegardé sans diffusion publique",
+        count: rows.length
+      })).setMimeType(ContentService.MimeType.JSON);
+    } 
+    else if (action === "publish_live") {
+      // 2. Feu vert Admin : Diffusion officielle à l'équipe
+      liveSheet.clearContents();
+      if (output.length > 0) {
+        liveSheet.getRange(1, 1, output.length, 6).setValues(output);
+      }
+      // Met aussi à jour le brouillon pour synchroniser
+      draftSheet.clearContents();
+      if (output.length > 0) {
+        draftSheet.getRange(1, 1, output.length, 6).setValues(output);
+      }
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        stage: "published",
+        message: "Planning officiellement diffusé à l'équipe",
+        count: rows.length
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Action inconnue" }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const type = (e && e.parameter && e.parameter.type) || "draft";
+    const sheet = (type === "live") 
+      ? (ss.getSheetByName("PUBLIE") || ss.getSheetByName("Feuille 1") || ss.getSheets()[0])
+      : (ss.getSheetByName("BROUILLON") || ss.getSheetByName("PUBLIE") || ss.getSheets()[0]);
+    
+    const data = sheet.getDataRange().getValues();
+    const rows = [];
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0]) {
+        rows.push({
+          date: String(data[i][0]),
+          matin: String(data[i][1] || ""),
+          soir: String(data[i][2] || ""),
+          note: String(data[i][3] || ""),
+          hMatin: String(data[i][4] || ""),
+          hSoir: String(data[i][5] || "")
+        });
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({ status: "success", type: type, rows: rows }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
+
+    function initAppsScriptPreview() {
+      const el = document.getElementById("appsScriptCodePreview");
+      if (el) el.textContent = APPS_SCRIPT_CODE;
+    }
+
+    function toggleSyncConfig() {
+      const body = document.getElementById("syncConfigBody");
+      const toggle = document.getElementById("syncConfigToggle");
+      if (!body) return;
+      const isOpen = body.style.display !== "none";
+      body.style.display = isOpen ? "none" : "flex";
+      if (toggle) toggle.textContent = isOpen ? "Configurer le Webhook ▼" : "Fermer ▲";
+    }
+
+    function loadWebhookUrl() {
+      const url = localStorage.getItem("gc_webhook_url") || "";
+      const input = document.getElementById("cfg_webhook_url");
+      if (input) input.value = url;
+    }
+
+    function saveWebhookUrl() {
+      const input = document.getElementById("cfg_webhook_url");
+      if (!input) return;
+      const url = input.value.trim();
+      localStorage.setItem("gc_webhook_url", url);
+      showToast("💾 URL Webhook enregistrée !");
+    }
+
+    function copyAppsScriptCode() {
+      navigator.clipboard.writeText(APPS_SCRIPT_CODE).then(() => {
+        showToast("📋 Code Google Apps Script copié dans le presse-papier !");
+      }).catch(() => {
+        alert("Veuillez sélectionner le code manuellement et faire Ctrl+C.");
+      });
+    }
+
+    function updateSyncStatus(stage, customMsg) {
+      const badge = document.getElementById("syncStatusBadge");
+      const msg = document.getElementById("syncStatusMsg");
+      if (!badge) return;
+
+      if (stage === "draft") {
+        badge.className = "status-tag draft";
+        badge.innerHTML = "🟡 Brouillon enregistré (Non diffusé)";
+        if (msg) msg.textContent = customMsg || "Sauvegardé dans l'onglet BROUILLON de Google Sheets.";
+      } else if (stage === "published") {
+        badge.className = "status-tag published";
+        badge.innerHTML = "🟢 Diffusé et en ligne";
+        if (msg) msg.textContent = customMsg || "En ligne sur Google Sheets & visible par l'équipe.";
+      } else {
+        badge.className = "status-tag editing";
+        badge.innerHTML = "✍️ En cours de modification";
+        if (msg) msg.textContent = customMsg || "Modifications non sauvegardées dans le Cloud.";
+      }
+    }
+
+    /* ── ENREGISTREMENT DANS GOOGLE SHEETS (DRAFT VS PUBLISH) ── */
+    async function saveToGoogleSheets(isPublishLive) {
+      const webhookUrl = (localStorage.getItem("gc_webhook_url") || "").trim();
+      const rowsData = extractTableData();
+
+      if (!rowsData.length) {
+        alert("Le planning est vide. Veuillez d'abord générer des données.");
+        return;
+      }
+
+      if (!webhookUrl) {
+        // Déplier la configuration pour aider l'administrateur
+        const body = document.getElementById("syncConfigBody");
+        if (body) body.style.display = "flex";
+        alert("Veuillez configurer l'URL de votre Webhook Google Apps Script ci-dessus pour activer la persistance automatique.");
+        document.getElementById("cfg_webhook_url")?.focus();
+        return;
+      }
+
+      if (isPublishLive) {
+        const confirmPublish = confirm(
+          "⚠️ FEU VERT ADMIN :\n\n" +
+          "Voulez-vous officiellement DIFFUSER ce nouveau planning à toute l'équipe ?\n\n" +
+          "• Il sera visible immédiatement sur l'application vestiaires.\n" +
+          "• L'onglet public Google Sheets sera mis à jour."
+        );
+        if (!confirmPublish) return;
+      }
+
+      const btnSaveDraft = document.getElementById("btnSaveDraft");
+      const btnPublishLive = document.getElementById("btnPublishLive");
+
+      const origDraftText = btnSaveDraft ? btnSaveDraft.innerHTML : "";
+      const origPubText = btnPublishLive ? btnPublishLive.innerHTML : "";
+
+      if (btnSaveDraft) { btnSaveDraft.classList.add("btn-disabled"); }
+      if (btnPublishLive) { btnPublishLive.classList.add("btn-disabled"); }
+
+      if (isPublishLive && btnPublishLive) {
+        btnPublishLive.innerHTML = "⏳ Diffusion en cours...";
+      } else if (!isPublishLive && btnSaveDraft) {
+        btnSaveDraft.innerHTML = "⏳ Sauvegarde brouillon...";
+      }
+
+      const payload = {
+        action: isPublishLive ? "publish_live" : "save_draft",
+        rows: rowsData
+      };
+
+      try {
+        // Envoi POST vers Google Apps Script avec mode no-cors compatible
+        await fetch(webhookUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+
+        // Sauvegarde locale de secours
+        localStorage.setItem("gc_draft_cache", JSON.stringify(rowsData));
+
+        if (!isPublishLive) {
+          updateSyncStatus("draft", "Brouillon stocké dans Google Sheets sans diffusion.");
+          showToast("🟡 Brouillon enregistré dans Google Sheets (Onglet BROUILLON). Non visible par l'équipe.");
+        } else {
+          localStorage.setItem("gc_live_cache", JSON.stringify(rowsData));
+          updateSyncStatus("published", "Planning officiellement publié et actif.");
+          showToast("🚀 Feu Vert Accordé ! Le planning est maintenant diffusé à l'équipe.");
+          
+          // Mettre à jour l'affichage en direct
+          applyGeneratedToLiveView();
+        }
+
+      } catch (err) {
+        console.error("Erreur sync Google Sheets:", err);
+        // Fallback local
+        localStorage.setItem("gc_draft_cache", JSON.stringify(rowsData));
+        showToast("⚠️ Enregistré en local. Vérifiez la connexion ou l'URL du Webhook.");
+      } finally {
+        if (btnSaveDraft) {
+          btnSaveDraft.classList.remove("btn-disabled");
+          btnSaveDraft.innerHTML = origDraftText;
+        }
+        if (btnPublishLive) {
+          btnPublishLive.classList.remove("btn-disabled");
+          btnPublishLive.innerHTML = origPubText;
+        }
+      }
+    }
+
+    /* ── CHARGEMENT DU BROUILLON (CLOUD / LOCAL) ── */
+    async function loadDraftData() {
+      const webhookUrl = (localStorage.getItem("gc_webhook_url") || "").trim();
+      let draftRows = null;
+
+      showToast("⏳ Chargement du brouillon...");
+
+      if (webhookUrl) {
+        try {
+          const resp = await fetch(`${webhookUrl}?type=draft&t=${Date.now()}`);
+          const json = await resp.json();
+          if (json && json.status === "success" && Array.isArray(json.rows) && json.rows.length) {
+            draftRows = json.rows;
+          }
+        } catch (e) {
+          console.warn("Impossible de charger le brouillon depuis le Webhook, tentative via cache local:", e);
+        }
+      }
+
+      if (!draftRows) {
+        try {
+          const localDraft = localStorage.getItem("gc_draft_cache");
+          if (localDraft) {
+            draftRows = JSON.parse(localDraft);
+          }
+        } catch (e) {}
+      }
+
+      if (draftRows && draftRows.length) {
+        renderEditableTable(draftRows);
+        updateSyncStatus("draft", "Dernier brouillon chargé avec succès.");
+        showToast("📥 Brouillon chargé dans l'éditeur.");
+      } else {
+        alert("Aucun brouillon trouvé. Générez d'abord un planning ou enregistrez un brouillon.");
+      }
+    }
 
     /* ── GESTION DES BADGES MÉMOIRE & ÉQUIPE ── */
     let G1 = ["youness", "mokhtar", "aziz"];
@@ -1250,6 +1664,7 @@
         const newPos = start + insertText.length;
         lastFocusedCell.setSelectionRange(newPos, newPos);
         showToast(`🏷️ Inséré : ${name}`);
+        updateSyncStatus("editing");
       } else {
         navigator.clipboard.writeText(name).then(() => {
           showToast(`📋 Nom copié : ${name}`);
@@ -1275,6 +1690,7 @@
       });
       showToast(`✨ "${oldName}" remplacé par "${newName}" (${count} occurrences modifiées).`);
       document.getElementById("repNewName").value = "";
+      updateSyncStatus("editing");
     }
 
     /* ── MOTEUR DE ROTATION CARRÉE EXACTE ── */
@@ -1326,25 +1742,18 @@
 
           if (d === 0) {
             // LUNDI : Repos Mohamed (G2) & Aziz (G1) — 2 Matin / 2 Soir
-            // matinGroup[0] -> (SAL1, TER2), matinGroup[1] -> (TER1, SAL2, LOG)
-            // soirGroup[0]  -> (SAL1, TER2), soirGroup[1]  -> (TER1, SAL2, LOG)
             matinStr = `${matinGroup[0]} (SAL1), ${matinGroup[0]} (TER2), ${matinGroup[1]} (TER1), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (LOG)`;
             soirStr  = `${soirGroup[0]} (SAL1), ${soirGroup[0]} (TER2), ${soirGroup[1]} (TER1), ${soirGroup[1]} (SAL2), ${soirGroup[1]} (LOG)`;
           } else if (d === 1) {
             // MARDI : Repos Zakaria (G2) & Youness (G1) — 2 Matin / 2 Soir
-            // matinGroup: [1] alterne vers (SAL1, TER2), [2] prend (TER1, SAL2, LOG)
-            // soirGroup:  [0] alterne vers (TER1, SAL2, LOG), [2] prend (SAL1, TER2)
             matinStr = `${matinGroup[1]} (SAL1), ${matinGroup[1]} (TER2), ${matinGroup[2]} (TER1), ${matinGroup[2]} (SAL2), ${matinGroup[2]} (LOG)`;
             soirStr  = `${soirGroup[2]} (SAL1), ${soirGroup[2]} (TER2), ${soirGroup[0]} (TER1), ${soirGroup[0]} (SAL2), ${soirGroup[0]} (LOG)`;
           } else if (d === 2) {
             // MERCREDI : Repos Mokhtar (G1) & Youssef (G2) — 2 Matin / 2 Soir
-            // matinGroup: [2] alterne vers (SAL1, TER2), [0] prend (TER1, SAL2, LOG)
-            // soirGroup:  [1] prend (SAL1, TER2), [2] alterne vers (TER1, SAL2, LOG)
             matinStr = `${matinGroup[2]} (SAL1), ${matinGroup[2]} (TER2), ${matinGroup[0]} (TER1), ${matinGroup[0]} (SAL2), ${matinGroup[0]} (LOG)`;
             soirStr  = `${soirGroup[1]} (SAL1), ${soirGroup[1]} (TER2), ${soirGroup[2]} (TER1), ${soirGroup[2]} (SAL2), ${soirGroup[2]} (LOG)`;
           } else if (d === 3) {
             // JEUDI : 3 Matin / 3 Soir (Aucun doublon par rapport à Mercredi)
-            // Carré A: (SAL1, TER3), Carré B: (SAL2, LOG), Carré C: (TER1, TER2)
             matinStr = `${matinGroup[0]} (SAL1), ${matinGroup[0]} (TER3), ${matinGroup[2]} (SAL2), ${matinGroup[2]} (LOG), ${matinGroup[1]} (TER1), ${matinGroup[1]} (TER2)`;
             soirStr  = `${soirGroup[2]} (SAL1), ${soirGroup[2]} (TER3), ${soirGroup[1]} (SAL2), ${soirGroup[1]} (LOG), ${soirGroup[0]} (TER1), ${soirGroup[0]} (TER2)`;
           } else if (d === 4) {
@@ -1376,6 +1785,7 @@
       }
 
       renderEditableTable(generatedRows);
+      updateSyncStatus("editing");
     }
 
     /* ── RENDU DU TABLEAU ÉDITABLE DANS LE MODAL ── */
@@ -1391,13 +1801,13 @@
         }
 
         tr.innerHTML = `
-          <td><input type="text" class="cell-date" value="${escapeHtml(r.date)}" /></td>
-          <td><textarea rows="2" class="cell-shift">${escapeHtml(r.matin)}</textarea></td>
-          <td><textarea rows="2" class="cell-shift">${escapeHtml(r.soir)}</textarea></td>
-          <td><input type="text" class="cell-note" value="${escapeHtml(r.note)}" placeholder="Note/Alerte..." /></td>
-          <td><input type="text" class="cell-time" value="${escapeHtml(r.hMatin)}" /></td>
-          <td><input type="text" class="cell-time" value="${escapeHtml(r.hSoir)}" /></td>
-          <td><button class="btn-del-row" onclick="this.closest('tr').remove()" title="Supprimer">✕</button></td>
+          <td><input type="text" class="cell-date" value="${escapeHtml(r.date)}" oninput="updateSyncStatus('editing')" /></td>
+          <td><textarea rows="2" class="cell-shift" oninput="updateSyncStatus('editing')">${escapeHtml(r.matin)}</textarea></td>
+          <td><textarea rows="2" class="cell-shift" oninput="updateSyncStatus('editing')">${escapeHtml(r.soir)}</textarea></td>
+          <td><input type="text" class="cell-note" value="${escapeHtml(r.note)}" placeholder="Note/Alerte..." oninput="updateSyncStatus('editing')" /></td>
+          <td><input type="text" class="cell-time" value="${escapeHtml(r.hMatin)}" oninput="updateSyncStatus('editing')" /></td>
+          <td><input type="text" class="cell-time" value="${escapeHtml(r.hSoir)}" oninput="updateSyncStatus('editing')" /></td>
+          <td><button class="btn-del-row" onclick="this.closest('tr').remove(); updateSyncStatus('editing');" title="Supprimer">✕</button></td>
         `;
         tbody.appendChild(tr);
       });
@@ -1410,15 +1820,16 @@
       const tbody = document.getElementById("editTableBody");
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td><input type="text" class="cell-date" value="lundi..." /></td>
-        <td><textarea rows="2" class="cell-shift"></textarea></td>
-        <td><textarea rows="2" class="cell-shift"></textarea></td>
-        <td><input type="text" class="cell-note" value="" placeholder="Note/Alerte..." /></td>
-        <td><input type="text" class="cell-time" value="06:30-14:30" /></td>
-        <td><input type="text" class="cell-time" value="14:15- Fin service" /></td>
-        <td><button class="btn-del-row" onclick="this.closest('tr').remove()">✕</button></td>
+        <td><input type="text" class="cell-date" value="lundi..." oninput="updateSyncStatus('editing')" /></td>
+        <td><textarea rows="2" class="cell-shift" oninput="updateSyncStatus('editing')"></textarea></td>
+        <td><textarea rows="2" class="cell-shift" oninput="updateSyncStatus('editing')"></textarea></td>
+        <td><input type="text" class="cell-note" value="" placeholder="Note/Alerte..." oninput="updateSyncStatus('editing')" /></td>
+        <td><input type="text" class="cell-time" value="06:30-14:30" oninput="updateSyncStatus('editing')" /></td>
+        <td><input type="text" class="cell-time" value="14:15- Fin service" oninput="updateSyncStatus('editing')" /></td>
+        <td><button class="btn-del-row" onclick="this.closest('tr').remove(); updateSyncStatus('editing');">✕</button></td>
       `;
       tbody.appendChild(tr);
+      updateSyncStatus("editing");
     }
 
     function extractTableData() {
@@ -1498,12 +1909,12 @@
 
       render(cleanData);
       closeGeneratorModal();
-      showToast("👁️ Nouveau planning appliqué directement à l'affichage !");
     }
 
     // Initialisation
     init();
     loadTeamNames();
+    loadWebhookUrl();
   </script>
 </body>
 </html>
