@@ -1289,6 +1289,7 @@
     const APPS_SCRIPT_CODE = `/**
  * GREY CORNER — WEBHOOK PLANNING SERVICE
  * Workflow en 2 étapes : Sauvegarde Brouillon vs Feu Vert Admin
+ * Mise en page automatique 100% IDENTIQUE à Feuille 1
  */
 function doPost(e) {
   try {
@@ -1297,43 +1298,73 @@ function doPost(e) {
     const action = payload.action || "save_draft"; // "save_draft" ou "publish_live"
     const rows = payload.rows || [];
 
-    // Récupérer ou créer les deux onglets nécessaires
+    // Récupérer ou créer les deux onglets
     let liveSheet = ss.getSheetByName("PUBLIE") || ss.getSheetByName("Feuille 1") || ss.getSheets()[0];
     let draftSheet = ss.getSheetByName("BROUILLON");
     if (!draftSheet) {
       draftSheet = ss.insertSheet("BROUILLON");
     }
 
-    // Préparation de la matrice tabulaire
-    const output = [["DATE", "MATIN (06:30 - 14:30)", "SOIR (14:15 - Fin)", "Notification", "H. Matin", "H. Soir"]];
+    // Préparation de la matrice tabulaire (exactement comme Feuille 1)
+    const output = [];
     rows.forEach(function(r) {
-      output.push([r.date || "", r.matin || "", r.soir || "", r.note || "", r.hMatin || "", r.hSoir || ""]);
+      // 3 colonnes standard (DATE, MATIN, SOIR) + colonnes optionnelles
+      if (r.note || r.hMatin || r.hSoir) {
+        output.push([r.date || "", r.matin || "", r.soir || "", r.note || "", r.hMatin || "", r.hSoir || ""]);
+      } else {
+        output.push([r.date || "", r.matin || "", r.soir || ""]);
+      }
     });
 
-    if (action === "save_draft") {
-      // 1. Sauvegarde uniquement dans le Brouillon (sans diffuser à l'équipe)
-      draftSheet.clearContents();
-      if (output.length > 0) {
-        draftSheet.getRange(1, 1, output.length, 6).setValues(output);
+    // Fonction de mise en page visuelle identique à Feuille 1
+    function applySheetFormatting(sheet, matrix) {
+      sheet.clear();
+      if (!matrix || matrix.length === 0) return;
+
+      const numCols = Math.max.apply(null, matrix.map(function(row) { return row.length; })) || 3;
+      const paddedMatrix = matrix.map(function(row) {
+        const newRow = row.slice();
+        while (newRow.length < numCols) newRow.push("");
+        return newRow;
+      });
+
+      const range = sheet.getRange(1, 1, paddedMatrix.length, numCols);
+      range.setValues(paddedMatrix);
+
+      // Largeurs de colonnes identiques à Feuille 1
+      sheet.setColumnWidth(1, 140); // Colonne A (DATE)
+      sheet.setColumnWidth(2, 420); // Colonne B (MATIN)
+      sheet.setColumnWidth(3, 420); // Colonne C (SOIR)
+      if (numCols >= 4) sheet.setColumnWidth(4, 200);
+
+      // Alignement, police et retour à la ligne automatique
+      range.setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
+      range.setVerticalAlignment("middle");
+      range.setFontFamily("Arial");
+      range.setFontSize(10);
+
+      // Mettre en gras les lignes d'en-tête "DATE"
+      for (let i = 0; i < paddedMatrix.length; i++) {
+        if (String(paddedMatrix[i][0]).toUpperCase().indexOf("DATE") !== -1) {
+          sheet.getRange(i + 1, 1, 1, numCols).setFontWeight("bold");
+        }
       }
+    }
+
+    if (action === "save_draft") {
+      // 1. Sauvegarde uniquement dans l'onglet BROUILLON
+      applySheetFormatting(draftSheet, output);
       return ContentService.createTextOutput(JSON.stringify({
         status: "success",
         stage: "draft",
-        message: "Brouillon sauvegardé sans diffusion publique",
+        message: "Brouillon sauvegardé avec mise en page identique à Feuille 1",
         count: rows.length
       })).setMimeType(ContentService.MimeType.JSON);
     } 
     else if (action === "publish_live") {
-      // 2. Feu vert Admin : Diffusion officielle à l'équipe
-      liveSheet.clearContents();
-      if (output.length > 0) {
-        liveSheet.getRange(1, 1, output.length, 6).setValues(output);
-      }
-      // Met aussi à jour le brouillon pour synchroniser
-      draftSheet.clearContents();
-      if (output.length > 0) {
-        draftSheet.getRange(1, 1, output.length, 6).setValues(output);
-      }
+      // 2. Feu vert Admin : Publication sur la feuille publique
+      applySheetFormatting(liveSheet, output);
+      applySheetFormatting(draftSheet, output);
       return ContentService.createTextOutput(JSON.stringify({
         status: "success",
         stage: "published",
@@ -1361,7 +1392,7 @@ function doGet(e) {
     
     const data = sheet.getDataRange().getValues();
     const rows = [];
-    for (let i = 1; i < data.length; i++) {
+    for (let i = 0; i < data.length; i++) {
       if (data[i][0]) {
         rows.push({
           date: String(data[i][0]),
