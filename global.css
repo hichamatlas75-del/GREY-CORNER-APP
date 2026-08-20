@@ -570,25 +570,28 @@ header, .hero {
 }
 
 .today-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 9.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: #fff;
-  background: var(--day-badge, linear-gradient(135deg, var(--festive-primary), var(--festive-secondary)));
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: #ffffff !important;
+  background: var(--day-badge, linear-gradient(135deg, var(--festive-primary), var(--festive-secondary))) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  padding: 5px 12px !important;
+  border-radius: 999px !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
 }
 .today-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #fff;
-  animation: pulse 1.5s infinite;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 6px #ffffff !important;
+  animation: pulse 1.5s infinite !important;
 }
 
 .card-body {
@@ -737,18 +740,18 @@ header, .hero {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 8px !important;
-  padding: 12px 20px !important;
+  gap: 7px !important;
+  padding: 9px 16px !important;
   background: linear-gradient(135deg, var(--festive-primary, #10b981), var(--festive-secondary, #059669)) !important;
   color: #ffffff !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
   border-radius: 999px !important;
   font-family: 'DM Sans', sans-serif !important;
-  font-size: 12px !important;
+  font-size: 11px !important;
   font-weight: 800 !important;
-  letter-spacing: 0.08em !important;
+  letter-spacing: 0.07em !important;
   text-transform: uppercase !important;
-  box-shadow: 0 10px 30px var(--festive-glow-a, rgba(16, 185, 129, 0.35)), 0 4px 14px rgba(0, 0, 0, 0.18) !important;
+  box-shadow: 0 8px 24px var(--festive-glow-a, rgba(16, 185, 129, 0.35)), 0 2px 8px rgba(0, 0, 0, 0.14) !important;
   cursor: pointer !important;
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
