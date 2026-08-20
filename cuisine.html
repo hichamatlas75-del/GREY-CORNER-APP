@@ -363,6 +363,26 @@
           console.error("Erreur lors de la lecture des données Cuisine:", e);
         }
       }
+
+      // Identification du jour courant et centrage automatique au milieu de l'écran
+      const todayLabel = new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(new Date()).toLowerCase().trim();
+      document.querySelectorAll('.day-card').forEach(card => {
+        const name = card.querySelector('.day-name')?.innerText.toLowerCase().trim();
+        if (name === todayLabel) {
+          card.classList.add('is-today');
+          card.id = 'today-card';
+          const header = card.querySelector('.card-header');
+          if (header && !header.querySelector('.today-badge')) {
+            const badge = document.createElement('div');
+            badge.className = 'today-badge';
+            badge.innerHTML = `<span class="today-dot"></span>Aujourd'hui`;
+            header.appendChild(badge);
+          }
+        }
+      });
+
+      GC.scrollToToday(200);
+      GC.initTodayFAB();
     });
 
     // 2. MOTEUR DE SAUVEGARDE EN LOCALSTORAGE

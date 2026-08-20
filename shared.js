@@ -378,14 +378,42 @@
     }, duration);
   };
 
-  // ─── 7. DÉFILEMENT AUTOMATIQUE ───
+  // ─── 7. DÉFILEMENT CENTRÉ SUR MOBILE & BOUTON FLOTTANT ───
   GC.scrollToElement = function(elementOrId, delay = 150) {
     setTimeout(() => {
       const el = typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId;
       if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
       }
     }, delay);
+  };
+
+  GC.scrollToToday = function(delay = 100) {
+    setTimeout(() => {
+      const el = document.getElementById('today-card') || 
+                 document.querySelector('.day-card.is-today') || 
+                 document.querySelector('.day-card[data-today="true"]');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+      }
+    }, delay);
+  };
+
+  GC.initTodayFAB = function() {
+    if (typeof document === 'undefined') return;
+    if (document.getElementById('fab-today')) return;
+    
+    // N'afficher le bouton que s'il y a un jour aujourd'hui identifié sur la page
+    const hasToday = document.getElementById('today-card') || document.querySelector('.day-card.is-today');
+    if (!hasToday) return;
+
+    const fab = document.createElement('button');
+    fab.id = 'fab-today';
+    fab.className = 'fab-today';
+    fab.setAttribute('aria-label', "Aller au jour d'aujourd'hui");
+    fab.innerHTML = `<span class="fab-icon">📍</span><span>Aujourd'hui</span>`;
+    fab.onclick = () => GC.scrollToToday(50);
+    document.body.appendChild(fab);
   };
 
   // ─── RÉTROCOMPATIBILITÉ GLOBALE DIRECTE ───
@@ -407,5 +435,7 @@
   root.hideAlert = root.hideAlert || GC.hideAlert;
   root.showToast = root.showToast || GC.showToast;
   root.scrollToElement = root.scrollToElement || GC.scrollToElement;
+  root.scrollToToday = root.scrollToToday || GC.scrollToToday;
+  root.initTodayFAB = root.initTodayFAB || GC.initTodayFAB;
 
 })(typeof window !== 'undefined' ? window : globalThis);

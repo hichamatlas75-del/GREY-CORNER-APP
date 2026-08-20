@@ -778,10 +778,10 @@
   </header>
 
   <div class="container" id="planning-container">
-    <div class="loading-state">
-      <span class="loading-dot"></span>
-      <span class="loading-dot"></span>
-      <span class="loading-dot"></span>
+    <div style="padding: 10px 0;">
+      <div class="shimmer-skeleton"></div>
+      <div class="shimmer-skeleton" style="opacity:0.75;"></div>
+      <div class="shimmer-skeleton" style="opacity:0.5;"></div>
     </div>
   </div>
 
@@ -1243,7 +1243,10 @@
 
       requestAnimationFrame(() => requestAnimationFrame(() => {
         const el = document.getElementById("today-card");
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          GC.initTodayFAB();
+        }
       }));
     }
 

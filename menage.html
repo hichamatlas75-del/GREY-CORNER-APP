@@ -156,8 +156,9 @@
         `;
       }).join('');
 
-      // Défilement automatique vers le jour courant
+      // Défilement automatique vers le jour courant au milieu de l'écran
       GC.scrollToElement(`day-${today}`, 150);
+      GC.initTodayFAB();
     }
 
     // Lancement
