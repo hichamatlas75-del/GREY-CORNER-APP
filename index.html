@@ -6,6 +6,7 @@
   <title>Grey Corner • Espace Vestiaires</title>
   <link rel="icon" type="image/jpeg" href="LOGO.jpg" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="shared.js"></script>
 
   <style>
   :root{
@@ -397,18 +398,9 @@
       setTimeout(() => { lockscreen.remove(); rootShell.classList.remove("hidden-app"); }, 260);
     }
 
-    async function hashPin(str) {
-      if (window.crypto && crypto.subtle) {
-        const enc = new TextEncoder().encode(str);
-        const buf = await crypto.subtle.digest("SHA-256", enc);
-        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-      }
-      return "";
-    }
-
     async function submitPin() {
       if (pinValue.length !== 4) { showError("Entrez un code à 4 chiffres."); return; }
-      const hashed = await hashPin(pinValue);
+      const hashed = await GC.hashPin(pinValue);
       if (hashed === PIN_HASH) { clearError(); unlockApp(); }
       else { showError("Code incorrect. Réessayez."); pinValue = ""; updateDots(); }
     }
@@ -450,7 +442,6 @@
         tag: "Ravitaillement & Bar",
         desc: "Organisation du bar et de la mise en place.",
         href: "bar.html",
-        img: "bar_nanobanana_1778437896085.png",
         icon: "🥤"
       },
       {
@@ -458,7 +449,6 @@
         tag: "Hospitalité & Salle",
         desc: "Positionnement et coordination de l'équipe en salle.",
         href: "service.html",
-        img: "service_nanobanana_1778437913282.png",
         icon: "🍽️"
       },
       {
@@ -466,7 +456,6 @@
         tag: "Production & Cadence",
         desc: "Suivi de l'équipe en cuisine et logistique de service.",
         href: "cuisine.html",
-        img: "cuisine_nanobanana_1778437933144.png",
         icon: "👨‍🍳"
       },
       {
@@ -474,7 +463,6 @@
         tag: "Ordre & Entretien",
         desc: "Entretien et propreté de l'espace de travail.",
         href: "menage.html",
-        img: "menage_nanobanana_1778437952173.png",
         icon: "✨"
       }
     ];
@@ -494,8 +482,6 @@
         className: 'lux-card fade-up',
         style: { animationDelay: `${delay}s` }
       },
-        React.createElement('div', { className: 'card-img', style: { backgroundImage: `url(${link.img})` } }),
-        React.createElement('div', { className: 'card-scrim' }),
         React.createElement('div', { className: 'card-inner' },
           React.createElement('div', { className: 'meta' },
             React.createElement('div', { className: 'card-tag' }, link.tag),

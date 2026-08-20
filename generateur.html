@@ -6,6 +6,7 @@
   <title>Générateur de Planning Bar — Grey Corner</title>
   <link rel="icon" type="image/jpeg" href="LOGO.jpg" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="shared.js"></script>
 
   <style>
   :root{
@@ -484,7 +485,7 @@
         </svg>
       </div>
       <h2 style="font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:600; color:var(--ink); margin-bottom:4px;">Générateur Protégé</h2>
-      <p style="font-size:11px; color:var(--ink-soft); line-height:1.5; margin-bottom:12px;">Saisissez le code PIN Manager (1975) pour générer le planning.</p>
+      <p style="font-size:11px; color:var(--ink-soft); line-height:1.5; margin-bottom:12px;">Saisissez le code PIN Manager pour générer le planning.</p>
 
       <div class="pin-dots" id="genPinDots">
         <span class="pin-dot"></span>
@@ -961,12 +962,6 @@
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       showToast("Fichier CSV téléchargé avec succès !");
-    }
-
-    function escapeHtml(str) {
-      return String(str ?? "")
-        .replaceAll("&","&amp;").replaceAll("<","&lt;")
-        .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
     }
 
     /* ── PIN 1975 Security Lock ── */
