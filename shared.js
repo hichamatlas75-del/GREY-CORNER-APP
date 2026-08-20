@@ -124,16 +124,16 @@
     },
     {
       id: 4,
-      name: "Rubis & Fiesta Tropicale",
-      emoji: "🎉",
-      primary: "#ef4444",
-      secondary: "#f59e0b",
-      accent: "#8b5cf6",
-      dark: "#991b1b",
-      glowA: "rgba(239, 68, 68, 0.26)",
-      glowB: "rgba(245, 158, 11, 0.26)",
-      bgGradient: "linear-gradient(180deg, #fff1f2 0%, #ffe4e6 50%, #fecdd3 100%)",
-      palette: ["#ef4444", "#f59e0b", "#10b981", "#6366f1", "#ec4899"]
+      name: "Menthe & Émeraude Solaire",
+      emoji: "🌿",
+      primary: "#10b981",
+      secondary: "#059669",
+      accent: "#f59e0b",
+      dark: "#065f46",
+      glowA: "rgba(16, 185, 129, 0.26)",
+      glowB: "rgba(5, 150, 105, 0.26)",
+      bgGradient: "linear-gradient(180deg, #f0fdf4 0%, #e3f9eb 50%, #d1f3dc 100%)",
+      palette: ["#10b981", "#059669", "#f59e0b", "#0d9488", "#34d399"]
     }
   ];
 
@@ -181,10 +181,11 @@
       document.body.classList.remove('theme-0', 'theme-1', 'theme-2', 'theme-3', 'theme-4');
       document.body.classList.add(`theme-${theme.id}`);
 
-      // Mettre à jour l'indicateur de thème si présent
+      // Mettre à jour l'indicateur de semaine sobre et clair
       const badge = document.getElementById('festive-badge');
       if (badge) {
-        badge.innerHTML = `${theme.emoji} Semaine : <span style="font-weight:700; color:${theme.dark}">${theme.name}</span>`;
+        const weekNum = GC.getWeekNumber();
+        badge.innerHTML = `✨ Semaine N°${weekNum} • Grey Corner`;
       }
     }
     return theme;

@@ -35,7 +35,7 @@
 
   body{
     font-family:"DM Sans",-apple-system,sans-serif;
-    background:linear-gradient(180deg,#fdfbf6 0%,#f6f1e6 60%,#f1ead9 100%);
+    background:linear-gradient(180deg,#f0fdf4 0%,#e3f9eb 50%,#d1f3dc 100%);
     color:var(--ink);
     min-height:100vh;
     overflow-x:hidden;
@@ -51,16 +51,16 @@
 
   .glow-a, .glow-b{
     position:fixed; z-index:0; pointer-events:none; border-radius:50%;
-    filter:blur(70px); opacity:.16;
+    filter:blur(70px); opacity:.20;
   }
-  .glow-a{ width:340px; height:340px; top:-100px; right:-100px; background:radial-gradient(circle,var(--brass-light),transparent 70%); }
-  .glow-b{ width:300px; height:300px; bottom:-80px; left:-100px; background:radial-gradient(circle,var(--brass),transparent 70%); }
+  .glow-a{ width:340px; height:340px; top:-100px; right:-100px; background:radial-gradient(circle,#00b862,transparent 70%); }
+  .glow-b{ width:300px; height:300px; bottom:-80px; left:-100px; background:radial-gradient(circle,#00c49f,transparent 70%); }
 
   /* ── LOCKSCREEN ── */
   .lockscreen{
     position:fixed; inset:0; z-index:1000;
     display:flex; align-items:center; justify-content:center;
-    background:linear-gradient(180deg,#fdfbf6 0%,#f6f1e6 60%,#f1ead9 100%);
+    background:linear-gradient(180deg,#f0fdf4 0%,#e3f9eb 50%,#d1f3dc 100%);
     transition:opacity .26s ease;
     padding:20px;
   }

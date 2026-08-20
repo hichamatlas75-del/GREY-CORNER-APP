@@ -87,14 +87,14 @@ body.theme-3 {
 }
 
 body.theme-4 {
-  --festive-primary: #ef4444;
-  --festive-secondary: #f59e0b;
-  --festive-accent: #8b5cf6;
-  --festive-dark: #991b1b;
-  --festive-glow-a: rgba(239, 68, 68, 0.26);
-  --festive-glow-b: rgba(245, 158, 11, 0.26);
-  --hairline-color: rgba(239, 68, 68, 0.35);
-  background: linear-gradient(180deg, #fff1f2 0%, #ffe4e6 50%, #fecdd3 100%);
+  --festive-primary: #10b981;
+  --festive-secondary: #059669;
+  --festive-accent: #f59e0b;
+  --festive-dark: #065f46;
+  --festive-glow-a: rgba(16, 185, 129, 0.26);
+  --festive-glow-b: rgba(5, 150, 105, 0.26);
+  --hairline-color: rgba(16, 185, 129, 0.35);
+  background: linear-gradient(180deg, #f0fdf4 0%, #e3f9eb 50%, #d1f3dc 100%);
 }
 
 /* ─── RESET & BASE ─── */
@@ -337,7 +337,7 @@ header, .hero {
   margin-top: 6px;
 }
 
-.back-btn, .admin-btn, .nav-btn {
+.back-btn, .nav-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -355,7 +355,7 @@ header, .hero {
   border-radius: 999px;
   transition: all 0.2s ease;
 }
-.back-btn:active, .admin-btn:active, .nav-btn:active {
+.back-btn:active, .nav-btn:active {
   transform: scale(0.96);
 }
 .back-btn:hover, .nav-btn:hover {
@@ -363,18 +363,43 @@ header, .hero {
   border-color: var(--festive-primary);
   box-shadow: 0 4px 14px var(--festive-glow-a);
 }
+
+/* BOUTON GÉNÉRATEUR / ADMIN — COMPACT EN ROUGE VIF */
 .admin-btn {
-  background: var(--festive-glow-a);
-  border-color: var(--festive-primary);
-  color: var(--festive-dark);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  border: 1px solid #b91c1c !important;
+  padding: 5px 11px !important;
+  border-radius: 999px !important;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+  transition: all 0.18s ease;
 }
 .admin-btn:hover {
-  background: var(--festive-primary);
-  color: #fff;
+  background: linear-gradient(135deg, #dc2626, #991b1b) !important;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.42);
+  transform: translateY(-1px);
 }
-.back-btn svg, .admin-btn svg, .nav-btn svg {
+.admin-btn:active {
+  transform: scale(0.95);
+}
+.back-btn svg, .nav-btn svg {
   width: 13px;
   height: 13px;
+}
+.admin-btn svg {
+  width: 11px !important;
+  height: 11px !important;
+  stroke: #ffffff !important;
+  stroke-width: 2.4;
 }
 
 /* ─── CONTENEUR PRINCIPAL ─── */
@@ -423,26 +448,27 @@ header, .hero {
   box-shadow: 0 4px 14px var(--festive-glow-a);
 }
 
-/* ─── CARTES JOURNALIÈRES FESTIVES ─── */
+/* ─── CARTES JOURNALIÈRES FESTIVES (DÉGRADÉ COMPLET) ─── */
 .day-card {
   position: relative;
-  background: var(--paper);
-  border: 1px solid var(--hairline);
-  border-left: 4px solid var(--accent, var(--festive-primary));
-  box-shadow: var(--shadow);
+  background: linear-gradient(145deg, #ffffff 0%, color-mix(in srgb, var(--accent, var(--festive-primary)) 16%, #ffffff) 55%, color-mix(in srgb, var(--accent, var(--festive-primary)) 30%, #ffffff) 100%);
+  border: 1.5px solid color-mix(in srgb, var(--accent, var(--festive-primary)) 40%, rgba(0, 0, 0, 0.08));
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.03);
   padding: 0;
   overflow: hidden;
-  border-radius: 12px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .day-card:hover {
-  box-shadow: 0 16px 38px rgba(30, 27, 24, 0.09);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.09);
+  border-color: var(--accent, var(--festive-primary));
 }
 
 .day-card.is-today {
-  border-color: var(--festive-primary);
-  border-left-width: 6px;
-  box-shadow: 0 18px 45px var(--festive-glow-a);
+  background: linear-gradient(145deg, #ffffff 0%, color-mix(in srgb, var(--accent, var(--festive-primary)) 24%, #ffffff) 50%, color-mix(in srgb, var(--accent, var(--festive-primary)) 42%, #ffffff) 100%);
+  border: 2px solid var(--accent, var(--festive-primary));
+  box-shadow: 0 14px 38px var(--festive-glow-a);
 }
 
 .card-header {
@@ -450,8 +476,8 @@ header, .hero {
   align-items: center;
   justify-content: space-between;
   padding: 14px 18px;
-  border-bottom: 1px solid var(--hairline);
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(250, 250, 250, 0.4));
+  border-bottom: 1px solid color-mix(in srgb, var(--accent, var(--festive-primary)) 20%, transparent);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.65));
 }
 
 .day-name {
@@ -522,10 +548,12 @@ header, .hero {
   align-items: center;
   gap: 12px;
   padding: 9px 12px;
-  background: var(--paper2);
-  border: 1px solid var(--hairline);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   margin-bottom: 5px;
   border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
 }
 .staff-row:last-child {
   margin-bottom: 0;
@@ -795,11 +823,16 @@ header, .hero {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--hairline);
+  padding: 11px 14px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
 }
 .shift-row-menage:last-child {
-  border-bottom: none;
+  margin-bottom: 0;
 }
 .shift-info-box {
   flex: 1;
