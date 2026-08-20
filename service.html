@@ -1520,12 +1520,24 @@ function doPost(e) {
     const action = payload.action || "save_draft"; // "save_draft", "publish_live" ou "publish_draft_direct"
     const newRows = payload.rows || [];
 
-    // Récupérer ou créer les deux onglets
-    let liveSheet = ss.getSheetByName("PUBLIE") || ss.getSheetByName("Feuille 1") || ss.getSheets()[0];
+    // 1. Onglet Brouillon
     let draftSheet = ss.getSheetByName("BROUILLON");
     if (!draftSheet) {
       draftSheet = ss.insertSheet("BROUILLON");
     }
+
+    // 2. Onglet Public Officiel : TOUJOURS "Feuille 1"
+    let liveSheet = ss.getSheetByName("Feuille 1");
+    if (!liveSheet) {
+      const allSheets = ss.getSheets();
+      for (let s = 0; s < allSheets.length; s++) {
+        if (allSheets[s].getName() !== "BROUILLON") {
+          liveSheet = allSheets[s];
+          break;
+        }
+      }
+    }
+    if (!liveSheet) liveSheet = ss.getSheets()[0];
 
     // Préparation de la matrice tabulaire à insérer avec dates en français pur
     const matrixToAppend = [];
@@ -1649,14 +1661,50 @@ function doPost(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     } 
     else if (action === "publish_live" || action === "publish_draft_direct") {
-      // 2. Feu vert Admin : Ajout chronologique dans Feuille 1 / PUBLIE avec conservation de l'historique
-      appendChronologicalPlanning(liveSheet, null, matrixToAppend);
-      appendChronologicalPlanning(draftSheet, null, matrixToAppend);
+      // 2. FEU VERT ADMIN : DIFFUSION OFFICIELLE DANS FEUILLE 1 !
+      if (matrixToAppend && matrixToAppend.length > 0) {
+        appendChronologicalPlanning(liveSheet, null, matrixToAppend);
+        appendChronologicalPlanning(draftSheet, null, matrixToAppend);
+      } else {
+        // Si aucun payload direct (bouton direct), recopie exacte et formatage de BROUILLON vers Feuille 1
+        var draftData = draftSheet.getDataRange().getValues();
+        while (draftData.length > 0 && draftData[draftData.length - 1].every(function(c) { return String(c).trim() === ""; })) {
+          draftData.pop();
+        }
+        if (draftData.length > 0) {
+          liveSheet.clear();
+          var numCols = Math.max.apply(null, draftData.map(function(r) { return r.length; })) || 3;
+          var padded = draftData.map(function(row) {
+            var nr = row.slice();
+            while (nr.length < numCols) nr.push("");
+            return nr;
+          });
+          var range = liveSheet.getRange(1, 1, padded.length, numCols);
+          range.setValues(padded);
+
+          liveSheet.getRange(1, 1, padded.length, 1).setNumberFormat("@");
+          liveSheet.setColumnWidth(1, 140);
+          liveSheet.setColumnWidth(2, 420);
+          liveSheet.setColumnWidth(3, 420);
+          if (numCols >= 4) liveSheet.setColumnWidth(4, 200);
+
+          range.setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
+          range.setVerticalAlignment("middle");
+          range.setFontFamily("Arial");
+          range.setFontSize(10);
+
+          for (var i = 0; i < padded.length; i++) {
+            if (String(padded[i][0]).toUpperCase().indexOf("DATE") !== -1) {
+              liveSheet.getRange(i + 1, 1, 1, numCols).setFontWeight("bold");
+            }
+          }
+        }
+      }
       
       return ContentService.createTextOutput(JSON.stringify({
         status: "success",
         stage: "published",
-        message: "Nouveau planning ajouté chronologiquement et diffusé à l'équipe",
+        message: "Nouveau planning ajouté chronologiquement et diffusé dans Feuille 1",
         count: matrixToAppend.length
       })).setMimeType(ContentService.MimeType.JSON);
     }
