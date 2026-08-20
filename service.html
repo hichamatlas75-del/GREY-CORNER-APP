@@ -614,6 +614,48 @@
     margin-top:8px;
   }
 
+  /* ── DRAFT PENDING QUICK CARD ── */
+  .draft-pending-card{
+    background:linear-gradient(135deg, #fffbf0 0%, #fef7de 100%);
+    border:1px solid #c89b3c;
+    border-left:4px solid #2e7d32;
+    padding:12px 16px;
+    margin-bottom:12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    box-shadow:0 4px 12px rgba(35,31,26,0.06);
+    animation:fadeUp .24s ease;
+  }
+  .draft-card-main{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .draft-card-icon{
+    font-size:24px;
+  }
+  .draft-card-title{
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:#7c5f2c;
+  }
+  .draft-card-sub{
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .draft-card-buttons{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+
   /* ── SYNC & WORKFLOW DE VALIDATION ADMIN ── */
   .sync-config-card{
     background:var(--paper);
@@ -791,6 +833,23 @@
       </div>
       <div class="modal-body">
         
+        <!-- Bannière Détection Automatique de Brouillon en Attente -->
+        <div class="draft-pending-card" id="draftPendingCard" style="display:none;">
+          <div class="draft-card-main">
+            <div class="draft-card-icon">📋</div>
+            <div class="draft-card-info">
+              <div class="draft-card-title">Brouillon en attente détecté</div>
+              <div class="draft-card-sub" id="draftPendingDetails">Un planning modifié est enregistré dans l'onglet BROUILLON.</div>
+            </div>
+          </div>
+          <div class="draft-card-buttons">
+            <button class="btn-secondary" type="button" onclick="loadDraftData()">👁️ Ouvrir & Éditer</button>
+            <button class="btn-publish-live" id="btnPublishDirect" type="button" onclick="publishDraftDirectly()">
+              🟢 Feu Vert : Diffuser ce Brouillon
+            </button>
+          </div>
+        </div>
+
         <!-- Carte Synchronisation Google Sheets & Workflow Admin -->
         <div class="sync-config-card">
           <div class="sync-config-header" onclick="toggleSyncConfig()">
@@ -912,10 +971,10 @@
           <div class="form-group">
             <label class="form-label">Nombre de semaines</label>
             <select id="genWeeksCount" class="form-select">
-              <option value="1">1 Semaine (7 jours)</option>
+              <option value="1" selected>1 Semaine (7 jours)</option>
               <option value="2">2 Semaines (14 jours)</option>
               <option value="3">3 Semaines (21 jours)</option>
-              <option value="4" selected>4 Semaines (28 jours — 1 Mois)</option>
+              <option value="4">4 Semaines (28 jours — 1 Mois)</option>
               <option value="6">6 Semaines</option>
               <option value="8">8 Semaines (2 Mois)</option>
             </select>
@@ -1399,6 +1458,7 @@
       loadTeamNames();
       loadWebhookUrl();
       initAppsScriptPreview();
+      checkForPendingDraft();
       generatorModal.classList.add("active");
     }
     function closeGeneratorModal() { generatorModal.classList.remove("active"); }
@@ -1416,7 +1476,7 @@ function doPost(e) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const payload = JSON.parse(e.postData.contents);
-    const action = payload.action || "save_draft"; // "save_draft" ou "publish_live"
+    const action = payload.action || "save_draft"; // "save_draft", "publish_live" ou "publish_draft_direct"
     const rows = payload.rows || [];
 
     // Récupérer ou créer les deux onglets
@@ -1429,7 +1489,6 @@ function doPost(e) {
     // Préparation de la matrice tabulaire (exactement comme Feuille 1)
     const output = [];
     rows.forEach(function(r) {
-      // 3 colonnes standard (DATE, MATIN, SOIR) + colonnes optionnelles
       if (r.note || r.hMatin || r.hSoir) {
         output.push([r.date || "", r.matin || "", r.soir || "", r.note || "", r.hMatin || "", r.hSoir || ""]);
       } else {
@@ -1493,6 +1552,19 @@ function doPost(e) {
         count: rows.length
       })).setMimeType(ContentService.MimeType.JSON);
     }
+    else if (action === "publish_draft_direct") {
+      // 3. Feu vert direct depuis le brouillon existant
+      let matrix = output;
+      if (!matrix || matrix.length === 0) {
+        matrix = draftSheet.getDataRange().getValues();
+      }
+      applySheetFormatting(liveSheet, matrix);
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        stage: "published",
+        message: "Brouillon diffusé directement avec succès"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
 
     return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Action inconnue" }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -1532,6 +1604,113 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 }`;
+
+    /* ── DÉTECTION & DIFFUSION DIRECTE DU BROUILLON EXISTANT ── */
+    async function checkForPendingDraft() {
+      const card = document.getElementById("draftPendingCard");
+      const details = document.getElementById("draftPendingDetails");
+      if (!card) return;
+
+      // 1. Vérification dans le cache local (immédiat)
+      const localDraft = localStorage.getItem("gc_draft_cache");
+      let hasDraft = false;
+
+      if (localDraft) {
+        try {
+          const parsed = JSON.parse(localDraft);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            hasDraft = true;
+            const daysCount = parsed.filter(r => !r.isHeader && !String(r.date).toUpperCase().includes("DATE")).length;
+            card.style.display = "flex";
+            if (details) details.textContent = `Planning de ${daysCount} jour(s) détecté en attente dans le brouillon.`;
+          }
+        } catch (e) {}
+      }
+
+      // 2. Vérification auprès du Webhook Google Apps Script si configuré
+      const webhookUrl = (localStorage.getItem("gc_webhook_url") || "").trim();
+      if (webhookUrl) {
+        try {
+          const resp = await fetch(`${webhookUrl}?type=draft&t=${Date.now()}`);
+          const json = await resp.json();
+          if (json && json.status === "success" && Array.isArray(json.rows) && json.rows.length) {
+            card.style.display = "flex";
+            const daysCount = json.rows.filter(r => !r.isHeader && !String(r.date).toUpperCase().includes("DATE")).length;
+            if (details) details.textContent = `Brouillon Google Sheets détecté (${daysCount} jour(s) prêt(s) à être diffusé(s)).`;
+            localStorage.setItem("gc_draft_cache", JSON.stringify(json.rows));
+          }
+        } catch (e) {}
+      }
+    }
+
+    async function publishDraftDirectly() {
+      const webhookUrl = (localStorage.getItem("gc_webhook_url") || "").trim();
+      const localDraft = localStorage.getItem("gc_draft_cache");
+
+      let rowsToPublish = null;
+      if (localDraft) {
+        try { rowsToPublish = JSON.parse(localDraft); } catch (e) {}
+      }
+
+      const confirmPublish = confirm(
+        "⚠️ FEU VERT ADMIN :\n\n" +
+        "Voulez-vous diffuser officiellement le planning actuellement dans l'onglet BROUILLON à toute l'équipe ?\n\n" +
+        "• Il sera visible immédiatement sur l'application vestiaires.\n" +
+        "• L'onglet public Google Sheets (Feuille 1 / PUBLIE) sera mis à jour."
+      );
+      if (!confirmPublish) return;
+
+      const btn = document.getElementById("btnPublishDirect");
+      const origText = btn ? btn.innerHTML : "";
+      if (btn) {
+        btn.classList.add("btn-disabled");
+        btn.innerHTML = "⏳ Diffusion en cours...";
+      }
+
+      try {
+        if (webhookUrl) {
+          const payload = {
+            action: "publish_draft_direct",
+            rows: rowsToPublish || []
+          };
+
+          await fetch(webhookUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(payload)
+          });
+        }
+
+        if (rowsToPublish && rowsToPublish.length) {
+          localStorage.setItem("gc_live_cache", JSON.stringify(rowsToPublish));
+          const cleanData = rowsToPublish.filter(r => !String(r.date).toUpperCase().includes("DATE")).map(r => ({
+            date: r.date,
+            dateObj: parseDateLabel(r.date),
+            matin: r.matin,
+            soir: r.soir,
+            hMatin: r.hMatin,
+            hSoir: r.hSoir
+          }));
+          render(cleanData);
+        }
+
+        const card = document.getElementById("draftPendingCard");
+        if (card) card.style.display = "none";
+
+        closeGeneratorModal();
+        showToast("🚀 Feu Vert Accordé ! Le brouillon a été officiellement diffusé à toute l'équipe.");
+
+      } catch (err) {
+        console.error("Erreur diffusion directe brouillon:", err);
+        alert("Erreur lors de la diffusion. Vérifiez la connexion ou le Webhook.");
+      } finally {
+        if (btn) {
+          btn.classList.remove("btn-disabled");
+          btn.innerHTML = origText;
+        }
+      }
+    }
 
     function initAppsScriptPreview() {
       const el = document.getElementById("appsScriptCodePreview");
