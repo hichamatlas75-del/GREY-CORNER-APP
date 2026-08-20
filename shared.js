@@ -192,10 +192,11 @@
     return theme;
   };
 
-  // Initialisation automatique du thème festif dès le chargement du DOM
+  // Initialisation automatique du thème festif et du bouton FAB
   if (typeof window !== 'undefined') {
     window.addEventListener('DOMContentLoaded', () => {
       GC.applyFestiveTheme();
+      setTimeout(() => GC.initTodayFAB(), 150);
     });
   }
 
@@ -388,11 +389,28 @@
     }, delay);
   };
 
-  GC.scrollToToday = function(delay = 100) {
+  GC.scrollToToday = function(delay = 50) {
     setTimeout(() => {
-      const el = document.getElementById('today-card') || 
-                 document.querySelector('.day-card.is-today') || 
-                 document.querySelector('.day-card[data-today="true"]');
+      let el = document.getElementById('today-card') || 
+               document.querySelector('.day-card.is-today') || 
+               document.querySelector('.day-card[data-today="true"]');
+
+      if (!el) {
+        const todayDayName = (GC.FRENCH_DAYS && GC.FRENCH_DAYS[new Date().getDay()]) ? GC.FRENCH_DAYS[new Date().getDay()].toLowerCase() : '';
+        const cards = document.querySelectorAll('.day-card');
+        for (const card of cards) {
+          const text = card.textContent.toLowerCase();
+          if (todayDayName && text.includes(todayDayName)) {
+            el = card;
+            break;
+          }
+        }
+      }
+
+      if (!el) {
+        el = document.querySelector('.day-card');
+      }
+
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
       }
@@ -403,16 +421,21 @@
     if (typeof document === 'undefined') return;
     if (document.getElementById('fab-today')) return;
     
-    // N'afficher le bouton que s'il y a un jour aujourd'hui identifié sur la page
-    const hasToday = document.getElementById('today-card') || document.querySelector('.day-card.is-today');
-    if (!hasToday) return;
+    // Ne pas afficher sur le menu principal ou générateur
+    const pathname = window.location.pathname.toLowerCase();
+    if (pathname.endsWith('index.html') || pathname.endsWith('generateur.html') || document.querySelector('.nav-list')) {
+      return;
+    }
 
     const fab = document.createElement('button');
     fab.id = 'fab-today';
     fab.className = 'fab-today';
     fab.setAttribute('aria-label', "Aller au jour d'aujourd'hui");
     fab.innerHTML = `<span class="fab-icon">📍</span><span>Aujourd'hui</span>`;
-    fab.onclick = () => GC.scrollToToday(50);
+    fab.onclick = (e) => {
+      e.preventDefault();
+      GC.scrollToToday(20);
+    };
     document.body.appendChild(fab);
   };
 

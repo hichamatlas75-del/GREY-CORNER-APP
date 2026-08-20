@@ -528,7 +528,11 @@
         return;
       }
 
-      const todayIdx = data.findIndex(r => r.dateObj && sameDay(r.dateObj, t0));
+      let todayIdx = data.findIndex(r => r.dateObj && sameDay(r.dateObj, t0));
+      if (todayIdx === -1) {
+        const todayDayName = GC.FRENCH_DAYS[t0.getDay()].toLowerCase();
+        todayIdx = data.findIndex(r => r.date && r.date.toLowerCase().includes(todayDayName));
+      }
 
       container.innerHTML = data.map((j, idx) => {
         const isToday = idx === todayIdx;
@@ -570,8 +574,8 @@
         const el = document.getElementById("today-card");
         if (el) {
           el.scrollIntoView({ behavior: "smooth", block: "center" });
-          GC.initTodayFAB();
         }
+        GC.initTodayFAB();
       }));
     }
 
