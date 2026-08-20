@@ -60,25 +60,25 @@
       S1: {
         title: 'Semaine 01',
         schedules: [
-          { day: 'lundi', matin: { staff: 'Khadija' }, soir: { staff: 'Nawal' } },
-          { day: 'mardi', matin: { staff: 'Nawal' }, soir: { staff: 'Khadija' } },
-          { day: 'mercredi', matin: { staff: 'Khadija' }, soir: { staff: 'Nawal' } },
-          { day: 'jeudi', matin: { staff: 'Nawal' }, soir: { staff: 'Khadija' } },
-          { day: 'vendredi', matin: { staff: 'Khadija' }, soir: { staff: 'Nawal' } },
-          { day: 'samedi', matin: { staff: 'Nawal' }, soir: { staff: 'Khadija' } },
-          { day: 'dimanche', matin: { staff: 'Khadija' }, soir: { staff: 'Nawal' } },
+          { day: 'lundi', matin: { staff: 'Hakima' }, soir: { staff: 'Khalissa / Souad' } },
+          { day: 'mardi', matin: { staff: 'Souad' }, soir: { staff: 'Hakima / Hafida' } },
+          { day: 'mercredi', matin: { staff: 'Hafida' }, soir: { staff: 'Khalissa / Souad' } },
+          { day: 'jeudi', matin: { staff: 'Khalissa' }, soir: { staff: 'Hakima / Hafida' } },
+          { day: 'vendredi', matin: { staff: 'Hakima / Hafida' }, soir: { staff: 'Khalissa / Souad' } },
+          { day: 'samedi', matin: { staff: 'Khalissa / Souad' }, soir: { staff: 'Hakima / Hafida' } },
+          { day: 'dimanche', matin: { staff: 'Hakima / Hafida' }, soir: { staff: 'Khalissa / Souad' } },
         ]
       },
       S2: {
         title: 'Semaine 02',
         schedules: [
-          { day: 'lundi', matin: { staff: 'Nawal' }, soir: { staff: 'Khadija' } },
-          { day: 'mardi', matin: { staff: 'Khadija' }, soir: { staff: 'Nawal' } },
-          { day: 'mercredi', matin: { staff: 'Nawal' }, soir: { staff: 'Khadija' } },
-          { day: 'jeudi', matin: { staff: 'Khadija' }, soir: { staff: 'Nawal' } },
-          { day: 'vendredi', matin: { staff: 'Nawal' }, soir: { staff: 'Khadija' } },
-          { day: 'samedi', matin: { staff: 'Khadija' }, soir: { staff: 'Nawal' } },
-          { day: 'dimanche', matin: { staff: 'Nawal' }, soir: { staff: 'Khadija' } },
+          { day: 'lundi', matin: { staff: 'Souad' }, soir: { staff: 'Hakima / Hafida' } },
+          { day: 'mardi', matin: { staff: 'Hafida' }, soir: { staff: 'Souad / Khalissa' } },
+          { day: 'mercredi', matin: { staff: 'Khalissa' }, soir: { staff: 'Hakima / Hafida' } },
+          { day: 'jeudi', matin: { staff: 'Hakima' }, soir: { staff: 'Souad / Khalissa' } },
+          { day: 'vendredi', matin: { staff: 'Souad / Khalissa' }, soir: { staff: 'Hakima / Hafida' } },
+          { day: 'samedi', matin: { staff: 'Hakima / Hafida' }, soir: { staff: 'Souad / Khalissa' } },
+          { day: 'dimanche', matin: { staff: 'Souad / Khalissa' }, soir: { staff: 'Hakima / Hafida' } },
         ]
       }
     };
@@ -161,8 +161,9 @@
       GC.initTodayFAB();
     }
 
-    // Lancement
-    renderPlanning();
+    // Lancement automatique avec la semaine courante (S1 / S2)
+    const initialWeek = (typeof GC !== 'undefined' && typeof GC.getWeekNumber === 'function' && (GC.getWeekNumber() % 2 === 0)) ? 'S2' : 'S1';
+    switchWeek(initialWeek);
   </script>
 </body>
 </html>
