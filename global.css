@@ -1,58 +1,100 @@
-/* ─── GREY CORNER — UNIFIED DESIGN SYSTEM: AUTOMNE & RENTRÉE ÉLÉGANTE ─── */
+/* ─── GREY CORNER — SYSTÈME DE DESIGN FESTIF MULTI-COULEURS (1 SEMAINE = 1 COULEUR) ─── */
 :root {
-  /* Fonds & Surfaces (Papier écru chaleureux & Carnet de notes feutré) */
-  --paper: #faf7f0;
-  --paper2: #fffefb;
-  --bg-gradient: linear-gradient(180deg, #fdfbf6 0%, #f6f1e6 60%, #f1ead9 100%);
-  
-  /* Encre & Typographie */
-  --ink: #231f1a;
-  --ink-soft: #6b6154;
-  --ink-dim: rgba(35, 31, 26, 0.45);
+  /* Fonds & Surfaces */
+  --paper: #ffffff;
+  --paper2: #fcfdfe;
+  --bg-gradient: var(--festive-bg, linear-gradient(180deg, #fff7f2 0%, #ffefe5 50%, #fde4d4 100%));
 
-  /* Laiton / Bronze Antique (Reliure & Accents dorés) */
-  --brass: #9c7a3c;
-  --brass-light: #c8ab6a;
-  --brass-deep: #7c5f2c;
-  --brass-soft: rgba(156, 122, 60, 0.12);
-  --brass-mid: rgba(156, 122, 60, 0.22);
+  /* Typographie & Encre */
+  --ink: #1e1b18;
+  --ink-soft: #574e45;
+  --ink-dim: rgba(30, 27, 24, 0.45);
 
-  /* Couleurs d'Automne & Rentrée Scolaire */
-  --terracotta: #8b5e3c;
-  --terracotta-light: #b86d43;
-  --terracotta-soft: rgba(139, 94, 60, 0.12);
+  /* Variables Festives Dynamiques */
+  --festive-primary: #ff5757;
+  --festive-secondary: #ff8838;
+  --festive-accent: #f5b700;
+  --festive-dark: #9e1c1c;
+  --festive-glow-a: rgba(255, 87, 87, 0.28);
+  --festive-glow-b: rgba(255, 136, 56, 0.28);
 
-  --sage: #5c6b4f;
-  --sage-light: #6f7a52;
-  --sage-soft: rgba(92, 107, 79, 0.12);
-
-  --wine: #7a3b3b;
-  --wine-soft: rgba(122, 59, 59, 0.12);
-
-  --slate: #5f6f78;
-  --slate-soft: rgba(95, 111, 120, 0.12);
-
-  /* Filets & Bordures fines */
-  --hairline: rgba(35, 31, 26, 0.10);
-  --hairline-gold: rgba(156, 122, 60, 0.35);
-  --hairline-terracotta: rgba(139, 94, 60, 0.35);
+  /* Filets & Bordures */
+  --hairline: rgba(30, 27, 24, 0.08);
+  --hairline-color: rgba(255, 87, 87, 0.35);
 
   /* Statuts */
-  --err: #a13d2e;
-  --err-bg: #fdf2f0;
-  --success: #2e7d32;
-  --success-bg: #eef7ee;
+  --err: #e11d48;
+  --err-bg: #ffe4e6;
+  --success: #10b981;
+  --success-bg: #d1fae5;
 
-  /* Ombres & Profondeur */
-  --shadow: 0 18px 40px rgba(35, 31, 26, 0.06);
-  --shadow-lg: 0 20px 45px rgba(35, 31, 26, 0.12);
+  /* Ombres Festives & Effets de relief */
+  --shadow: 0 14px 34px rgba(30, 27, 24, 0.06);
+  --shadow-lg: 0 20px 50px rgba(30, 27, 24, 0.12);
+  --shadow-festive: 0 8px 24px var(--festive-glow-a);
 
-  /* Palette de rotation journalière (5 tons chauds automnaux) */
-  --acc-1: #9c7a3c; /* Laiton */
-  --acc-2: #8b5e3c; /* Terracotta */
-  --acc-3: #6f7a52; /* Vert Sauge */
-  --acc-4: #7a4b4b; /* Vin / Bordeaux */
-  --acc-5: #5f6f78; /* Ardoise bleue */
+  /* Palette de rotation journalière festive */
+  --acc-1: #ff5757;
+  --acc-2: #ff8838;
+  --acc-3: #f5b700;
+  --acc-4: #e03161;
+  --acc-5: #8b2671;
+}
+
+/* ─── PALETTES SPÉCIFIQUES AUX 5 THÈMES DE SEMAINES ─── */
+body.theme-0 {
+  --festive-primary: #ff5757;
+  --festive-secondary: #ff8838;
+  --festive-accent: #f5b700;
+  --festive-dark: #9e1c1c;
+  --festive-glow-a: rgba(255, 87, 87, 0.28);
+  --festive-glow-b: rgba(255, 136, 56, 0.28);
+  --hairline-color: rgba(255, 87, 87, 0.35);
+  background: linear-gradient(180deg, #fff7f2 0%, #ffefe5 50%, #fde4d4 100%);
+}
+
+body.theme-1 {
+  --festive-primary: #00b862;
+  --festive-secondary: #00c49f;
+  --festive-accent: #e5b700;
+  --festive-dark: #006b3a;
+  --festive-glow-a: rgba(0, 184, 98, 0.26);
+  --festive-glow-b: rgba(0, 196, 159, 0.26);
+  --hairline-color: rgba(0, 184, 98, 0.35);
+  background: linear-gradient(180deg, #f0fdf4 0%, #e3f9eb 50%, #d1f3dc 100%);
+}
+
+body.theme-2 {
+  --festive-primary: #2563eb;
+  --festive-secondary: #06b6d4;
+  --festive-accent: #f59e0b;
+  --festive-dark: #1e3a8a;
+  --festive-glow-a: rgba(37, 99, 235, 0.26);
+  --festive-glow-b: rgba(6, 182, 212, 0.26);
+  --hairline-color: rgba(37, 99, 235, 0.35);
+  background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+}
+
+body.theme-3 {
+  --festive-primary: #d946ef;
+  --festive-secondary: #8b5cf6;
+  --festive-accent: #f43f5e;
+  --festive-dark: #701a75;
+  --festive-glow-a: rgba(217, 70, 239, 0.26);
+  --festive-glow-b: rgba(139, 92, 246, 0.26);
+  --hairline-color: rgba(217, 70, 239, 0.35);
+  background: linear-gradient(180deg, #fdf4ff 0%, #fae8ff 50%, #f5d0fe 100%);
+}
+
+body.theme-4 {
+  --festive-primary: #ef4444;
+  --festive-secondary: #f59e0b;
+  --festive-accent: #8b5cf6;
+  --festive-dark: #991b1b;
+  --festive-glow-a: rgba(239, 68, 68, 0.26);
+  --festive-glow-b: rgba(245, 158, 11, 0.26);
+  --hairline-color: rgba(239, 68, 68, 0.35);
+  background: linear-gradient(180deg, #fff1f2 0%, #ffe4e6 50%, #fecdd3 100%);
 }
 
 /* ─── RESET & BASE ─── */
@@ -96,30 +138,31 @@ body.has-alert {
   z-index: 0;
   pointer-events: none;
   border-radius: 50%;
-  filter: blur(75px);
-  opacity: 0.16;
+  filter: blur(80px);
+  opacity: 0.25;
+  transition: background 0.4s ease;
 }
 .glow-a {
-  width: 360px;
-  height: 360px;
+  width: 380px;
+  height: 380px;
   top: -100px;
-  right: -100px;
-  background: radial-gradient(circle, var(--brass-light), transparent 70%);
+  right: -80px;
+  background: radial-gradient(circle, var(--festive-primary), transparent 70%);
 }
 .glow-b {
-  width: 320px;
-  height: 320px;
+  width: 340px;
+  height: 340px;
   bottom: -80px;
-  left: -100px;
-  background: radial-gradient(circle, var(--terracotta), transparent 70%);
+  left: -80px;
+  background: radial-gradient(circle, var(--festive-secondary), transparent 70%);
 }
 
 /* ─── ANIMATIONS ─── */
 .fade-up {
-  animation: fadeUp 0.28s ease both;
+  animation: fadeUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -132,8 +175,8 @@ body.has-alert {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.25; transform: scale(0.85); }
-  50%      { opacity: 1;    transform: scale(1.1); }
+  0%, 100% { opacity: 0.35; transform: scale(0.9); }
+  50%      { opacity: 1;    transform: scale(1.15); }
 }
 
 /* ─── ALERTE & NOTIFICATIONS ─── */
@@ -144,9 +187,9 @@ body.has-alert {
   left: 0;
   right: 0;
   z-index: 200;
-  background: var(--paper2);
-  border-bottom: 1px solid var(--hairline-gold);
-  box-shadow: 0 6px 18px rgba(35, 31, 26, 0.08);
+  background: var(--paper);
+  border-bottom: 1px solid var(--festive-primary);
+  box-shadow: 0 6px 18px rgba(30, 27, 24, 0.08);
   padding: 12px 44px 12px 18px;
   font-size: 12px;
   color: var(--ink);
@@ -154,7 +197,7 @@ body.has-alert {
 #alert-text {
   display: block;
   line-height: 1.4;
-  font-weight: 500;
+  font-weight: 600;
 }
 #alert-close {
   position: absolute;
@@ -166,18 +209,18 @@ body.has-alert {
   align-items: center;
   justify-content: center;
   background: none;
-  border: 1px solid var(--hairline-gold);
-  color: var(--brass-deep);
+  border: 1px solid var(--hairline-color);
+  color: var(--festive-dark);
   font-size: 12px;
   cursor: pointer;
   border-radius: 4px;
   transition: all 0.15s ease;
 }
 #alert-close:hover {
-  background: var(--brass-soft);
+  background: var(--festive-glow-a);
 }
 
-/* ─── TOAST NOTIFICATION ─── */
+/* ─── TOAST NOTIFICATION FESTIVE ─── */
 #toast {
   position: fixed;
   bottom: 24px;
@@ -185,57 +228,48 @@ body.has-alert {
   transform: translateX(-50%) translateY(100px);
   z-index: 999;
   background: var(--ink);
-  color: var(--paper2);
-  border: 1px solid var(--hairline-gold);
-  box-shadow: var(--shadow-lg);
-  padding: 14px 24px;
+  color: #fff;
+  border: 1px solid var(--festive-primary);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  padding: 14px 26px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 10px;
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   pointer-events: none;
-  border-radius: 8px;
+  border-radius: 999px;
 }
 #toast.show, #toast.active {
   transform: translateX(-50%) translateY(0);
 }
 
-/* ─── EN-TÊTE / HERO UNIFIÉ ─── */
+/* ─── EN-TÊTE / HERO FESTIF ─── */
 header, .hero {
   position: relative;
   z-index: 1;
   max-width: 560px;
-  margin: 34px auto 14px;
+  margin: 30px auto 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 10px;
-  padding: 32px 22px 26px;
-  background: var(--paper2);
-  border: 1px solid var(--hairline-gold);
+  padding: 30px 24px 24px;
+  background: var(--paper);
+  border: 1px solid var(--hairline-color);
   box-shadow: var(--shadow);
-  border-radius: 4px;
+  border-radius: 16px;
 }
-header::before, header::after, .hero::before, .hero::after {
-  content: '';
-  position: absolute;
-  left: 20px;
-  right: 20px;
-  height: 1px;
-}
-header::before, .hero::before { top: 8px; background: var(--hairline-gold); }
-header::after, .hero::after   { bottom: 8px; background: var(--hairline-gold); }
 
 .logo-wrap {
-  width: 62px;
-  height: 62px;
-  border: 1px solid var(--hairline-gold);
-  box-shadow: 0 8px 20px rgba(35, 31, 26, 0.10);
+  width: 64px;
+  height: 64px;
+  border: 2px solid var(--festive-primary);
+  box-shadow: 0 8px 24px var(--festive-glow-a);
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 16px;
 }
 .logo-wrap img {
   width: 100%;
@@ -244,40 +278,54 @@ header::after, .hero::after   { bottom: 8px; background: var(--hairline-gold); }
 }
 
 .eyebrow {
-  font-size: 9px;
+  font-size: 9.5px;
   text-transform: uppercase;
-  letter-spacing: 0.32em;
-  color: var(--brass);
-  margin-top: 2px;
-  font-weight: 600;
+  letter-spacing: 0.28em;
+  color: var(--festive-primary);
+  font-weight: 700;
 }
 
 .page-title, .brand {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 32px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   color: var(--ink);
   line-height: 1.05;
 }
 .page-title span, .brand span {
-  color: var(--brass-deep);
+  color: var(--festive-primary);
   font-style: italic;
 }
 
 .page-sub, .sub {
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--ink-soft);
-  max-width: 400px;
+  max-width: 420px;
   line-height: 1.5;
+}
+
+.festive-week-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--festive-glow-a);
+  border: 1px solid var(--festive-primary);
+  color: var(--festive-dark);
+  margin-top: 2px;
 }
 
 .gold-rule {
   width: 100%;
-  max-width: 160px;
-  height: 1px;
-  margin: 6px 0 4px;
-  background: linear-gradient(90deg, transparent, var(--brass), transparent);
+  max-width: 180px;
+  height: 2px;
+  margin: 6px 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--festive-primary), var(--festive-secondary), transparent);
 }
 
 .header-actions {
@@ -295,32 +343,34 @@ header::after, .hero::after   { bottom: 8px; background: var(--hairline-gold); }
   gap: 6px;
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--brass-deep);
+  letter-spacing: 0.1em;
+  color: var(--festive-dark);
   text-decoration: none;
-  padding: 8px 15px;
-  border: 1px solid var(--hairline-gold);
-  background: var(--paper);
+  padding: 8px 16px;
+  border: 1px solid var(--hairline-color);
+  background: var(--paper2);
   cursor: pointer;
   font-family: inherit;
-  border-radius: 4px;
-  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  font-weight: 600;
+  border-radius: 999px;
+  transition: all 0.2s ease;
 }
 .back-btn:active, .admin-btn:active, .nav-btn:active {
-  transform: scale(0.97);
-  border-color: var(--brass);
+  transform: scale(0.96);
 }
 .back-btn:hover, .nav-btn:hover {
-  background: var(--paper2);
+  background: #fff;
+  border-color: var(--festive-primary);
+  box-shadow: 0 4px 14px var(--festive-glow-a);
 }
 .admin-btn {
-  background: var(--paper2);
-  border-color: var(--brass);
-  color: var(--brass-deep);
-  font-weight: 600;
+  background: var(--festive-glow-a);
+  border-color: var(--festive-primary);
+  color: var(--festive-dark);
 }
 .admin-btn:hover {
-  background: var(--brass-soft);
+  background: var(--festive-primary);
+  color: #fff;
 }
 .back-btn svg, .admin-btn svg, .nav-btn svg {
   width: 13px;
@@ -333,7 +383,7 @@ header::after, .hero::after   { bottom: 8px; background: var(--hairline-gold); }
   z-index: 1;
   max-width: 560px;
   margin: 0 auto;
-  padding: 20px 20px 40px;
+  padding: 16px 20px 40px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -342,15 +392,15 @@ header::after, .hero::after   { bottom: 8px; background: var(--hairline-gold); }
 /* ─── ONGLETS DE SEMAINE ─── */
 .tabs-wrapper {
   display: flex;
-  background: var(--paper2);
-  padding: 4px;
-  border: 1px solid var(--hairline-gold);
+  background: var(--paper);
+  padding: 5px;
+  border: 1px solid var(--hairline-color);
   box-shadow: var(--shadow);
   max-width: 400px;
   margin: 0 auto 12px;
   position: relative;
   z-index: 2;
-  border-radius: 6px;
+  border-radius: 999px;
 }
 .tab-btn {
   flex: 1;
@@ -358,58 +408,56 @@ header::after, .hero::after   { bottom: 8px; background: var(--hairline-gold); }
   background: transparent;
   color: var(--ink-soft);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 10px;
   cursor: pointer;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  transition: all 0.2s ease;
-  border-radius: 4px;
+  letter-spacing: 0.1em;
+  transition: all 0.22s ease;
+  border-radius: 999px;
   font-family: inherit;
 }
 .tab-btn.active {
-  background: var(--brass);
-  color: var(--paper2);
-  box-shadow: 0 4px 12px rgba(156, 122, 60, 0.25);
+  background: linear-gradient(135deg, var(--festive-primary), var(--festive-secondary));
+  color: #fff;
+  box-shadow: 0 4px 14px var(--festive-glow-a);
 }
 
-/* ─── CARTES JOURNALIÈRES (DAY CARD) ─── */
+/* ─── CARTES JOURNALIÈRES FESTIVES ─── */
 .day-card {
   position: relative;
-  background: var(--paper2);
+  background: var(--paper);
   border: 1px solid var(--hairline);
-  border-left: 3px solid var(--accent, var(--brass));
+  border-left: 4px solid var(--accent, var(--festive-primary));
   box-shadow: var(--shadow);
   padding: 0;
   overflow: hidden;
-  border-radius: 4px;
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.day-card:hover {
+  box-shadow: 0 16px 38px rgba(30, 27, 24, 0.09);
 }
 
 .day-card.is-today {
-  border-left-width: 4px;
-  box-shadow: 0 20px 45px rgba(35, 31, 26, 0.11);
-}
-.day-card.is-today::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border: 1px solid var(--accent, var(--brass));
-  opacity: 0.35;
-  pointer-events: none;
+  border-color: var(--festive-primary);
+  border-left-width: 6px;
+  box-shadow: 0 18px 45px var(--festive-glow-a);
 }
 
 .card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 14px 18px;
   border-bottom: 1px solid var(--hairline);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(250, 250, 250, 0.4));
 }
 
 .day-name {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 21px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 700;
   color: var(--ink);
   text-transform: capitalize;
 }
@@ -418,24 +466,26 @@ header::after, .hero::after   { bottom: 8px; background: var(--hairline-gold); }
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 9px;
+  font-size: 9.5px;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--accent, var(--brass-deep));
-  border: 1px solid currentColor;
-  padding: 5px 10px;
-  border-radius: 3px;
-  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #fff;
+  background: linear-gradient(135deg, var(--festive-primary), var(--festive-secondary));
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px var(--festive-glow-a);
 }
 .today-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--accent, var(--brass-deep));
+  background: #fff;
+  animation: pulse 1.5s infinite;
 }
 
 .card-body {
-  padding: 14px 20px 18px;
+  padding: 14px 18px 16px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -445,24 +495,24 @@ header::after, .hero::after   { bottom: 8px; background: var(--hairline-gold); }
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: 14px;
-  color: var(--ink-soft);
-  margin: 10px 0 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--festive-dark);
+  margin: 10px 0 6px;
 }
 .shift-header:first-child {
-  margin-top: 2px;
+  margin-top: 0;
 }
 .shift-icon {
-  font-size: 13px;
+  font-size: 14px;
 }
 .shift-time {
   margin-left: auto;
-  font-family: 'DM Sans', sans-serif;
-  font-style: normal;
-  font-size: 10px;
-  letter-spacing: 0.04em;
+  font-size: 10.5px;
+  font-weight: 600;
   color: var(--ink-dim);
 }
 
@@ -471,33 +521,33 @@ header::after, .hero::after   { bottom: 8px; background: var(--hairline-gold); }
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 12px;
-  background: var(--paper);
+  padding: 9px 12px;
+  background: var(--paper2);
   border: 1px solid var(--hairline);
   margin-bottom: 5px;
-  border-radius: 3px;
+  border-radius: 8px;
 }
 .staff-row:last-child {
   margin-bottom: 0;
 }
 
 .poste-badge {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--brass-deep);
-  background: var(--paper2);
-  border: 1px solid var(--hairline-gold);
+  color: var(--festive-dark);
+  background: var(--festive-glow-a);
+  border: 1px solid var(--festive-primary);
   padding: 4px 8px;
-  min-width: 48px;
+  min-width: 52px;
   text-align: center;
-  border-radius: 2px;
+  border-radius: 6px;
 }
 
 .staff-name {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 13.5px;
+  font-weight: 600;
   color: var(--ink);
   letter-spacing: 0.01em;
 }
@@ -509,6 +559,24 @@ header::after, .hero::after   { bottom: 8px; background: var(--hairline-gold); }
   padding: 6px 12px;
 }
 
+/* ─── ÉTATS DE CHARGEMENT & VIDE ─── */
+.loading-state {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 60px 0;
+}
+.loading-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--festive-primary);
+  opacity: 0.4;
+  animation: pulse 1s ease-in-out infinite;
+}
+.loading-dot:nth-child(2) { animation-delay: 0.15s; }
+.loading-dot:nth-child(3) { animation-delay: 0.3s; }
+
 /* ─── LOCKSCREEN & MODAL PIN UNIFIÉ ─── */
 .lockscreen, .modal-overlay {
   position: fixed;
@@ -517,12 +585,12 @@ header::after, .hero::after   { bottom: 8px; background: var(--hairline-gold); }
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(35, 31, 26, 0.45);
-  backdrop-filter: blur(8px);
+  background: rgba(20, 18, 16, 0.55);
+  backdrop-filter: blur(10px);
   padding: 20px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.26s ease;
+  transition: opacity 0.25s ease;
 }
 .lockscreen.active, .lockscreen:not(.hidden-app), .modal-overlay.active {
   opacity: 1;
@@ -535,39 +603,116 @@ header::after, .hero::after   { bottom: 8px; background: var(--hairline-gold); }
 .pin-panel, .modal-box {
   position: relative;
   width: 100%;
-  max-width: 340px;
-  background: var(--paper2);
-  border: 1px solid var(--hairline-gold);
+  max-width: 350px;
+  background: var(--paper);
+  border: 1px solid var(--hairline-color);
   box-shadow: var(--shadow-lg);
-  padding: 36px 28px 28px;
+  padding: 34px 26px 26px;
   text-align: center;
-  border-radius: 6px;
+  border-radius: 20px;
 }
-.pin-panel::before, .pin-panel::after, .modal-box::before, .modal-box::after {
-  content: '';
-  position: absolute;
-  left: 20px;
-  right: 20px;
-  height: 1px;
-}
-.pin-panel::before, .modal-box::before { top: 8px; background: var(--hairline-gold); }
-.pin-panel::after, .modal-box::after   { bottom: 8px; background: var(--hairline-gold); }
 
+.pin-panel.shake {
+  animation: shake 0.32s ease;
+}
+
+.pin-badge {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--festive-glow-a);
+  border: 1px solid var(--festive-primary);
+  color: var(--festive-primary);
+  border-radius: 16px;
+}
+
+.pin-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.pin-sub {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  margin-bottom: 20px;
+}
+
+.pin-dots {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+.pin-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid var(--festive-primary);
+  background: transparent;
+  transition: all 0.15s ease;
+}
+.pin-dot.filled {
+  background: var(--festive-primary);
+  box-shadow: 0 0 10px var(--festive-glow-a);
+  transform: scale(1.15);
+}
+
+.pin-error {
+  min-height: 16px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--err);
+  margin-bottom: 12px;
+}
+
+.pin-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.pin-key {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper2);
+  border: 1px solid var(--hairline);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 14px;
+  transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+}
+.pin-key:active {
+  transform: scale(0.93);
+  border-color: var(--festive-primary);
+  background: var(--festive-glow-a);
+}
 .pin-key.func {
   font-size: 15px;
-  color: var(--brass-deep);
+  color: var(--festive-dark);
 }
 .pin-key.enter {
-  background: var(--brass);
-  color: var(--paper2);
-  border-color: var(--brass);
+  background: linear-gradient(135deg, var(--festive-primary), var(--festive-secondary));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 12px var(--festive-glow-a);
 }
 .pin-key.enter:active {
-  background: var(--brass-deep);
-  border-color: var(--brass-deep);
+  filter: brightness(0.9);
 }
 
-/* ─── STYLES CUISINE & ÉDITION IN SITU ─── */
+/* ─── STYLES CUISINE & ÉDITION FESTIVE ─── */
 .staff-row.cuisine-row {
   display: flex;
   align-items: center;
@@ -575,40 +720,40 @@ header::after, .hero::after   { bottom: 8px; background: var(--hairline-gold); }
   padding: 10px 14px;
 }
 .staff-name.homme {
-  color: var(--sage);
+  color: #059669;
   font-weight: 600;
 }
 .staff-name.homme::before {
   content: '●';
-  color: var(--sage);
+  color: #059669;
   margin-right: 8px;
   font-size: 11px;
 }
 .staff-name.femme {
-  color: var(--terracotta);
+  color: #e11d48;
   font-weight: 600;
 }
 .staff-name.femme::before {
   content: '●';
-  color: var(--terracotta);
+  color: #e11d48;
   margin-right: 8px;
   font-size: 11px;
 }
 
-.badge-time {
+.badge-time, .badge {
   font-size: 11px;
   font-family: 'DM Sans', sans-serif;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.04em;
   padding: 4px 10px;
-  border-radius: 4px;
-  border: 1px solid var(--hairline-gold);
+  border-radius: 999px;
+  border: 1px solid var(--hairline-color);
   background: var(--paper);
   color: var(--ink);
   white-space: nowrap;
 }
-.badge-time.off {
-  background: var(--paper);
+.badge-time.off, .badge.off {
+  background: var(--paper2);
   border-color: var(--hairline);
   color: var(--ink-dim);
   font-style: italic;
@@ -616,35 +761,36 @@ header::after, .hero::after   { bottom: 8px; background: var(--hairline-gold); }
 
 .add-row-btn {
   width: 100%;
-  padding: 9px;
-  margin-top: 6px;
-  border: 1px dashed var(--brass);
-  background: var(--paper);
-  color: var(--brass-deep);
+  padding: 10px;
+  margin-top: 8px;
+  border: 2px dashed var(--festive-primary);
+  background: var(--festive-glow-a);
+  color: var(--festive-dark);
   font-family: inherit;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 8px;
   transition: all 0.15s ease;
 }
 .add-row-btn:hover {
-  background: var(--brass-soft);
+  background: var(--festive-primary);
+  color: #fff;
 }
 
 .del-row-btn {
   background: none;
   border: none;
   color: var(--err);
-  font-size: 16px;
+  font-size: 18px;
   cursor: pointer;
   padding: 0 4px;
   margin-left: 8px;
 }
 
-/* ─── STYLES MÉNAGE ─── */
+/* ─── STYLES MÉNAGE FESTIF ─── */
 .shift-row-menage {
   display: flex;
   align-items: center;
@@ -665,35 +811,35 @@ header::after, .hero::after   { bottom: 8px; background: var(--hairline-gold); }
   text-transform: uppercase;
 }
 .shift-label-menage.matin {
-  color: var(--brass-deep);
+  color: var(--festive-primary);
 }
 .shift-label-menage.soir {
-  color: var(--terracotta);
+  color: var(--festive-secondary);
 }
 .staff-name-menage {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.02em;
   color: var(--ink);
   margin-top: 2px;
   text-transform: uppercase;
 }
 .icon-box-menage {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--paper);
-  border: 1px solid var(--hairline-gold);
-  border-radius: 4px;
-  font-size: 15px;
+  background: var(--festive-glow-a);
+  border: 1px solid var(--festive-primary);
+  border-radius: 10px;
+  font-size: 16px;
 }
 
-/* ─── PIED DE PAGE ─── */
+/* ─── PIED DE PAGE FESTIF ─── */
 .footer, .page-footer {
   text-align: center;
-  font-size: 9px;
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.22em;
   color: var(--ink-dim);

@@ -28,6 +28,7 @@
     <div class="eyebrow">Ordre & Entretien</div>
     <h1 class="page-title">Planning <span>Ménage</span></h1>
     <p class="page-sub">Organisation et propreté de l'espace vestiaires.</p>
+    <div class="festive-week-badge" id="festive-badge">✨ Chargement...</div>
     <div class="gold-rule"></div>
     <div class="header-actions">
       <a href="index.html" class="back-btn">
@@ -59,37 +60,30 @@
       S1: {
         title: 'Semaine 01',
         schedules: [
-          { day: 'lundi', matin: { staff: 'SAMIRA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
-          { day: 'mardi', matin: { staff: 'SOUAD M' }, soir: { staff: 'SAMIRA / ANISSA' } },
-          { day: 'mercredi', matin: { staff: 'ANISSA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
-          { day: 'jeudi', matin: { staff: 'HAKIMA' }, soir: { staff: 'SAMIRA / ANISSA' } },
-          { day: 'vendredi', matin: { staff: 'SAMIRA / ANISSA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
-          { day: 'samedi', matin: { staff: 'SOUAD M / HAKIMA' }, soir: { staff: 'SAMIRA / ANISSA' } },
-          { day: 'dimanche', matin: { staff: 'SAMIRA / ANISSA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
+          { day: 'lundi', matin: { staff: 'Khadija' }, soir: { staff: 'Nawal' } },
+          { day: 'mardi', matin: { staff: 'Nawal' }, soir: { staff: 'Khadija' } },
+          { day: 'mercredi', matin: { staff: 'Khadija' }, soir: { staff: 'Nawal' } },
+          { day: 'jeudi', matin: { staff: 'Nawal' }, soir: { staff: 'Khadija' } },
+          { day: 'vendredi', matin: { staff: 'Khadija' }, soir: { staff: 'Nawal' } },
+          { day: 'samedi', matin: { staff: 'Nawal' }, soir: { staff: 'Khadija' } },
+          { day: 'dimanche', matin: { staff: 'Khadija' }, soir: { staff: 'Nawal' } },
         ]
       },
       S2: {
         title: 'Semaine 02',
         schedules: [
-          { day: 'lundi', matin: { staff: 'SOUAD M' }, soir: { staff: 'SAMIRA / ANISSA' } },
-          { day: 'mardi', matin: { staff: 'SAMIRA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
-          { day: 'mercredi', matin: { staff: 'HAKIMA' }, soir: { staff: 'SAMIRA / ANISSA' } },
-          { day: 'jeudi', matin: { staff: 'ANISSA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
-          { day: 'vendredi', matin: { staff: 'SOUAD M / HAKIMA' }, soir: { staff: 'SAMIRA / ANISSA' } },
-          { day: 'samedi', matin: { staff: 'SAMIRA / ANISSA' }, soir: { staff: 'SOUAD M / HAKIMA' } },
-          { day: 'dimanche', matin: { staff: 'SOUAD M / HAKIMA' }, soir: { staff: 'SAMIRA / ANISSA' } },
+          { day: 'lundi', matin: { staff: 'Nawal' }, soir: { staff: 'Khadija' } },
+          { day: 'mardi', matin: { staff: 'Khadija' }, soir: { staff: 'Nawal' } },
+          { day: 'mercredi', matin: { staff: 'Nawal' }, soir: { staff: 'Khadija' } },
+          { day: 'jeudi', matin: { staff: 'Khadija' }, soir: { staff: 'Nawal' } },
+          { day: 'vendredi', matin: { staff: 'Nawal' }, soir: { staff: 'Khadija' } },
+          { day: 'samedi', matin: { staff: 'Khadija' }, soir: { staff: 'Nawal' } },
+          { day: 'dimanche', matin: { staff: 'Nawal' }, soir: { staff: 'Khadija' } },
         ]
       }
     };
 
-    const ACCENTS = [
-      "var(--acc-1)",
-      "var(--acc-2)",
-      "var(--acc-3)",
-      "var(--acc-4)",
-      "var(--acc-5)"
-    ];
-
+    const ACCENTS = ['var(--acc-1)', 'var(--acc-2)', 'var(--acc-3)', 'var(--acc-4)', 'var(--acc-5)'];
     let currentWeek = 'S1';
 
     function getTodayLabel() {
@@ -104,6 +98,10 @@
         btns[0].classList.toggle('active', weekKey === 'S1');
         btns[1].classList.toggle('active', weekKey === 'S2');
       }
+
+      // Changement festif dynamique de couleur au clic
+      if (weekKey === 'S1') GC.applyFestiveTheme(0);
+      else GC.applyFestiveTheme(1);
       
       renderPlanning();
     }
@@ -112,6 +110,8 @@
       const listContainer = document.getElementById('planning-list');
       const today = getTodayLabel();
       const schedules = PLANNING_DATA[currentWeek].schedules;
+      const badge = document.getElementById('festive-badge');
+      if(badge) badge.innerText = `✨ ${PLANNING_DATA[currentWeek].title}`;
 
       listContainer.innerHTML = schedules.map((row, idx) => {
         const isToday = row.day === today;

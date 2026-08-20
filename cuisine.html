@@ -144,7 +144,7 @@
           </svg>
         </div>
         <h2 class="pin-title">Admin Cuisine</h2>
-        <p class="pin-sub">Saisissez le code PIN pour déverrouiller l'édition du planning.</p>
+        <p class="pin-sub">Saisissez le code PIN Admin (<strong>1975</strong>) pour déverrouiller l'édition du planning.</p>
       </div>
 
       <div class="pin-dots" id="pinDots">
@@ -181,6 +181,7 @@
     <div class="eyebrow">Production & Cadence</div>
     <h1 class="page-title">Planning <span>Cuisine</span></h1>
     <p class="page-sub">Organisation et suivi de l'équipe en cuisine.</p>
+    <div class="festive-week-badge" id="festive-badge">✨ Chargement...</div>
     <div class="gold-rule"></div>
 
     <div class="header-actions" id="admin-actions">
@@ -427,12 +428,12 @@
 
     async function submitPin() {
       if (pinCode.length !== 4) { pinError.innerText = "Entrez 4 chiffres."; return; }
-      const isValid = await GC.verifyPin(pinCode);
+      const isValid = await GC.verifyAdminPin(pinCode);
       if (isValid) {
         GC.setSessionAuth('gc_cuisine_admin');
         unlockEditMode();
       } else {
-        pinError.innerText = "Code incorrect. Réessayez.";
+        pinError.innerText = "Code Admin incorrect. Réessayez.";
         pinPanel.classList.remove("shake");
         void pinPanel.offsetWidth;
         pinPanel.classList.add("shake");

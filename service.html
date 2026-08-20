@@ -759,9 +759,10 @@
     <div class="logo-wrap">
       <img src="LOGO.jpg" alt="Grey Corner" onerror="this.src='https://ui-avatars.com/api/?name=GC&background=faf7f0&color=9c7a3c&size=256'">
     </div>
-    <div class="eyebrow">Espace Vestiaires</div>
-    <div class="page-title">Planning <span>Service</span></div>
-    <div class="page-sub">Hospitalité & Positionnement en Salle 🍽️</div>
+    <div class="eyebrow">Hospitalité & Salle</div>
+    <h1 class="page-title">Planning <span>Service</span></h1>
+    <p class="page-sub">Positionnement et coordination de l'équipe en salle 🍽️</p>
+    <div class="festive-week-badge" id="festive-badge">✨ Chargement...</div>
     <div class="gold-rule"></div>
     <div class="header-actions">
       <a href="index.html" class="back-btn">
@@ -1306,13 +1307,13 @@
         adminPinError.textContent = "Entrez le code à 4 chiffres.";
         return;
       }
-      const isValid = await GC.verifyPin(adminPinInput);
+      const isValid = await GC.verifyAdminPin(adminPinInput);
       if (isValid) {
         GC.setSessionAuth("gc_service_admin");
         closePinModal();
         openGeneratorDashboard();
       } else {
-        adminPinError.textContent = "Code PIN incorrect. Réessayez.";
+        adminPinError.textContent = "Code PIN Admin incorrect. Réessayez.";
         adminPinInput = "";
         updateAdminDots();
         pinBox.classList.remove("shake");

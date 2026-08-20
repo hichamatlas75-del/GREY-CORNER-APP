@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Grey Corner • Espace Vestiaires</title>
   <link rel="icon" type="image/jpeg" href="LOGO.jpg" />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">  <link rel="stylesheet" href="global.css" />
   <script src="shared.js"></script>
 
   <style>
@@ -150,9 +150,11 @@
 
   /* ── APP SHELL ── */
   .shell{
-    position:relative; z-index:1;
-    max-width:500px; margin:auto;
-    padding:34px 20px 60px;
+    max-width:560px;
+    margin:0 auto;
+    padding:20px 20px 40px;
+    position:relative;
+    z-index:1;
   }
   .shell.hidden-app{ display:none; }
 
@@ -219,54 +221,52 @@
 
   /* SECTION HEADER */
   .section-header{
-    display:flex; align-items:center; justify-content:space-between;
-    margin:30px 4px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 2px 10px;
   }
   .section-label{
-    font-family:"Cormorant Garamond",serif;
-    font-style:italic; font-size:16px; letter-spacing:.03em;
-    color:var(--brass-deep);
+    font-size:10px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.22em;
+    color:var(--festive-primary);
   }
   .section-pill{
-    font-size:9px; text-transform:uppercase; letter-spacing:.14em;
-    color:var(--brass-deep);
-    background:var(--paper2);
-    border:1px solid var(--hairline-gold);
-    padding:6px 12px;
+    font-size:10px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    background:var(--paper);
+    border:1px solid var(--hairline-color);
+    padding:4px 10px;
+    border-radius:999px;
+    font-weight:600;
   }
 
-  /* NAV CARDS */
-  .nav-list{ display:flex; flex-direction:column; }
-
+  /* CARTES DE NAVIGATION FESTIVES */
   .lux-card{
     position:relative;
     display:block;
-    height:132px;
+    height:110px;
     overflow:hidden;
     margin-bottom:14px;
     text-decoration:none;
     color:inherit;
-    background:var(--paper2);
-    border:1px solid var(--hairline-gold);
-    border-left:2px solid var(--brass);
+    background:var(--paper);
+    border:1px solid var(--hairline);
+    border-left:4px solid var(--festive-primary);
     box-shadow:var(--shadow);
-    transition:transform .15s ease, border-color .15s ease;
+    border-radius:14px;
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
   }
-  .lux-card:active{ transform:scale(.985); border-left-color:var(--brass-deep); }
-
-  .card-img{
-    position:absolute; inset:0;
-    background-size:cover; background-position:center;
-    filter:sepia(.22) saturate(1.1) brightness(1.03);
+  .lux-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 12px 28px var(--festive-glow-a);
+    border-color:var(--festive-primary);
   }
-  .card-scrim{
-    position:absolute; inset:0;
-    background:linear-gradient(90deg,
-      rgba(250,247,240,0.97) 0%,
-      rgba(250,247,240,0.82) 42%,
-      rgba(250,247,240,0.30) 75%,
-      rgba(250,247,240,0.05) 100%);
-  }
+  .lux-card:active{ transform:scale(.985); }
 
   .card-inner{
     position:relative; z-index:2;
@@ -275,41 +275,49 @@
     padding:0 20px;
   }
 
-  .meta{ display:flex; flex-direction:column; gap:8px; max-width:80%; }
+  .meta{ display:flex; flex-direction:column; gap:6px; max-width:82%; }
 
   .card-tag{
-    font-size:9px; text-transform:uppercase; letter-spacing:.18em;
-    color:var(--brass-deep);
+    font-size:9.5px; text-transform:uppercase; letter-spacing:.16em;
+    color:var(--festive-primary);
+    font-weight:700;
   }
 
   .title-row{ display:flex; align-items:center; gap:12px; }
 
   .icon-box{
-    width:38px; height:38px; flex-shrink:0;
+    width:42px; height:42px; flex-shrink:0;
     display:flex; align-items:center; justify-content:center;
-    background:var(--paper2);
-    border:1px solid var(--hairline-gold);
-    font-size:16px;
+    background:var(--festive-glow-a);
+    border:1px solid var(--festive-primary);
+    border-radius:12px;
+    font-size:18px;
   }
 
   .card-title{
     font-family:"Cormorant Garamond",serif;
-    font-size:21px; font-weight:600;
+    font-size:22px; font-weight:700;
     color:var(--ink);
   }
 
   .card-hint{
-    font-size:11px; line-height:1.4;
+    font-size:11.5px; line-height:1.4;
     color:var(--ink-soft);
     margin-top:2px;
   }
 
   .go-btn{
-    width:34px; height:34px; flex-shrink:0;
+    width:36px; height:36px; flex-shrink:0;
     display:flex; align-items:center; justify-content:center;
-    background:var(--paper2);
-    border:1px solid var(--hairline-gold);
-    color:var(--brass);
+    background:var(--festive-glow-a);
+    border:1px solid var(--festive-primary);
+    color:var(--festive-primary);
+    border-radius:50%;
+    transition:all 0.2s ease;
+  }
+  .lux-card:hover .go-btn{
+    background:var(--festive-primary);
+    color:#fff;
   }
 
   /* FOOTER */
@@ -331,12 +339,12 @@
     <div class="pin-panel" id="pinPanel">
       <div class="pin-top">
         <div class="pin-badge">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9c7a3c" stroke-width="1.6">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" />
           </svg>
         </div>
-        <h2 class="pin-title">Vestiaire Privé</h2>
-        <p class="pin-sub">Saisissez le code PIN pour accéder aux plannings d'équipe Grey Corner.</p>
+        <h2 class="pin-title">Vestiaire Équipe</h2>
+        <p class="pin-sub">Saisissez le code PIN (<strong>2010</strong> pour l'équipe) pour accéder aux plannings Grey Corner.</p>
       </div>
 
       <div class="pin-dots" id="pinDots">
@@ -372,7 +380,7 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
   <script>
-    /* ── ACCÈS SÉCURISÉ PIN ── */
+    /* ── ACCÈS SÉCURISÉ PIN (2010 Staff / 1975 Admin) ── */
     let pinValue = "";
 
     const lockscreen = document.getElementById("lockscreen");
@@ -400,7 +408,8 @@
 
     async function submitPin() {
       if (pinValue.length !== 4) { showError("Entrez un code à 4 chiffres."); return; }
-      const isValid = await GC.verifyPin(pinValue);
+      // Accepte le code Staff 2010 ou le code Admin 1975
+      const isValid = await GC.verifyStaffPin(pinValue);
       if (isValid) {
         clearError();
         unlockApp();
@@ -528,6 +537,10 @@
           React.createElement('p', { className: 'sub' },
             'Vestiaire privé. Organisation de l\'équipe et plannings par service.'
           ),
+          React.createElement('div', {
+            className: 'festive-week-badge',
+            id: 'festive-badge'
+          }, '✨ Ambiance Festive de la Semaine'),
           React.createElement('div', { className: 'gold-rule' })
         ),
 

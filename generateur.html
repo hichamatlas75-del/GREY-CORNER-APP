@@ -534,6 +534,7 @@
       <div class="eyebrow">Administration & Rotation</div>
       <div class="page-title">Générateur <span>Planning Bar</span></div>
       <div class="page-sub">Génération automatique hebdomadaire — Système 24h & Roulement des binômes.</div>
+      <div class="festive-week-badge" id="festive-badge">✨ Chargement...</div>
       <div class="header-nav">
         <a href="bar.html" class="nav-btn">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
@@ -1002,14 +1003,14 @@
       const err = document.getElementById("genPinError");
       const panel = document.getElementById("genPinPanel");
 
-      const isValid = await GC.verifyPin(genPinVal);
+      const isValid = await GC.verifyAdminPin(genPinVal);
       if (isValid) {
         GC.setSessionAuth("gc_bar_admin");
         const lock = document.getElementById("genLockscreen");
         if (lock) lock.style.display = "none";
         document.getElementById("mainShell").style.display = "block";
       } else {
-        if (err) err.textContent = "Code PIN incorrect.";
+        if (err) err.textContent = "Code PIN Admin incorrect.";
         if (panel) {
           panel.classList.remove("shake");
           void panel.offsetWidth;

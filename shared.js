@@ -8,9 +8,12 @@
 
   const GC = root.GC || {};
 
-  // ─── 1. SÉCURITÉ & HACHAGE SHA-256 (PIN) ───
-  // Hash SHA-256 du code PIN maître '1975'
-  GC.MASTER_PIN_HASH = "20ee235b5de5b36244da6f9aa1cbdd032a90867ba92276ccc8c38c0d0d57fcec";
+  // ─── 1. SÉCURITÉ & HACHAGE SHA-256 (PINs DÉDIÉS) ───
+  // Hash SHA-256 du code PIN Staff Bar & Service '2010'
+  GC.PIN_STAFF_HASH = "7d12ba56e9f8b3dc64f77c87318c4f37bc12cfbf1a37573cdf3e4fa683f20155";
+  // Hash SHA-256 du code PIN Administrateur Générateurs & Cuisine '1975'
+  GC.PIN_ADMIN_HASH = "20ee235b5de5b36244da6f9aa1cbdd032a90867ba92276ccc8c38c0d0d57fcec";
+  GC.MASTER_PIN_HASH = GC.PIN_ADMIN_HASH;
 
   GC.hashPin = async function(str) {
     if (!str) return '';
@@ -22,10 +25,27 @@
     return '';
   };
 
-  GC.verifyPin = async function(inputPin, expectedHash = GC.MASTER_PIN_HASH) {
+  /**
+   * Vérification du PIN selon le rôle :
+   * - 'admin' : Seul le PIN 1975 est accepté (Générateurs, Cuisine Admin).
+   * - 'staff' : Le PIN 2010 (Bar / Service) OU le PIN Admin 1975 est accepté.
+   */
+  GC.verifyPin = async function(inputPin, role = 'staff') {
     if (!inputPin) return false;
     const hashed = await GC.hashPin(inputPin);
-    return hashed === expectedHash;
+    if (role === 'admin') {
+      return hashed === GC.PIN_ADMIN_HASH;
+    }
+    // Rôle Staff : accepte 2010 (staff) ou 1975 (admin maître)
+    return hashed === GC.PIN_STAFF_HASH || hashed === GC.PIN_ADMIN_HASH;
+  };
+
+  GC.verifyAdminPin = async function(inputPin) {
+    return GC.verifyPin(inputPin, 'admin');
+  };
+
+  GC.verifyStaffPin = async function(inputPin) {
+    return GC.verifyPin(inputPin, 'staff');
   };
 
   GC.isSessionAuth = function(key = 'gc_auth') {
@@ -47,6 +67,135 @@
       sessionStorage.removeItem(key);
     } catch (e) {}
   };
+
+  // ─── 1.B. SYSTÈME DE THÈMES FESTIFS HEBDOMADAIRES MULTI-COULEURS ───
+  GC.FESTIVE_THEMES = [
+    {
+      id: 0,
+      name: "Corail & Sunset Solaire",
+      emoji: "🌅",
+      primary: "#ff5757",
+      secondary: "#ff8838",
+      accent: "#f5b700",
+      dark: "#9e1c1c",
+      glowA: "rgba(255, 87, 87, 0.28)",
+      glowB: "rgba(255, 136, 56, 0.28)",
+      bgGradient: "linear-gradient(180deg, #fff7f2 0%, #ffefe5 50%, #fde4d4 100%)",
+      palette: ["#ff5757", "#ff8838", "#f5b700", "#e03161", "#8b2671"]
+    },
+    {
+      id: 1,
+      name: "Émeraude & Menthe Royale",
+      emoji: "🌿",
+      primary: "#00b862",
+      secondary: "#00c49f",
+      accent: "#e5b700",
+      dark: "#006b3a",
+      glowA: "rgba(0, 184, 98, 0.26)",
+      glowB: "rgba(0, 196, 159, 0.26)",
+      bgGradient: "linear-gradient(180deg, #f0fdf4 0%, #e3f9eb 50%, #d1f3dc 100%)",
+      palette: ["#00b862", "#00c49f", "#e5b700", "#059669", "#0d9488"]
+    },
+    {
+      id: 2,
+      name: "Océan & Lagon Électrique",
+      emoji: "🌊",
+      primary: "#2563eb",
+      secondary: "#06b6d4",
+      accent: "#f59e0b",
+      dark: "#1e3a8a",
+      glowA: "rgba(37, 99, 235, 0.26)",
+      glowB: "rgba(6, 182, 212, 0.26)",
+      bgGradient: "linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)",
+      palette: ["#2563eb", "#06b6d4", "#f59e0b", "#4f46e5", "#0284c7"]
+    },
+    {
+      id: 3,
+      name: "Pourpre & Magenta Magique",
+      emoji: "🎆",
+      primary: "#d946ef",
+      secondary: "#8b5cf6",
+      accent: "#f43f5e",
+      dark: "#701a75",
+      glowA: "rgba(217, 70, 239, 0.26)",
+      glowB: "rgba(139, 92, 246, 0.26)",
+      bgGradient: "linear-gradient(180deg, #fdf4ff 0%, #fae8ff 50%, #f5d0fe 100%)",
+      palette: ["#d946ef", "#8b5cf6", "#f43f5e", "#a855f7", "#ec4899"]
+    },
+    {
+      id: 4,
+      name: "Rubis & Fiesta Tropicale",
+      emoji: "🎉",
+      primary: "#ef4444",
+      secondary: "#f59e0b",
+      accent: "#8b5cf6",
+      dark: "#991b1b",
+      glowA: "rgba(239, 68, 68, 0.26)",
+      glowB: "rgba(245, 158, 11, 0.26)",
+      bgGradient: "linear-gradient(180deg, #fff1f2 0%, #ffe4e6 50%, #fecdd3 100%)",
+      palette: ["#ef4444", "#f59e0b", "#10b981", "#6366f1", "#ec4899"]
+    }
+  ];
+
+  GC.getWeekNumber = function(d = new Date()) {
+    const target = new Date(d.valueOf());
+    const dayNr = (d.getDay() + 6) % 7;
+    target.setDate(target.getDate() - dayNr + 3);
+    const firstThursday = target.valueOf();
+    target.setMonth(0, 1);
+    if (target.getDay() !== 4) {
+      target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7);
+    }
+    return 1 + Math.ceil((firstThursday - target) / 604800000);
+  };
+
+  GC.getCurrentFestiveTheme = function(offset = 0) {
+    const weekNum = GC.getWeekNumber();
+    const idx = (weekNum + offset) % GC.FESTIVE_THEMES.length;
+    return GC.FESTIVE_THEMES[idx];
+  };
+
+  GC.applyFestiveTheme = function(themeIndex) {
+    let theme;
+    if (themeIndex !== undefined && GC.FESTIVE_THEMES[themeIndex]) {
+      theme = GC.FESTIVE_THEMES[themeIndex];
+    } else {
+      theme = GC.getCurrentFestiveTheme();
+    }
+
+    if (typeof document !== 'undefined') {
+      const root = document.documentElement;
+      root.style.setProperty('--festive-primary', theme.primary);
+      root.style.setProperty('--festive-secondary', theme.secondary);
+      root.style.setProperty('--festive-accent', theme.accent);
+      root.style.setProperty('--festive-dark', theme.dark);
+      root.style.setProperty('--festive-bg', theme.bgGradient);
+      root.style.setProperty('--festive-glow-a', theme.glowA);
+      root.style.setProperty('--festive-glow-b', theme.glowB);
+      root.style.setProperty('--acc-1', theme.palette[0]);
+      root.style.setProperty('--acc-2', theme.palette[1]);
+      root.style.setProperty('--acc-3', theme.palette[2]);
+      root.style.setProperty('--acc-4', theme.palette[3]);
+      root.style.setProperty('--acc-5', theme.palette[4]);
+      
+      document.body.classList.remove('theme-0', 'theme-1', 'theme-2', 'theme-3', 'theme-4');
+      document.body.classList.add(`theme-${theme.id}`);
+
+      // Mettre à jour l'indicateur de thème si présent
+      const badge = document.getElementById('festive-badge');
+      if (badge) {
+        badge.innerHTML = `${theme.emoji} Semaine : <span style="font-weight:700; color:${theme.dark}">${theme.name}</span>`;
+      }
+    }
+    return theme;
+  };
+
+  // Initialisation automatique du thème festif dès le chargement du DOM
+  if (typeof window !== 'undefined') {
+    window.addEventListener('DOMContentLoaded', () => {
+      GC.applyFestiveTheme();
+    });
+  }
 
   // ─── 2. ESCAPING & STRING HELPERS ───
   GC.escapeHtml = function(str) {
