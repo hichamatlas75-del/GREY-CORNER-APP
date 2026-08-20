@@ -372,8 +372,7 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
   <script>
-    /* ── ACCÈS SÉCURISÉ ── */
-    const PIN_HASH = "81a83544cf93c245178cbc1620030f1123f435af867c79d87135983c52ab39d9";
+    /* ── ACCÈS SÉCURISÉ PIN ── */
     let pinValue = "";
 
     const lockscreen = document.getElementById("lockscreen");
@@ -393,6 +392,7 @@
     }
 
     function unlockApp() {
+      GC.setSessionAuth('gc_vestiaire_auth');
       lockscreen.style.opacity = "0";
       lockscreen.style.pointerEvents = "none";
       setTimeout(() => { lockscreen.remove(); rootShell.classList.remove("hidden-app"); }, 260);
@@ -400,9 +400,20 @@
 
     async function submitPin() {
       if (pinValue.length !== 4) { showError("Entrez un code à 4 chiffres."); return; }
-      const hashed = await GC.hashPin(pinValue);
-      if (hashed === PIN_HASH) { clearError(); unlockApp(); }
-      else { showError("Code incorrect. Réessayez."); pinValue = ""; updateDots(); }
+      const isValid = await GC.verifyPin(pinValue);
+      if (isValid) {
+        clearError();
+        unlockApp();
+      } else {
+        showError("Code incorrect. Réessayez.");
+        pinValue = "";
+        updateDots();
+      }
+    }
+
+    // Déverrouillage automatique si déjà authentifié dans la session
+    if (GC.isSessionAuth('gc_vestiaire_auth')) {
+      unlockApp();
     }
 
     document.querySelectorAll("[data-num]").forEach(btn => {

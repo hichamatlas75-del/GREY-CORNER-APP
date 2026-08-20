@@ -1269,10 +1269,9 @@
     }
 
     /* ════════════════════════════════════════════════════════════════════
-       GÉNÉRATEUR DE PLANNING — ACCÈS ADMIN SÉCURISÉ & ROTATION CARRÉE
+       GÉNÉRATEUR DE PLANNING — ACCÈS ADMIN SÉCURISÉ SHA-256
        ════════════════════════════════════════════════════════════════════ */
 
-    const ADMIN_PIN_HASH = "20ee235b5de5b36244da6f9aa1cbdd032a90867ba92276ccc8c38c0d0d57fcec";
     let adminPinInput = "";
 
     const pinModal        = document.getElementById("pinModal");
@@ -1282,6 +1281,10 @@
     const generatorModal  = document.getElementById("generatorModal");
 
     function openPinModal() {
+      if (GC.isSessionAuth("gc_service_admin")) {
+        openGeneratorDashboard();
+        return;
+      }
       adminPinInput = "";
       updateAdminDots();
       adminPinError.textContent = "";
@@ -1303,8 +1306,9 @@
         adminPinError.textContent = "Entrez le code à 4 chiffres.";
         return;
       }
-      const hashed = await GC.hashPin(adminPinInput);
-      if (hashed === ADMIN_PIN_HASH) {
+      const isValid = await GC.verifyPin(adminPinInput);
+      if (isValid) {
+        GC.setSessionAuth("gc_service_admin");
         closePinModal();
         openGeneratorDashboard();
       } else {

@@ -1,13 +1,54 @@
 /**
  * GREY CORNER — Shared Core Library (shared.js)
  * Utilitaires partagés pour la suite d'applications Grey Corner Planning
+ * Thème : Automne & Rentrée Élégante (Papier écru, Laiton, Terracotta, Vert Sauge)
  */
 (function(root) {
   'use strict';
 
   const GC = root.GC || {};
 
-  // ─── 1. ESCAPING & STRING HELPERS ───
+  // ─── 1. SÉCURITÉ & HACHAGE SHA-256 (PIN) ───
+  // Hash SHA-256 du code PIN maître '1975'
+  GC.MASTER_PIN_HASH = "20ee235b5de5b36244da6f9aa1cbdd032a90867ba92276ccc8c38c0d0d57fcec";
+
+  GC.hashPin = async function(str) {
+    if (!str) return '';
+    if (typeof window !== 'undefined' && window.crypto && crypto.subtle) {
+      const enc = new TextEncoder().encode(String(str));
+      const buf = await crypto.subtle.digest('SHA-256', enc);
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    return '';
+  };
+
+  GC.verifyPin = async function(inputPin, expectedHash = GC.MASTER_PIN_HASH) {
+    if (!inputPin) return false;
+    const hashed = await GC.hashPin(inputPin);
+    return hashed === expectedHash;
+  };
+
+  GC.isSessionAuth = function(key = 'gc_auth') {
+    try {
+      return sessionStorage.getItem(key) === '1';
+    } catch (e) {
+      return false;
+    }
+  };
+
+  GC.setSessionAuth = function(key = 'gc_auth') {
+    try {
+      sessionStorage.setItem(key, '1');
+    } catch (e) {}
+  };
+
+  GC.clearSessionAuth = function(key = 'gc_auth') {
+    try {
+      sessionStorage.removeItem(key);
+    } catch (e) {}
+  };
+
+  // ─── 2. ESCAPING & STRING HELPERS ───
   GC.escapeHtml = function(str) {
     return String(str ?? '')
       .replaceAll('&', '&amp;')
@@ -21,7 +62,7 @@
     return /<html[\s>]/i.test(text) || /<!doctype html/i.test(text);
   };
 
-  // ─── 2. CSV PARSING ───
+  // ─── 3. CSV PARSING ───
   GC.parseCsvLine = function(line) {
     const out = [];
     let cur = '';
@@ -52,7 +93,7 @@
     return line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
   };
 
-  // ─── 3. NORMALISATION ROBUSTE DES POSTES ───
+  // ─── 4. NORMALISATION ROBUSTE DES POSTES ───
   GC.cleanPoste = function(raw) {
     if (!raw) return '';
     const p = String(raw).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[\s_]/g, '').trim();
@@ -78,7 +119,7 @@
     return (t && t !== '-') ? t : fallback;
   };
 
-  // ─── 4. DATES & CALENDRIER EN FRANÇAIS ───
+  // ─── 5. DATES & CALENDRIER EN FRANÇAIS ───
   GC.FRENCH_DAYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
   GC.FRENCH_MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 
@@ -156,16 +197,6 @@
     return null;
   };
 
-  // ─── 5. HACHAGE SHA-256 SÉCURISÉ (PIN) ───
-  GC.hashPin = async function(str) {
-    if (window.crypto && crypto.subtle) {
-      const enc = new TextEncoder().encode(str);
-      const buf = await crypto.subtle.digest('SHA-256', enc);
-      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-    return '';
-  };
-
   // ─── 6. NOTIFICATIONS UI (ALERTE & TOAST) ───
   GC.showAlert = function(msg, boxId = 'alert-box', textId = 'alert-text') {
     const box = document.getElementById(boxId);
@@ -208,6 +239,9 @@
 
   // ─── RÉTROCOMPATIBILITÉ GLOBALE DIRECTE ───
   root.GC = GC;
+  root.MASTER_PIN_HASH = GC.MASTER_PIN_HASH;
+  root.verifyPin = GC.verifyPin;
+  root.hashPin = GC.hashPin;
   root.escapeHtml = root.escapeHtml || GC.escapeHtml;
   root.isHtml = root.isHtml || GC.isHtml;
   root.splitCsv = root.splitCsv || GC.splitCsv;

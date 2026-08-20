@@ -964,14 +964,13 @@
       showToast("Fichier CSV téléchargé avec succès !");
     }
 
-    /* ── PIN 1975 Security Lock ── */
-    const MANAGER_PIN = "1975";
+    /* ── SÉCURITÉ PIN SHA-256 (Générateur Bar) ── */
     let genPinVal = "";
 
     function checkAuth() {
       const lock = document.getElementById("genLockscreen");
       if (!lock) return;
-      if (sessionStorage.getItem("gc_bar_admin") === "1") {
+      if (GC.isSessionAuth("gc_bar_admin")) {
         lock.style.display = "none";
         document.getElementById("mainShell").style.display = "block";
       } else {
@@ -999,12 +998,13 @@
       dots.forEach((d, i) => d.classList.toggle("filled", i < genPinVal.length));
     }
 
-    function submitGenPin() {
+    async function submitGenPin() {
       const err = document.getElementById("genPinError");
       const panel = document.getElementById("genPinPanel");
 
-      if (genPinVal === MANAGER_PIN) {
-        sessionStorage.setItem("gc_bar_admin", "1");
+      const isValid = await GC.verifyPin(genPinVal);
+      if (isValid) {
+        GC.setSessionAuth("gc_bar_admin");
         const lock = document.getElementById("genLockscreen");
         if (lock) lock.style.display = "none";
         document.getElementById("mainShell").style.display = "block";
