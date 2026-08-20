@@ -1490,8 +1490,29 @@
     const APPS_SCRIPT_CODE = `/**
  * GREY CORNER — WEBHOOK PLANNING SERVICE
  * Workflow Chronologique : Ajout sous le dernier planning avec 1 ligne sautée
- * Sans JAMAIS écraser l'historique existant de la feuille
+ * Formatage strict en français sans mention GMT/UTC dans la Colonne A
  */
+
+// Fonction de conversion et nettoyage de date en texte français pur (sans GMT/UTC)
+function formatToFrenchDateString(val) {
+  if (val === null || val === undefined || val === "") return "";
+  if (val instanceof Date && !isNaN(val.getTime())) {
+    var days = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+    var months = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+    return days[val.getDay()] + " " + val.getDate() + " " + months[val.getMonth()];
+  }
+  var s = String(val).trim();
+  if (s.indexOf("GMT") !== -1 || s.indexOf("UTC") !== -1) {
+    var parsed = new Date(s);
+    if (!isNaN(parsed.getTime())) {
+      var days = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+      var months = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+      return days[parsed.getDay()] + " " + parsed.getDate() + " " + months[parsed.getMonth()];
+    }
+  }
+  return s;
+}
+
 function doPost(e) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -1506,13 +1527,14 @@ function doPost(e) {
       draftSheet = ss.insertSheet("BROUILLON");
     }
 
-    // Préparation de la matrice tabulaire à insérer
+    // Préparation de la matrice tabulaire à insérer avec dates en français pur
     const matrixToAppend = [];
     newRows.forEach(function(r) {
+      const cleanDate = formatToFrenchDateString(r.date || "");
       if (r.note || r.hMatin || r.hSoir) {
-        matrixToAppend.push([r.date || "", r.matin || "", r.soir || "", r.note || "", r.hMatin || "", r.hSoir || ""]);
+        matrixToAppend.push([cleanDate, r.matin || "", r.soir || "", r.note || "", r.hMatin || "", r.hSoir || ""]);
       } else {
-        matrixToAppend.push([r.date || "", r.matin || "", r.soir || ""]);
+        matrixToAppend.push([cleanDate, r.matin || "", r.soir || ""]);
       }
     });
 
@@ -1520,10 +1542,17 @@ function doPost(e) {
     function appendChronologicalPlanning(targetSheet, sourceHistorySheet, rowsMatrix) {
       if (!rowsMatrix || rowsMatrix.length === 0) return;
 
-      // 1. Récupération de l'historique existant
+      // 1. Récupération et assainissement de l'historique existant
       let existingData = targetSheet.getDataRange().getValues();
       while (existingData.length > 0 && existingData[existingData.length - 1].every(function(c) { return String(c).trim() === ""; })) {
         existingData.pop();
+      }
+
+      // Nettoyer toute conversion involontaire en objet Date / GMT
+      for (let i = 0; i < existingData.length; i++) {
+        if (existingData[i][0]) {
+          existingData[i][0] = formatToFrenchDateString(existingData[i][0]);
+        }
       }
 
       // Si targetSheet est vide (ex: nouveau BROUILLON), cloner l'historique de la feuille active
@@ -1531,6 +1560,11 @@ function doPost(e) {
         let historyData = sourceHistorySheet.getDataRange().getValues();
         while (historyData.length > 0 && historyData[historyData.length - 1].every(function(c) { return String(c).trim() === ""; })) {
           historyData.pop();
+        }
+        for (let i = 0; i < historyData.length; i++) {
+          if (historyData[i][0]) {
+            historyData[i][0] = formatToFrenchDateString(historyData[i][0]);
+          }
         }
         if (historyData.length > 0) {
           existingData = historyData;
@@ -1581,6 +1615,9 @@ function doPost(e) {
 
       const range = targetSheet.getRange(1, 1, paddedMatrix.length, numCols);
       range.setValues(paddedMatrix);
+
+      // Verrouiller la Colonne A en format Texte Brut pour empêcher toute conversion GMT
+      targetSheet.getRange(1, 1, paddedMatrix.length, 1).setNumberFormat("@");
 
       // Formatage visuel identique à Feuille 1
       targetSheet.setColumnWidth(1, 140); // DATE
@@ -1645,8 +1682,9 @@ function doGet(e) {
     const rows = [];
     for (let i = 0; i < data.length; i++) {
       if (data[i][0]) {
+        const cleanDate = formatToFrenchDateString(data[i][0]);
         rows.push({
-          date: String(data[i][0]),
+          date: cleanDate,
           matin: String(data[i][1] || ""),
           soir: String(data[i][2] || ""),
           note: String(data[i][3] || ""),
@@ -2222,7 +2260,7 @@ function doGet(e) {
 
     /* ── MOTEUR DE ROTATION CARRÉE EXACTE ── */
     const FRENCH_DAYS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
-    const FRENCH_MONTHS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+    const FRENCH_MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 
     function formatFrenchDate(dateObj) {
       const dayName = FRENCH_DAYS[dateObj.getDay()];
