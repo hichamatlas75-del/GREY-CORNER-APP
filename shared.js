@@ -171,12 +171,13 @@
       root.style.setProperty('--festive-dark', theme.dark);
       root.style.setProperty('--festive-bg', theme.bgGradient);
       root.style.setProperty('--festive-glow-a', theme.glowA);
-      root.style.setProperty('--festive-glow-b', theme.glowB);
-      root.style.setProperty('--acc-1', theme.palette[0]);
-      root.style.setProperty('--acc-2', theme.palette[1]);
-      root.style.setProperty('--acc-3', theme.palette[2]);
-      root.style.setProperty('--acc-4', theme.palette[3]);
-      root.style.setProperty('--acc-5', theme.palette[4]);
+      root.style.setProperty('--acc-1', '#ff7043'); // Lundi : Sunset Corail
+      root.style.setProperty('--acc-2', '#10b981'); // Mardi : Vert Émeraude
+      root.style.setProperty('--acc-3', '#2563eb'); // Mercredi : Bleu Azur
+      root.style.setProperty('--acc-4', '#9333ea'); // Jeudi : Violet Pourpre
+      root.style.setProperty('--acc-5', '#f43f5e'); // Vendredi : Rose Rubis
+      root.style.setProperty('--acc-6', '#f59e0b'); // Samedi : Ambre Solaire
+      root.style.setProperty('--acc-7', '#06b6d4'); // Dimanche : Lagon Turquoise
       
       document.body.classList.remove('theme-0', 'theme-1', 'theme-2', 'theme-3', 'theme-4');
       document.body.classList.add(`theme-${theme.id}`);

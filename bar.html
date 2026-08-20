@@ -466,11 +466,13 @@
     const DEFAULT_H_SOIR  = "14:15 – Fin service";
 
     const ACCENTS = [
-      "var(--acc-1)",
-      "var(--acc-2)",
-      "var(--acc-3)",
-      "var(--acc-4)",
-      "var(--acc-5)"
+      "var(--acc-1)", // Lundi : Sunset Corail
+      "var(--acc-2)", // Mardi : Vert Émeraude
+      "var(--acc-3)", // Mercredi : Bleu Azur
+      "var(--acc-4)", // Jeudi : Violet Pourpre
+      "var(--acc-5)", // Vendredi : Rose Rubis
+      "var(--acc-6)", // Samedi : Ambre Solaire
+      "var(--acc-7)"  // Dimanche : Lagon Turquoise
     ];
 
     /* ── main ── */
@@ -532,11 +534,13 @@
         const isToday = idx === todayIdx;
         const hMatin  = pickTime(j.hMatin, DEFAULT_H_MATIN);
         const hSoir   = pickTime(j.hSoir,  DEFAULT_H_SOIR);
-        const accent  = ACCENTS[idx % ACCENTS.length];
+        const dayNum  = idx % 7;
+        const accent  = ACCENTS[dayNum];
         const delay   = (idx * .04).toFixed(2);
 
         return `
           <div class="day-card ${isToday ? 'is-today' : ''} fade-up"
+               data-day="${dayNum}"
                style="--accent:${accent}; animation-delay:${delay}s;"
                ${isToday ? 'id="today-card"' : ''}>
 

@@ -83,7 +83,15 @@
       }
     };
 
-    const ACCENTS = ['var(--acc-1)', 'var(--acc-2)', 'var(--acc-3)', 'var(--acc-4)', 'var(--acc-5)'];
+    const ACCENTS = [
+      'var(--acc-1)', // Lundi : Sunset Corail
+      'var(--acc-2)', // Mardi : Vert Émeraude
+      'var(--acc-3)', // Mercredi : Bleu Azur
+      'var(--acc-4)', // Jeudi : Violet Pourpre
+      'var(--acc-5)', // Vendredi : Rose Rubis
+      'var(--acc-6)', // Samedi : Ambre Solaire
+      'var(--acc-7)'  // Dimanche : Lagon Turquoise
+    ];
     let currentWeek = 'S1';
 
     function getTodayLabel() {
@@ -116,10 +124,11 @@
       listContainer.innerHTML = schedules.map((row, idx) => {
         const isToday = row.day === today;
         const isWE = ['vendredi', 'samedi', 'dimanche'].includes(row.day);
-        const accent = ACCENTS[idx % ACCENTS.length];
+        const dayNum = idx % 7;
+        const accent = ACCENTS[dayNum];
 
         return `
-          <div class="day-card ${isToday ? 'is-today' : ''} scroll-mt-24" id="day-${row.day}" style="--accent:${accent}">
+          <div class="day-card ${isToday ? 'is-today' : ''} scroll-mt-24" id="day-${row.day}" data-day="${dayNum}" style="--accent:${accent}">
             <div class="card-header">
               <span class="day-name">${escapeHtml(row.day)}</span>
               ${isToday ? `<div class="today-badge"><span class="today-dot"></span>Aujourd'hui</div>` : ''}
