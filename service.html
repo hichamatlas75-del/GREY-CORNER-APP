@@ -1266,6 +1266,16 @@
       const t0 = todayMidnight();
       const anyParsable = all.some(r => r.dateObj instanceof Date);
       const data = anyParsable ? all.filter(r => !r.dateObj || r.dateObj >= t0) : all;
+
+      // Mémoriser la dernière date du planning pour le générateur
+      let maxDate = null;
+      all.forEach(r => {
+        if (r.dateObj instanceof Date && !isNaN(r.dateObj)) {
+          if (!maxDate || r.dateObj > maxDate) maxDate = r.dateObj;
+        }
+      });
+      window.lastSheetDate = maxDate;
+
       render(data, t0);
     }
 
@@ -1445,14 +1455,24 @@
 
     /* ── GESTIONNAIRE DU DASHBOARD GÉNÉRATEUR ── */
     function openGeneratorDashboard() {
-      const d = new Date();
-      const day = d.getDay();
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-      const monday = new Date(d.setDate(diff));
+      // Détermination du lundi suivant la dernière date de la feuille
+      let nextMonday = null;
+      if (window.lastSheetDate instanceof Date && !isNaN(window.lastSheetDate)) {
+        const d = new Date(window.lastSheetDate);
+        d.setDate(d.getDate() + 1);
+        const day = d.getDay();
+        const diff = d.getDate() + (day === 0 ? 1 : (day === 1 ? 0 : 8 - day));
+        nextMonday = new Date(d.setDate(diff));
+      } else {
+        const d = new Date();
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        nextMonday = new Date(d.setDate(diff));
+      }
       
-      const yyyy = monday.getFullYear();
-      const mm = String(monday.getMonth() + 1).padStart(2, '0');
-      const dd = String(monday.getDate()).padStart(2, '0');
+      const yyyy = nextMonday.getFullYear();
+      const mm = String(nextMonday.getMonth() + 1).padStart(2, '0');
+      const dd = String(nextMonday.getDate()).padStart(2, '0');
       document.getElementById("genStartDate").value = `${yyyy}-${mm}-${dd}`;
 
       loadTeamNames();
@@ -1469,15 +1489,15 @@
 
     const APPS_SCRIPT_CODE = `/**
  * GREY CORNER — WEBHOOK PLANNING SERVICE
- * Workflow en 2 étapes : Sauvegarde Brouillon vs Feu Vert Admin
- * Mise en page automatique 100% IDENTIQUE à Feuille 1
+ * Workflow Chronologique : Ajout sous le dernier planning avec 1 ligne sautée
+ * Sans JAMAIS écraser l'historique existant de la feuille
  */
 function doPost(e) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const payload = JSON.parse(e.postData.contents);
     const action = payload.action || "save_draft"; // "save_draft", "publish_live" ou "publish_draft_direct"
-    const rows = payload.rows || [];
+    const newRows = payload.rows || [];
 
     // Récupérer ou créer les deux onglets
     let liveSheet = ss.getSheetByName("PUBLIE") || ss.getSheetByName("Feuille 1") || ss.getSheets()[0];
@@ -1486,83 +1506,121 @@ function doPost(e) {
       draftSheet = ss.insertSheet("BROUILLON");
     }
 
-    // Préparation de la matrice tabulaire (exactement comme Feuille 1)
-    const output = [];
-    rows.forEach(function(r) {
+    // Préparation de la matrice tabulaire à insérer
+    const matrixToAppend = [];
+    newRows.forEach(function(r) {
       if (r.note || r.hMatin || r.hSoir) {
-        output.push([r.date || "", r.matin || "", r.soir || "", r.note || "", r.hMatin || "", r.hSoir || ""]);
+        matrixToAppend.push([r.date || "", r.matin || "", r.soir || "", r.note || "", r.hMatin || "", r.hSoir || ""]);
       } else {
-        output.push([r.date || "", r.matin || "", r.soir || ""]);
+        matrixToAppend.push([r.date || "", r.matin || "", r.soir || ""]);
       }
     });
 
-    // Fonction de mise en page visuelle identique à Feuille 1
-    function applySheetFormatting(sheet, matrix) {
-      sheet.clear();
-      if (!matrix || matrix.length === 0) return;
+    // Fonction d'ajout chronologique avec saut de ligne et conservation de l'historique
+    function appendChronologicalPlanning(targetSheet, sourceHistorySheet, rowsMatrix) {
+      if (!rowsMatrix || rowsMatrix.length === 0) return;
 
-      const numCols = Math.max.apply(null, matrix.map(function(row) { return row.length; })) || 3;
-      const paddedMatrix = matrix.map(function(row) {
+      // 1. Récupération de l'historique existant
+      let existingData = targetSheet.getDataRange().getValues();
+      while (existingData.length > 0 && existingData[existingData.length - 1].every(function(c) { return String(c).trim() === ""; })) {
+        existingData.pop();
+      }
+
+      // Si targetSheet est vide (ex: nouveau BROUILLON), cloner l'historique de la feuille active
+      if (existingData.length <= 1 && sourceHistorySheet && sourceHistorySheet !== targetSheet) {
+        let historyData = sourceHistorySheet.getDataRange().getValues();
+        while (historyData.length > 0 && historyData[historyData.length - 1].every(function(c) { return String(c).trim() === ""; })) {
+          historyData.pop();
+        }
+        if (historyData.length > 0) {
+          existingData = historyData;
+        }
+      }
+
+      // 2. Détection anti-doublon (si la semaine à ajouter remplace une version déjà présente en fin de feuille)
+      const firstNewDate = String(rowsMatrix.find(function(r) { return r[0] && String(r[0]).toUpperCase().indexOf("DATE") === -1; })?.[0] || "").toLowerCase().trim();
+      let duplicateIndex = -1;
+
+      if (firstNewDate) {
+        for (let i = 0; i < existingData.length; i++) {
+          const rowDate = String(existingData[i][0] || "").toLowerCase().trim();
+          if (rowDate === firstNewDate) {
+            duplicateIndex = (i > 0 && String(existingData[i-1][0]).toUpperCase().indexOf("DATE") !== -1) ? i - 1 : i;
+            break;
+          }
+        }
+      }
+
+      let combinedData = [];
+      if (duplicateIndex !== -1) {
+        // Remplacement de la semaine existante en fin de feuille
+        combinedData = existingData.slice(0, duplicateIndex);
+      } else {
+        combinedData = existingData.slice();
+      }
+
+      // 3. Sauter une ligne vide avant le nouveau planning si la feuille contient déjà des lignes
+      if (combinedData.length > 0) {
+        combinedData.push(["", "", ""]);
+      }
+
+      // 4. Ajouter les nouvelles lignes
+      rowsMatrix.forEach(function(row) {
+        combinedData.push(row);
+      });
+
+      // 5. Réécriture propre et mise en page 100% identique
+      targetSheet.clear();
+
+      const numCols = Math.max.apply(null, combinedData.map(function(row) { return row.length; })) || 3;
+      const paddedMatrix = combinedData.map(function(row) {
         const newRow = row.slice();
         while (newRow.length < numCols) newRow.push("");
         return newRow;
       });
 
-      const range = sheet.getRange(1, 1, paddedMatrix.length, numCols);
+      const range = targetSheet.getRange(1, 1, paddedMatrix.length, numCols);
       range.setValues(paddedMatrix);
 
-      // Largeurs de colonnes identiques à Feuille 1
-      sheet.setColumnWidth(1, 140); // Colonne A (DATE)
-      sheet.setColumnWidth(2, 420); // Colonne B (MATIN)
-      sheet.setColumnWidth(3, 420); // Colonne C (SOIR)
-      if (numCols >= 4) sheet.setColumnWidth(4, 200);
+      // Formatage visuel identique à Feuille 1
+      targetSheet.setColumnWidth(1, 140); // DATE
+      targetSheet.setColumnWidth(2, 420); // MATIN
+      targetSheet.setColumnWidth(3, 420); // SOIR
+      if (numCols >= 4) targetSheet.setColumnWidth(4, 200);
 
-      // Alignement, police et retour à la ligne automatique
       range.setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
       range.setVerticalAlignment("middle");
       range.setFontFamily("Arial");
       range.setFontSize(10);
 
-      // Mettre en gras les lignes d'en-tête "DATE"
+      // Mettre en gras toutes les lignes d'en-tête "DATE"
       for (let i = 0; i < paddedMatrix.length; i++) {
         if (String(paddedMatrix[i][0]).toUpperCase().indexOf("DATE") !== -1) {
-          sheet.getRange(i + 1, 1, 1, numCols).setFontWeight("bold");
+          targetSheet.getRange(i + 1, 1, 1, numCols).setFontWeight("bold");
         }
       }
     }
 
     if (action === "save_draft") {
-      // 1. Sauvegarde uniquement dans l'onglet BROUILLON
-      applySheetFormatting(draftSheet, output);
+      // 1. Sauvegarde sous le dernier planning dans l'onglet BROUILLON (sans toucher à Feuille 1)
+      appendChronologicalPlanning(draftSheet, liveSheet, matrixToAppend);
       return ContentService.createTextOutput(JSON.stringify({
         status: "success",
         stage: "draft",
-        message: "Brouillon sauvegardé avec mise en page identique à Feuille 1",
-        count: rows.length
+        message: "Nouveau planning ajouté chronologiquement dans l'onglet BROUILLON",
+        count: matrixToAppend.length
       })).setMimeType(ContentService.MimeType.JSON);
     } 
-    else if (action === "publish_live") {
-      // 2. Feu vert Admin : Publication sur la feuille publique
-      applySheetFormatting(liveSheet, output);
-      applySheetFormatting(draftSheet, output);
+    else if (action === "publish_live" || action === "publish_draft_direct") {
+      // 2. Feu vert Admin : Ajout chronologique dans Feuille 1 / PUBLIE avec conservation de l'historique
+      appendChronologicalPlanning(liveSheet, null, matrixToAppend);
+      appendChronologicalPlanning(draftSheet, null, matrixToAppend);
+      
       return ContentService.createTextOutput(JSON.stringify({
         status: "success",
         stage: "published",
-        message: "Planning officiellement diffusé à l'équipe",
-        count: rows.length
-      })).setMimeType(ContentService.MimeType.JSON);
-    }
-    else if (action === "publish_draft_direct") {
-      // 3. Feu vert direct depuis le brouillon existant
-      let matrix = output;
-      if (!matrix || matrix.length === 0) {
-        matrix = draftSheet.getDataRange().getValues();
-      }
-      applySheetFormatting(liveSheet, matrix);
-      return ContentService.createTextOutput(JSON.stringify({
-        status: "success",
-        stage: "published",
-        message: "Brouillon diffusé directement avec succès"
+        message: "Nouveau planning ajouté chronologiquement et diffusé à l'équipe",
+        count: matrixToAppend.length
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
