@@ -130,7 +130,7 @@
         return `
           <div class="day-card ${isToday ? 'is-today' : ''} scroll-mt-24" id="day-${row.day}" data-day="${dayNum}" style="--accent:${accent}">
             <div class="card-header">
-              <span class="day-name">${escapeHtml(row.day)}</span>
+              <span class="day-name">${GC.escapeHtml(row.day)}</span>
               ${isToday ? `<div class="today-badge"><span class="today-dot"></span>Aujourd'hui</div>` : ''}
             </div>
             <div class="card-body" style="padding: 10px 16px 14px;">
@@ -139,7 +139,7 @@
                 <div class="icon-box-menage">☀️</div>
                 <div class="shift-info-box">
                   <div class="shift-label-menage matin">Service Matin • ${isWE ? '06:30 – 14:00' : '06:30 – 12:00'}</div>
-                  <div class="staff-name-menage">${escapeHtml(row.matin.staff)}</div>
+                  <div class="staff-name-menage">${GC.escapeHtml(row.matin.staff)}</div>
                 </div>
               </div>
 
@@ -147,7 +147,7 @@
                 <div class="icon-box-menage">🌙</div>
                 <div class="shift-info-box">
                   <div class="shift-label-menage soir">Service Soir • ${isWE ? '14:00 – Fin' : '12:00 – Fin'}</div>
-                  <div class="staff-name-menage">${escapeHtml(row.soir.staff)}</div>
+                  <div class="staff-name-menage">${GC.escapeHtml(row.soir.staff)}</div>
                 </div>
               </div>
 
