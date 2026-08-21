@@ -6,7 +6,7 @@
   'use strict';
 
   /* ════════════════════════════════════════════════════════════════════
-     1. GESTION DU CODE PIN ADMINISTRATEUR (1975)
+     1. GESTION DU CODE PIN ADMINISTRATEUR
      ════════════════════════════════════════════════════════════════════ */
   let adminPinInput = "";
   const pinModal       = document.getElementById("pinModal");

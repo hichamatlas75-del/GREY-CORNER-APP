@@ -9,10 +9,10 @@
   const GC = root.GC || {};
 
   // ─── 1. SÉCURITÉ & HACHAGE SHA-256 (PINs DÉDIÉS) ───
-  // Hash SHA-256 du code PIN Staff Bar & Service '2010'
+  // Hash SHA-256 du code PIN Staff
   GC.PIN_STAFF_HASH = "7d12ba56e9f8b3dc64f77c87318c4f37bc12cfbf1a37573cdf3e4fa683f20155";
-  // Hash SHA-256 du code PIN Administrateur Générateurs & Cuisine '1975'
-  GC.PIN_ADMIN_HASH = "20ee235b5de5b36244da6f9aa1cbdd032a90867ba92276ccc8c38c0d0d57fcec";
+  // Hash SHA-256 du code PIN Administrateur (2008)
+  GC.PIN_ADMIN_HASH = "e5e53c784d5d49de1cabb6e904bf3380026aadcb9769775a268dd304dd9aa2df";
   GC.MASTER_PIN_HASH = GC.PIN_ADMIN_HASH;
 
   GC.hashPin = async function(str) {
@@ -27,8 +27,8 @@
 
   /**
    * Vérification du PIN selon le rôle :
-   * - 'admin' : Seul le PIN 1975 est accepté (Générateurs, Cuisine Admin).
-   * - 'staff' : Le PIN 2010 (Bar / Service) OU le PIN Admin 1975 est accepté.
+   * - 'admin' : Seul le PIN Admin est accepté (Générateurs, Cuisine Admin).
+   * - 'staff' : Le PIN Staff OU le PIN Admin est accepté.
    */
   GC.verifyPin = async function(inputPin, role = 'staff') {
     if (!inputPin) return false;
@@ -36,7 +36,7 @@
     if (role === 'admin') {
       return hashed === GC.PIN_ADMIN_HASH;
     }
-    // Rôle Staff : accepte 2010 (staff) ou 1975 (admin maître)
+    // Rôle Staff : accepte staff ou admin maître
     return hashed === GC.PIN_STAFF_HASH || hashed === GC.PIN_ADMIN_HASH;
   };
 

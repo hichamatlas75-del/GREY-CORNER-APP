@@ -24,7 +24,7 @@
           </svg>
         </div>
         <h2 class="pin-title">Vestiaire Équipe</h2>
-        <p class="pin-sub">Saisissez le code PIN (<strong>2010</strong> pour l'équipe) pour accéder aux plannings Grey Corner.</p>
+        <p class="pin-sub">Saisissez votre code PIN pour accéder aux plannings Grey Corner.</p>
       </div>
 
       <div class="pin-dots" id="pinDots">
@@ -60,7 +60,7 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
   <script>
-    /* ── ACCÈS SÉCURISÉ PIN (2010 Staff / 1975 Admin) ── */
+    /* ── ACCÈS SÉCURISÉ PIN ── */
     let pinValue = "";
 
     const lockscreen = document.getElementById("lockscreen");
@@ -88,7 +88,6 @@
 
     async function submitPin() {
       if (pinValue.length !== 4) { showError("Entrez un code à 4 chiffres."); return; }
-      // Accepte le code Staff 2010 ou le code Admin 1975
       const isValid = await GC.verifyStaffPin(pinValue);
       if (isValid) {
         clearError();
