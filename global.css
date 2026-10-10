@@ -34,14 +34,14 @@
   --shadow-lg: 0 20px 50px rgba(7, 35, 26, 0.14);
   --shadow-festive: 0 8px 24px var(--festive-glow-a);
 
-  /* Palette de rotation journalière (7 Jours = 7 Couleurs Dégradées) */
-  --acc-1: #ff7043; /* Lundi : Sunset Corail */
-  --acc-2: #10b981; /* Mardi : Vert Émeraude */
-  --acc-3: #2563eb; /* Mercredi : Bleu Azur */
-  --acc-4: #9333ea; /* Jeudi : Violet Pourpre */
-  --acc-5: #f43f5e; /* Vendredi : Rose Rubis */
-  --acc-6: #f59e0b; /* Samedi : Ambre Solaire */
-  --acc-7: #06b6d4; /* Dimanche : Lagon Turquoise */
+  /* Palette de rotation journalière (Harmonie Golden Sheen & Émeraude Impérial) */
+  --acc-1: #0d382c; /* Lundi : Vert Émeraude Impérial */
+  --acc-2: #d97706; /* Mardi : Or Brossé & Miel Doré */
+  --acc-3: #c2410c; /* Mercredi : Terracotta & Cuivre Royal */
+  --acc-4: #047857; /* Jeudi : Vert Sauge Palace */
+  --acc-5: #b45309; /* Vendredi : Ambre Solaire */
+  --acc-6: #064e3b; /* Samedi : Nuit Émeraude & Or Intense */
+  --acc-7: #a16207; /* Dimanche : Champagne Soyeux & Or Antique */
 }
 
 /* ─── PALETTES SPÉCIFIQUES AUX 5 THÈMES DE SEMAINES ─── */
@@ -696,81 +696,81 @@ header > *, .hero > * {
   z-index: 2;
 }
 
-/* 1. LUNDI - Sunset Corail */
+/* 1. LUNDI - Vert Émeraude Impérial (L'énergie et la rigueur du renouveau) */
 .day-card[data-day="0"], .day-card.day-lundi, .day-card:nth-of-type(7n+1) {
-  --day-color: #ff7043;
-  --day-dark: #c2410c;
-  --day-glow: rgba(255, 112, 67, 0.25);
-  --day-bg: linear-gradient(140deg, #ffffff 0%, #fff3ec 48%, #fed7c7 100%);
-  --day-header-bg: linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(255, 235, 225, 0.85));
-  --day-border: rgba(255, 112, 67, 0.38);
-  --day-badge: linear-gradient(135deg, #ff7043, #f97316);
+  --day-color: #0d382c;
+  --day-dark: #062b21;
+  --day-glow: rgba(13, 56, 44, 0.25);
+  --day-bg: linear-gradient(140deg, #ffffff 0%, #f2fbf7 48%, #dcfce7 100%);
+  --day-header-bg: linear-gradient(90deg, rgba(255, 255, 255, 0.97), rgba(220, 252, 231, 0.85));
+  --day-border: rgba(13, 56, 44, 0.35);
+  --day-badge: linear-gradient(135deg, #0d382c, #155e46);
 }
 
-/* 2. MARDI - Vert Émeraude */
+/* 2. MARDI - Or Brossé & Miel Doré (Signature Golden Sheen) */
 .day-card[data-day="1"], .day-card.day-mardi, .day-card:nth-of-type(7n+2) {
-  --day-color: #10b981;
-  --day-dark: #047857;
-  --day-glow: rgba(16, 185, 129, 0.25);
-  --day-bg: linear-gradient(140deg, #ffffff 0%, #ecfdf5 48%, #bbf7d0 100%);
-  --day-header-bg: linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(220, 252, 231, 0.85));
-  --day-border: rgba(16, 185, 129, 0.38);
-  --day-badge: linear-gradient(135deg, #10b981, #059669);
-}
-
-/* 3. MERCREDI - Bleu Azur */
-.day-card[data-day="2"], .day-card.day-mercredi, .day-card:nth-of-type(7n+3) {
-  --day-color: #2563eb;
-  --day-dark: #1d4ed8;
-  --day-glow: rgba(37, 99, 235, 0.25);
-  --day-bg: linear-gradient(140deg, #ffffff 0%, #eff6ff 48%, #bfdbfe 100%);
-  --day-header-bg: linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(219, 234, 254, 0.85));
-  --day-border: rgba(37, 99, 235, 0.38);
-  --day-badge: linear-gradient(135deg, #2563eb, #1d4ed8);
-}
-
-/* 4. JEUDI - Violet Pourpre */
-.day-card[data-day="3"], .day-card.day-jeudi, .day-card:nth-of-type(7n+4) {
-  --day-color: #9333ea;
-  --day-dark: #7e22ce;
-  --day-glow: rgba(147, 51, 234, 0.25);
-  --day-bg: linear-gradient(140deg, #ffffff 0%, #faf5ff 48%, #e9d5ff 100%);
-  --day-header-bg: linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(243, 232, 255, 0.85));
-  --day-border: rgba(147, 51, 234, 0.38);
-  --day-badge: linear-gradient(135deg, #9333ea, #7e22ce);
-}
-
-/* 5. VENDREDI - Rose Rubis */
-.day-card[data-day="4"], .day-card.day-vendredi, .day-card:nth-of-type(7n+5) {
-  --day-color: #f43f5e;
-  --day-dark: #be123c;
-  --day-glow: rgba(244, 63, 94, 0.25);
-  --day-bg: linear-gradient(140deg, #ffffff 0%, #fff1f2 48%, #fecdd3 100%);
-  --day-header-bg: linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(255, 228, 230, 0.85));
-  --day-border: rgba(244, 63, 94, 0.38);
-  --day-badge: linear-gradient(135deg, #f43f5e, #e11d48);
-}
-
-/* 6. SAMEDI - Ambre Solaire */
-.day-card[data-day="5"], .day-card.day-samedi, .day-card:nth-of-type(7n+6) {
-  --day-color: #f59e0b;
-  --day-dark: #b45309;
-  --day-glow: rgba(245, 158, 11, 0.25);
-  --day-bg: linear-gradient(140deg, #ffffff 0%, #fffbeb 48%, #fde68a 100%);
-  --day-header-bg: linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(254, 243, 199, 0.85));
-  --day-border: rgba(245, 158, 11, 0.38);
+  --day-color: #d97706;
+  --day-dark: #92400e;
+  --day-glow: rgba(217, 119, 6, 0.26);
+  --day-bg: linear-gradient(140deg, #ffffff 0%, #fefcf2 48%, #fef3c7 100%);
+  --day-header-bg: linear-gradient(90deg, rgba(255, 255, 255, 0.97), rgba(254, 243, 199, 0.85));
+  --day-border: rgba(217, 119, 6, 0.38);
   --day-badge: linear-gradient(135deg, #f59e0b, #d97706);
 }
 
-/* 7. DIMANCHE - Lagon Turquoise */
+/* 3. MERCREDI - Terracotta & Cuivre Royal (Terre cuite de Fès & or) */
+.day-card[data-day="2"], .day-card.day-mercredi, .day-card:nth-of-type(7n+3) {
+  --day-color: #c2410c;
+  --day-dark: #7c2d12;
+  --day-glow: rgba(194, 65, 12, 0.25);
+  --day-bg: linear-gradient(140deg, #ffffff 0%, #fff8f4 48%, #ffedd5 100%);
+  --day-header-bg: linear-gradient(90deg, rgba(255, 255, 255, 0.97), rgba(255, 237, 213, 0.85));
+  --day-border: rgba(194, 65, 12, 0.35);
+  --day-badge: linear-gradient(135deg, #ea580c, #c2410c);
+}
+
+/* 4. JEUDI - Vert Sauge Palace & Laiton Doux (Élégance feutrée de salon) */
+.day-card[data-day="3"], .day-card.day-jeudi, .day-card:nth-of-type(7n+4) {
+  --day-color: #047857;
+  --day-dark: #064e3b;
+  --day-glow: rgba(4, 120, 87, 0.25);
+  --day-bg: linear-gradient(140deg, #ffffff 0%, #f0fdf9 48%, #ccfbf1 100%);
+  --day-header-bg: linear-gradient(90deg, rgba(255, 255, 255, 0.97), rgba(204, 251, 241, 0.85));
+  --day-border: rgba(4, 120, 87, 0.35);
+  --day-badge: linear-gradient(135deg, #059669, #047857);
+}
+
+/* 5. VENDREDI - Ambre Solaire & Soirée d'Or (Le lancement du week-end) */
+.day-card[data-day="4"], .day-card.day-vendredi, .day-card:nth-of-type(7n+5) {
+  --day-color: #b45309;
+  --day-dark: #78350f;
+  --day-glow: rgba(180, 83, 9, 0.26);
+  --day-bg: linear-gradient(140deg, #ffffff 0%, #fffef5 48%, #fde68a 100%);
+  --day-header-bg: linear-gradient(90deg, rgba(255, 255, 255, 0.97), rgba(253, 230, 138, 0.85));
+  --day-border: rgba(180, 83, 9, 0.38);
+  --day-badge: linear-gradient(135deg, #f59e0b, #b45309);
+}
+
+/* 6. SAMEDI - Nuit Émeraude & Or Intense (Le grand samedi soir) */
+.day-card[data-day="5"], .day-card.day-samedi, .day-card:nth-of-type(7n+6) {
+  --day-color: #064e3b;
+  --day-dark: #022c22;
+  --day-glow: rgba(6, 78, 59, 0.28);
+  --day-bg: linear-gradient(140deg, #ffffff 0%, #f0fdf5 45%, #bbf7d0 100%);
+  --day-header-bg: linear-gradient(90deg, rgba(255, 255, 255, 0.97), rgba(187, 247, 208, 0.85));
+  --day-border: rgba(6, 78, 59, 0.38);
+  --day-badge: linear-gradient(135deg, #0d382c, #064e3b);
+}
+
+/* 7. DIMANCHE - Champagne Soyeux & Or Antique (Douceur dominicale) */
 .day-card[data-day="6"], .day-card.day-dimanche, .day-card:nth-of-type(7n+7) {
-  --day-color: #06b6d4;
-  --day-dark: #0e7490;
-  --day-glow: rgba(6, 182, 212, 0.25);
-  --day-bg: linear-gradient(140deg, #ffffff 0%, #ecfeff 48%, #a5f3fc 100%);
-  --day-header-bg: linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(207, 250, 254, 0.85));
-  --day-border: rgba(6, 182, 212, 0.38);
-  --day-badge: linear-gradient(135deg, #06b6d4, #0891b2);
+  --day-color: #a16207;
+  --day-dark: #713f12;
+  --day-glow: rgba(161, 98, 7, 0.25);
+  --day-bg: linear-gradient(140deg, #ffffff 0%, #fefcf3 48%, #fef08a 100%);
+  --day-header-bg: linear-gradient(90deg, rgba(255, 255, 255, 0.97), rgba(254, 243, 199, 0.85));
+  --day-border: rgba(161, 98, 7, 0.36);
+  --day-badge: linear-gradient(135deg, #ca8a04, #a16207);
 }
 
 .card-header {

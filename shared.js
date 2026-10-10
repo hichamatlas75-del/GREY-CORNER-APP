@@ -171,13 +171,13 @@
       root.style.setProperty('--festive-dark', theme.dark);
       root.style.setProperty('--festive-bg', theme.bgGradient);
       root.style.setProperty('--festive-glow-a', theme.glowA);
-      root.style.setProperty('--acc-1', '#ff7043'); // Lundi : Sunset Corail
-      root.style.setProperty('--acc-2', '#10b981'); // Mardi : Vert Émeraude
-      root.style.setProperty('--acc-3', '#2563eb'); // Mercredi : Bleu Azur
-      root.style.setProperty('--acc-4', '#9333ea'); // Jeudi : Violet Pourpre
-      root.style.setProperty('--acc-5', '#f43f5e'); // Vendredi : Rose Rubis
-      root.style.setProperty('--acc-6', '#f59e0b'); // Samedi : Ambre Solaire
-      root.style.setProperty('--acc-7', '#06b6d4'); // Dimanche : Lagon Turquoise
+      root.style.setProperty('--acc-1', '#0d382c'); // Lundi : Vert Émeraude Impérial
+      root.style.setProperty('--acc-2', '#d97706'); // Mardi : Or Brossé & Miel Doré
+      root.style.setProperty('--acc-3', '#c2410c'); // Mercredi : Terracotta & Cuivre Royal
+      root.style.setProperty('--acc-4', '#047857'); // Jeudi : Vert Sauge Palace
+      root.style.setProperty('--acc-5', '#b45309'); // Vendredi : Ambre Solaire
+      root.style.setProperty('--acc-6', '#064e3b'); // Samedi : Nuit Émeraude & Or Intense
+      root.style.setProperty('--acc-7', '#a16207'); // Dimanche : Champagne Soyeux & Or Antique
       
       document.body.classList.remove('theme-0', 'theme-1', 'theme-2', 'theme-3', 'theme-4');
       document.body.classList.add(`theme-${theme.id}`);
