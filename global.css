@@ -150,6 +150,8 @@ body.has-alert {
   top: -100px;
   right: -80px;
   background: radial-gradient(circle, var(--festive-primary), transparent 70%);
+  animation: breatheA 14s ease-in-out infinite alternate;
+  will-change: transform, opacity;
 }
 .glow-b {
   width: 340px;
@@ -157,9 +159,21 @@ body.has-alert {
   bottom: -80px;
   left: -80px;
   background: radial-gradient(circle, var(--festive-secondary), transparent 70%);
+  animation: breatheB 16s ease-in-out infinite alternate;
+  will-change: transform, opacity;
 }
 
-/* ─── ANIMATIONS ─── */
+@keyframes breatheA {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.18; }
+  100% { transform: translate(-25px, 20px) scale(1.15); opacity: 0.28; }
+}
+
+@keyframes breatheB {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.18; }
+  100% { transform: translate(20px, -25px) scale(1.12); opacity: 0.26; }
+}
+
+/* ─── ANIMATIONS SIGNATURES GREY CORNER ─── */
 .fade-up {
   animation: fadeUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -179,6 +193,50 @@ body.has-alert {
 @keyframes pulse {
   0%, 100% { opacity: 0.35; transform: scale(0.9); }
   50%      { opacity: 1;    transform: scale(1.15); }
+}
+
+/* Balayage doré soyeux */
+@keyframes goldSheen {
+  0%, 65%  { transform: translateX(0) rotate(25deg); }
+  100%     { transform: translateX(450%) rotate(25deg); }
+}
+
+/* Onde radar sur le badge Aujourd'hui */
+@keyframes radarPing {
+  0%   { transform: scale(0.9); opacity: 0.85; }
+  70%  { transform: scale(2.4); opacity: 0; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+/* Aura lumineuse douce de la carte active */
+@keyframes todayCardGlow {
+  0% {
+    box-shadow: 0 14px 36px var(--day-glow, var(--festive-glow-a)),
+                0 0 0 1px var(--day-color, var(--festive-primary));
+  }
+  100% {
+    box-shadow: 0 18px 48px var(--day-glow, var(--festive-glow-a)),
+                0 0 0 2.5px var(--day-color, var(--festive-primary));
+  }
+}
+
+/* Pop élastique des pastilles PIN */
+@keyframes dotPop {
+  0%   { transform: scale(0.6); opacity: 0.4; }
+  65%  { transform: scale(1.35); }
+  100% { transform: scale(1.15); opacity: 1; }
+}
+
+/* Ouverture aérienne des modales */
+@keyframes modalPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.93) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /* ─── ALERTE & NOTIFICATIONS ─── */
@@ -319,6 +377,25 @@ header, .hero {
   border: 1px solid var(--festive-primary);
   color: var(--festive-dark);
   margin-top: 2px;
+  position: relative;
+  overflow: hidden;
+}
+.festive-week-badge::after {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -70%;
+  width: 45%;
+  height: 220%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.5),
+    transparent
+  );
+  transform: rotate(25deg);
+  animation: goldSheen 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
 }
 
 .gold-rule {
@@ -473,6 +550,7 @@ header, .hero {
   border: 2.5px solid var(--day-color, var(--accent, var(--festive-primary)));
   box-shadow: 0 16px 42px var(--day-glow, var(--festive-glow-a)), 0 0 0 1px var(--day-color, var(--festive-primary));
   transform: scale(1.01);
+  animation: todayCardGlow 3.6s ease-in-out infinite alternate;
 }
 
 /* 1. LUNDI - Sunset Corail */
@@ -586,12 +664,22 @@ header, .hero {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
 }
 .today-dot {
+  position: relative !important;
   width: 6px !important;
   height: 6px !important;
   border-radius: 50% !important;
   background: #ffffff !important;
   box-shadow: 0 0 6px #ffffff !important;
   animation: pulse 1.5s infinite !important;
+}
+.today-dot::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1.5px solid #ffffff;
+  animation: radarPing 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  pointer-events: none;
 }
 
 .card-body {
@@ -777,10 +865,12 @@ header, .hero {
   line-height: 1;
 }
 
-/* ─── MICRO-INTERACTIONS TACTILES ─── */
-button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:active, .action-btn:active, .day-card:active {
-  transform: scale(0.97);
-  transition: transform 0.08s ease;
+/* ─── MICRO-INTERACTIONS TACTILES (EFFET RESSORT) ─── */
+button, .nav-card, .tab-btn, .admin-btn, .back-btn, .action-btn, .day-card, .pin-key, .name-chip, .btn-primary, .btn-secondary {
+  transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, background-color 0.15s ease;
+}
+button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:active, .action-btn:active, .pin-key:active, .name-chip:active, .btn-primary:active, .btn-secondary:active {
+  transform: scale(0.92) !important;
 }
 
 /* ─── SQUELETTE SHIMMER DE CHARGEMENT ─── */
@@ -810,14 +900,20 @@ button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:a
   justify-content: center;
   background: rgba(20, 18, 16, 0.55);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   padding: 20px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.25s ease;
 }
 .lockscreen.active, .lockscreen:not(.hidden-app), .modal-overlay.active {
   opacity: 1;
   pointer-events: auto;
+}
+.lockscreen.active .pin-panel,
+.modal-overlay.active .modal-box,
+.modal-overlay.active .pin-panel {
+  animation: modalPopIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .lockscreen {
   background: var(--bg-gradient);
@@ -885,6 +981,7 @@ button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:a
   background: var(--festive-primary);
   box-shadow: 0 0 10px var(--festive-glow-a);
   transform: scale(1.15);
+  animation: dotPop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .pin-error {
@@ -1510,11 +1607,11 @@ button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:a
   border-left: 4px solid var(--festive-primary);
   box-shadow: var(--shadow);
   border-radius: 14px;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
 }
 .lux-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px var(--festive-glow-a);
+  transform: translateY(-4px) scale(1.006);
+  box-shadow: 0 14px 32px var(--festive-glow-a);
   border-color: var(--festive-primary);
 }
 .lux-card:active { transform: scale(0.985); }
@@ -1564,11 +1661,13 @@ button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:a
   border: 1px solid var(--festive-primary);
   color: var(--festive-primary);
   border-radius: 50%;
-  transition: all 0.2s ease;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 .lux-card:hover .go-btn {
   background: var(--festive-primary);
   color: #fff;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px var(--festive-glow-a);
 }
 
 /* ─── COQUILLE APPLICATION & VISIBILITÉ ─── */
@@ -1581,6 +1680,16 @@ button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:a
 }
 .shell.hidden-app, .hidden-app {
   display: none !important;
+}
+
+/* ─── ACCESSIBILITÉ : MOUVEMENT RÉDUIT ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 
