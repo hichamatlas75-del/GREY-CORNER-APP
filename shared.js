@@ -72,16 +72,16 @@
   GC.FESTIVE_THEMES = [
     {
       id: 0,
-      name: "Corail & Sunset Solaire",
-      emoji: "🌅",
-      primary: "#ff5757",
-      secondary: "#ff8838",
-      accent: "#f5b700",
-      dark: "#9e1c1c",
-      glowA: "rgba(255, 87, 87, 0.28)",
-      glowB: "rgba(255, 136, 56, 0.28)",
-      bgGradient: "linear-gradient(180deg, #fff7f2 0%, #ffefe5 50%, #fde4d4 100%)",
-      palette: ["#ff5757", "#ff8838", "#f5b700", "#e03161", "#8b2671"]
+      name: "Émeraude Impérial & Or de Fès",
+      emoji: "👑",
+      primary: "#0d382c",
+      secondary: "#155e46",
+      accent: "#f59e0b",
+      dark: "#062b21",
+      glowA: "rgba(13, 56, 44, 0.32)",
+      glowB: "rgba(217, 119, 6, 0.26)",
+      bgGradient: "linear-gradient(180deg, #fbf8f3 0%, #f7f1e7 50%, #efe5d5 100%)",
+      palette: ["#0d382c", "#155e46", "#f59e0b", "#fbbf24", "#047857"]
     },
     {
       id: 1,

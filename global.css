@@ -1,36 +1,37 @@
-/* ─── GREY CORNER — SYSTÈME DE DESIGN FESTIF MULTI-COULEURS (1 SEMAINE = 1 COULEUR) ─── */
+/* ─── GREY CORNER — SYSTÈME DE DESIGN PRESTIGE (ÉMERAUDE IMPÉRIAL & OR DE FÈS) ─── */
 :root {
-  /* Fonds & Surfaces */
+  /* Fonds & Surfaces Papier Chaud */
   --paper: #ffffff;
-  --paper2: #fcfdfe;
-  --bg-gradient: var(--festive-bg, linear-gradient(180deg, #fff7f2 0%, #ffefe5 50%, #fde4d4 100%));
+  --paper2: #fdfbf7;
+  --bg-gradient: var(--festive-bg, linear-gradient(180deg, #fbf8f3 0%, #f7f1e7 50%, #efe5d5 100%));
 
   /* Typographie & Encre */
-  --ink: #1e1b18;
-  --ink-soft: #574e45;
-  --ink-dim: rgba(30, 27, 24, 0.45);
+  --ink: #141f1a;
+  --ink-soft: #43544d;
+  --ink-dim: rgba(20, 31, 26, 0.45);
 
-  /* Variables Festives Dynamiques */
-  --festive-primary: #ff5757;
-  --festive-secondary: #ff8838;
-  --festive-accent: #f5b700;
-  --festive-dark: #9e1c1c;
-  --festive-glow-a: rgba(255, 87, 87, 0.28);
-  --festive-glow-b: rgba(255, 136, 56, 0.28);
+  /* Variables Signature : Émeraude Profond & Or de Fès */
+  --festive-primary: #0d382c;
+  --festive-secondary: #155e46;
+  --festive-accent: #f59e0b;
+  --festive-gold: #fbbf24;
+  --festive-dark: #062b21;
+  --festive-glow-a: rgba(13, 56, 44, 0.28);
+  --festive-glow-b: rgba(217, 119, 6, 0.24);
 
   /* Filets & Bordures */
-  --hairline: rgba(30, 27, 24, 0.08);
-  --hairline-color: rgba(255, 87, 87, 0.35);
+  --hairline: rgba(13, 56, 44, 0.1);
+  --hairline-color: rgba(212, 175, 55, 0.4);
 
   /* Statuts */
-  --err: #e11d48;
-  --err-bg: #ffe4e6;
+  --err: #dc2626;
+  --err-bg: #fef2f2;
   --success: #10b981;
-  --success-bg: #d1fae5;
+  --success-bg: #ecfdf5;
 
   /* Ombres Festives & Effets de relief */
-  --shadow: 0 14px 34px rgba(30, 27, 24, 0.06);
-  --shadow-lg: 0 20px 50px rgba(30, 27, 24, 0.12);
+  --shadow: 0 14px 34px rgba(7, 35, 26, 0.07);
+  --shadow-lg: 0 20px 50px rgba(7, 35, 26, 0.14);
   --shadow-festive: 0 8px 24px var(--festive-glow-a);
 
   /* Palette de rotation journalière (7 Jours = 7 Couleurs Dégradées) */
@@ -224,6 +225,25 @@ body.has-alert {
   }
 }
 
+/* Faisceau doré majestueux pour le hero */
+@keyframes goldSheenHero {
+  0% {
+    transform: translateX(-240%) rotate(25deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(420%) rotate(25deg);
+    opacity: 1;
+  }
+  51%, 100% {
+    transform: translateX(420%) rotate(25deg);
+    opacity: 0;
+  }
+}
+
 /* Onde radar sur le badge Aujourd'hui */
 @keyframes radarPing {
   0%   { transform: scale(0.9); opacity: 0.85; }
@@ -328,31 +348,73 @@ body.has-alert {
   transform: translateX(-50%) translateY(0);
 }
 
-/* ─── EN-TÊTE / HERO FESTIF ─── */
+/* ─── EN-TÊTE / HERO PRESTIGE (ÉMERAUDE IMPÉRIAL & FAISCEAU DORÉ — EXACTEMENT COMME L'IMAGE) ─── */
 header, .hero {
   position: relative;
   z-index: 1;
   max-width: 560px;
-  margin: 30px auto 14px;
+  margin: 24px auto 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 10px;
-  padding: 30px 24px 24px;
-  background: var(--paper);
-  border: 1px solid var(--hairline-color);
-  box-shadow: var(--shadow);
-  border-radius: 16px;
+  gap: 12px;
+  padding: 34px 26px 28px;
+  background: linear-gradient(160deg, #052118 0%, #0d382c 48%, #144e3e 100%);
+  border: 1.5px solid rgba(245, 158, 11, 0.45);
+  box-shadow: 0 20px 48px rgba(5, 33, 24, 0.35), 0 0 0 1px rgba(251, 191, 36, 0.2);
+  border-radius: 22px;
+  overflow: hidden;
+  color: #fefdfa;
+}
+
+/* Faisceau lumineux doré majestueux traversant le hero en continu */
+header::before, .hero::before {
+  content: '';
+  position: absolute;
+  top: -90%;
+  left: 0;
+  width: 55%;
+  height: 280%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.12) 20%,
+    rgba(251, 191, 36, 0.45) 45%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(251, 191, 36, 0.45) 55%,
+    rgba(217, 119, 6, 0.2) 70%,
+    transparent 100%
+  );
+  transform: translateX(-240%) rotate(25deg);
+  animation: goldSheenHero 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Halo doux d'ambiance or/champagne dans l'angle supérieur */
+header::after, .hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 85% 15%, rgba(245, 158, 11, 0.35) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+header > *, .hero > * {
+  position: relative;
+  z-index: 2;
 }
 
 .logo-wrap {
-  width: 64px;
-  height: 64px;
-  border: 2px solid var(--festive-primary);
-  box-shadow: 0 8px 24px var(--festive-glow-a);
+  width: 68px;
+  height: 68px;
+  border: 2px solid #f59e0b;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.35);
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: 18px;
+  background: #0d382c;
 }
 .logo-wrap img {
   width: 100%;
@@ -361,48 +423,53 @@ header, .hero {
 }
 
 .eyebrow {
-  font-size: 9.5px;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.28em;
-  color: var(--festive-primary);
-  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: #fbbf24;
+  font-weight: 800;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
 }
 
 .page-title, .brand {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 34px;
+  font-size: 36px;
   font-weight: 700;
-  letter-spacing: 0.01em;
-  color: var(--ink);
+  letter-spacing: 0.02em;
+  color: #ffffff;
   line-height: 1.05;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
 }
 .page-title span, .brand span {
-  color: var(--festive-primary);
+  color: #fcd34d;
   font-style: italic;
+  text-shadow: 0 0 18px rgba(251, 191, 36, 0.55);
 }
 
 .page-sub, .sub {
   font-size: 12.5px;
-  color: var(--ink-soft);
-  max-width: 420px;
-  line-height: 1.5;
+  color: #c7eed9;
+  max-width: 440px;
+  line-height: 1.55;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
 }
 
 .festive-week-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
+  gap: 8px;
+  padding: 7px 18px;
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  background: linear-gradient(135deg, rgba(254, 243, 199, 0.95), rgba(253, 230, 138, 0.7));
-  border: 1.5px solid #d97706;
-  color: #92400e;
-  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.22);
-  margin-top: 2px;
+  font-size: 11.5px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 35%, #f59e0b 80%, #d97706 100%);
+  border: 1.5px solid #fbbf24;
+  color: #78350f;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.5);
+  margin-top: 4px;
   position: relative;
   overflow: hidden;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 .festive-week-badge::after {
   content: '';
@@ -414,7 +481,7 @@ header, .hero {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.85) 50%,
+    rgba(255, 255, 255, 0.9) 50%,
     transparent 100%
   );
   transform: translateX(-220%) rotate(25deg);
@@ -430,11 +497,11 @@ header, .hero {
   border-radius: 999px;
   background: linear-gradient(
     90deg,
-    rgba(217, 119, 6, 0.15) 0%,
-    rgba(245, 158, 11, 0.85) 30%,
+    rgba(245, 158, 11, 0.15) 0%,
+    rgba(251, 191, 36, 0.85) 30%,
     #ffffff 50%,
-    rgba(245, 158, 11, 0.85) 70%,
-    rgba(217, 119, 6, 0.15) 100%
+    rgba(251, 191, 36, 0.85) 70%,
+    rgba(245, 158, 11, 0.15) 100%
   );
   background-size: 250% 100%;
   animation: goldRuleSweep 3.2s linear infinite;
@@ -456,14 +523,16 @@ header, .hero {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--festive-dark);
+  color: #fef3c7;
   text-decoration: none;
   padding: 8px 16px;
-  border: 1px solid var(--hairline-color);
-  background: var(--paper2);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   cursor: pointer;
   font-family: inherit;
-  font-weight: 600;
+  font-weight: 700;
   border-radius: 999px;
   transition: all 0.2s ease;
 }
@@ -471,9 +540,10 @@ header, .hero {
   transform: scale(0.96);
 }
 .back-btn:hover, .nav-btn:hover {
-  background: #fff;
-  border-color: var(--festive-primary);
-  box-shadow: 0 4px 14px var(--festive-glow-a);
+  background: rgba(245, 158, 11, 0.25);
+  border-color: #fbbf24;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
 }
 
 /* BOUTON GÉNÉRATEUR / ADMIN — COMPACT EN ROUGE VIF AVEC SHEEN */
@@ -723,34 +793,34 @@ header, .hero {
 .today-badge {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 6px !important;
-  font-size: 10px !important;
-  font-weight: 700 !important;
+  gap: 7px !important;
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.1em !important;
   color: #ffffff !important;
-  background: var(--day-badge, linear-gradient(135deg, var(--festive-primary), var(--festive-secondary))) !important;
-  border: 1px solid rgba(255, 255, 255, 0.45) !important;
-  padding: 5px 12px !important;
+  background: linear-gradient(135deg, #0d382c, #155e46) !important;
+  border: 1.5px solid #f59e0b !important;
+  padding: 6px 14px !important;
   border-radius: 999px !important;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 4px 14px rgba(13, 56, 44, 0.35) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
 }
 .today-dot {
   position: relative !important;
-  width: 6px !important;
-  height: 6px !important;
+  width: 7px !important;
+  height: 7px !important;
   border-radius: 50% !important;
-  background: #ffffff !important;
-  box-shadow: 0 0 6px #ffffff !important;
+  background: #34d399 !important;
+  box-shadow: 0 0 8px #34d399 !important;
   animation: pulse 1.5s infinite !important;
 }
 .today-dot::after {
   content: '';
   position: absolute;
-  inset: -3px;
+  inset: -4px;
   border-radius: 50%;
-  border: 1.5px solid #ffffff;
+  border: 2px solid #34d399;
   animation: radarPing 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
   pointer-events: none;
 }
@@ -1660,30 +1730,31 @@ button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:a
 .btn-publish-live:active { transform: scale(0.98); }
 .btn-disabled { opacity: 0.6; pointer-events: none; }
 
-/* ─── CARTES DE NAVIGATION FESTIVES (INDEX) ─── */
+/* ─── CARTES DE NAVIGATION PRESTIGE (INDEX) ─── */
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 2px 10px;
+  padding: 0 4px 12px;
 }
 .section-label {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.22em;
-  color: var(--festive-primary);
+  letter-spacing: 0.24em;
+  color: #0d382c;
 }
 .section-pill {
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--ink-soft);
-  background: var(--paper);
-  border: 1px solid var(--hairline-color);
-  padding: 4px 10px;
+  color: #78350f;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 1px solid #f59e0b;
+  padding: 4px 12px;
   border-radius: 999px;
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2);
 }
 
 .lux-card {
@@ -1694,11 +1765,11 @@ button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:a
   margin-bottom: 14px;
   text-decoration: none;
   color: inherit;
-  background: var(--paper);
-  border: 1px solid var(--hairline);
-  border-left: 4px solid var(--festive-primary);
-  box-shadow: var(--shadow);
-  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(13, 56, 44, 0.14);
+  border-left: 5px solid #0d382c;
+  box-shadow: 0 10px 28px rgba(7, 35, 26, 0.05), 0 2px 6px rgba(0, 0, 0, 0.02);
+  border-radius: 16px;
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
 }
 .lux-card::before {
@@ -1712,7 +1783,7 @@ button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:a
     90deg,
     transparent 0%,
     rgba(255, 255, 255, 0.75) 45%,
-    rgba(245, 158, 11, 0.3) 60%,
+    rgba(245, 158, 11, 0.35) 60%,
     transparent 100%
   );
   transform: translateX(-220%) rotate(25deg);
@@ -1725,9 +1796,9 @@ button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:a
 .lux-card:nth-of-type(3)::before { animation-delay: 3.2s; }
 .lux-card:nth-of-type(4)::before { animation-delay: 4.6s; }
 .lux-card:hover {
-  transform: translateY(-4px) scale(1.006);
-  box-shadow: 0 14px 32px var(--festive-glow-a);
-  border-color: var(--festive-primary);
+  transform: translateY(-4px) scale(1.008);
+  box-shadow: 0 16px 36px rgba(13, 56, 44, 0.18);
+  border-color: #0d382c;
 }
 .lux-card:hover::before {
   animation: goldSheen 1.2s cubic-bezier(0.16, 1, 0.3, 1) 1;
@@ -1745,24 +1816,25 @@ button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:a
 
 .card-tag {
   font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.16em;
-  color: var(--festive-primary);
-  font-weight: 700;
+  color: #0d382c;
+  font-weight: 800;
 }
 
 .title-row { display: flex; align-items: center; gap: 12px; }
 
 .icon-box {
-  width: 42px; height: 42px; flex-shrink: 0;
+  width: 44px; height: 44px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  background: var(--festive-glow-a);
-  border: 1px solid var(--festive-primary);
-  border-radius: 12px;
-  font-size: 18px;
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  border: 1px solid rgba(13, 56, 44, 0.18);
+  border-radius: 14px;
+  font-size: 20px;
+  box-shadow: 0 2px 8px rgba(13, 56, 44, 0.08);
 }
 
 .card-title {
   font-family: "Cormorant Garamond", serif;
-  font-size: 22px; font-weight: 700;
+  font-size: 23px; font-weight: 700;
   color: var(--ink);
 }
 
@@ -1773,19 +1845,21 @@ button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:a
 }
 
 .go-btn {
-  width: 36px; height: 36px; flex-shrink: 0;
+  width: 38px; height: 38px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  background: var(--festive-glow-a);
-  border: 1px solid var(--festive-primary);
-  color: var(--festive-primary);
+  background: linear-gradient(135deg, #0d382c, #155e46);
+  border: 1.5px solid #f59e0b;
+  color: #fbbf24;
   border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(13, 56, 44, 0.25);
   transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 .lux-card:hover .go-btn {
-  background: var(--festive-primary);
-  color: #fff;
+  background: #f59e0b;
+  color: #ffffff;
+  border-color: #fbbf24;
   transform: translateX(4px);
-  box-shadow: 0 4px 12px var(--festive-glow-a);
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45);
 }
 
 /* ─── COQUILLE APPLICATION & VISIBILITÉ ─── */
