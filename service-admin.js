@@ -614,10 +614,10 @@ function doGet(e) {
   }
 
   /* ════════════════════════════════════════════════════════════════════
-     6. GESTION DES GROUPES & PERSONNALISATION D'ÉQUIPE
+     6. GESTION DE L'ÉQUIPE (5 SERVEURS — BASSE SAISON) & PERSONNALISATION
      ════════════════════════════════════════════════════════════════════ */
-  let G1 = ["youness", "mokhtar", "aziz"];
-  let G2 = ["youssef", "zakaria", "mohamed"];
+  const DEFAULT_STAFF = ["youness", "aziz", "youssef", "zakaria", "mohamed"];
+  let STAFF = [...DEFAULT_STAFF];
 
   function toggleTeamConfig() {
     const body = document.getElementById("teamConfigBody");
@@ -625,77 +625,65 @@ function doGet(e) {
     if (!body) return;
     const isOpen = body.style.display !== "none";
     body.style.display = isOpen ? "none" : "grid";
-    if (toggle) toggle.textContent = isOpen ? "Personnaliser les 6 noms ▼" : "Fermer ▲";
-  }
-
-  function toggleLeaveConfigCard() {
-    const body = document.getElementById("leaveConfigCardBody");
-    const toggle = document.getElementById("leaveConfigToggle");
-    if (!body) return;
-    const isOpen = body.style.display !== "none";
-    body.style.display = isOpen ? "none" : "block";
-    if (toggle) toggle.textContent = isOpen ? "Ouvrir l'outil Congés ▼" : "Fermer ▲";
+    if (toggle) toggle.textContent = isOpen ? "Personnaliser les 5 noms ▼" : "Fermer ▲";
   }
 
   function loadTeamNames() {
     try {
-      const stored = localStorage.getItem("gc_team_names");
+      const stored = localStorage.getItem("gc_service_team_5");
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed.g1) && parsed.g1.length === 3) G1 = parsed.g1;
-        if (Array.isArray(parsed.g2) && parsed.g2.length === 3) G2 = parsed.g2;
+        if (Array.isArray(parsed) && parsed.length === 5) {
+          STAFF = parsed.map((n, i) => String(n || DEFAULT_STAFF[i]).trim().toLowerCase() || DEFAULT_STAFF[i]);
+        }
       }
     } catch (e) {}
 
-    for (let i = 0; i < 3; i++) {
-      const el1 = document.getElementById(`cfg_g1_${i}`);
-      if (el1) el1.value = G1[i];
-      const el2 = document.getElementById(`cfg_g2_${i}`);
-      if (el2) el2.value = G2[i];
+    for (let i = 0; i < 5; i++) {
+      const el = document.getElementById(`cfg_s_${i}`);
+      if (el) el.value = STAFF[i];
     }
     updateTeamLabelsAndBadges();
   }
 
   function saveTeamNames() {
-    G1 = [
-      document.getElementById("cfg_g1_0")?.value.trim().toLowerCase() || "youness",
-      document.getElementById("cfg_g1_1")?.value.trim().toLowerCase() || "mokhtar",
-      document.getElementById("cfg_g1_2")?.value.trim().toLowerCase() || "aziz"
-    ];
-    G2 = [
-      document.getElementById("cfg_g2_0")?.value.trim().toLowerCase() || "youssef",
-      document.getElementById("cfg_g2_1")?.value.trim().toLowerCase() || "zakaria",
-      document.getElementById("cfg_g2_2")?.value.trim().toLowerCase() || "mohamed"
-    ];
+    STAFF = DEFAULT_STAFF.map((defName, i) => {
+      const val = document.getElementById(`cfg_s_${i}`)?.value.trim().toLowerCase();
+      return val || defName;
+    });
     try {
-      localStorage.setItem("gc_team_names", JSON.stringify({ g1: G1, g2: G2 }));
+      localStorage.setItem("gc_service_team_5", JSON.stringify(STAFF));
     } catch (e) {}
     updateTeamLabelsAndBadges();
+    renderServiceMetrics();
+  }
+
+  function capName(name) {
+    return name ? name.charAt(0).toUpperCase() + name.slice(1) : "";
   }
 
   function updateTeamLabelsAndBadges() {
-    const opt1 = document.getElementById("opt_g1");
-    if (opt1) opt1.textContent = `Groupe 1 (${G1.map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(', ')})`;
-    const opt2 = document.getElementById("opt_g2");
-    if (opt2) opt2.textContent = `Groupe 2 (${G2.map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(', ')})`;
+    for (let rot = 0; rot < 5; rot++) {
+      const opt = document.getElementById(`opt_rot_${rot}`);
+      if (opt) {
+        const p = [0, 1, 2, 3, 4].map(i => STAFF[(i + rot) % 5]);
+        opt.textContent = `Rotation ${rot + 1} — Repos Lun : ${capName(p[4])} | Matin : ${capName(p[0])} & ${capName(p[1])} | Soir : ${capName(p[2])} & ${capName(p[3])}`;
+      }
+    }
 
     const container = document.getElementById("quickBadgesContainer");
     if (container) {
       let html = "";
-      G1.forEach(name => {
-        const cap = name.charAt(0).toUpperCase() + name.slice(1);
-        html += `<button class="name-chip g1" type="button" onclick="insertNameBadge('${GC.escapeHtml(name)}')">+ ${GC.escapeHtml(cap)}</button>`;
-      });
-      G2.forEach(name => {
-        const cap = name.charAt(0).toUpperCase() + name.slice(1);
-        html += `<button class="name-chip g2" type="button" onclick="insertNameBadge('${GC.escapeHtml(name)}')">+ ${GC.escapeHtml(cap)}</button>`;
+      STAFF.forEach((name, idx) => {
+        const cap = capName(name);
+        const cls = idx < 2 ? "g1" : "g2";
+        html += `<button class="name-chip ${cls}" type="button" onclick="insertNameBadge('${GC.escapeHtml(name)}')">+ ${GC.escapeHtml(cap)}</button>`;
       });
       html += `<button class="name-chip special" type="button" onclick="insertNameBadge('— Repos —')">+ Repos</button>`;
       container.innerHTML = html;
     }
 
-    const allNames = [...G1, ...G2];
-    const nameOptionsHtml = allNames.map(n => `<option value="${GC.escapeHtml(n)}">${GC.escapeHtml(n.charAt(0).toUpperCase() + n.slice(1))}</option>`).join("");
+    const nameOptionsHtml = STAFF.map(n => `<option value="${GC.escapeHtml(n)}">${GC.escapeHtml(capName(n))}</option>`).join("");
 
     const repSelect = document.getElementById("repOldName");
     if (repSelect) repSelect.innerHTML = nameOptionsHtml;
@@ -724,11 +712,16 @@ function doGet(e) {
       lastFocusedCell.setSelectionRange(newPos, newPos);
       GC.showToast(`🏷️ Inséré : ${name}`);
       updateSyncStatus("editing");
+      renderServiceMetrics();
     } else {
       navigator.clipboard.writeText(name).then(() => {
         GC.showToast(`📋 Nom copié : ${name}`);
       });
     }
+  }
+
+  function escapeRegExp(str) {
+    return String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
 
   function replaceNameGlobally() {
@@ -740,9 +733,10 @@ function doGet(e) {
     }
     const inputs = document.querySelectorAll("#editTableBody textarea, #editTableBody input");
     let count = 0;
-    const regex = new RegExp(`\\b${oldName}\\b`, "gi");
+    const regex = new RegExp(`\\b${escapeRegExp(oldName)}\\b`, "gi");
     inputs.forEach(input => {
       if (regex.test(input.value)) {
+        regex.lastIndex = 0;
         input.value = input.value.replace(regex, newName);
         count++;
       }
@@ -750,6 +744,7 @@ function doGet(e) {
     GC.showToast(`✨ "${oldName}" remplacé par "${newName}" (${count} occurrences modifiées).`);
     document.getElementById("repNewName").value = "";
     updateSyncStatus("editing");
+    renderServiceMetrics();
   }
 
   /* ════════════════════════════════════════════════════════════════════
@@ -838,20 +833,25 @@ function doGet(e) {
       }
       GC.showToast(msg);
       updateSyncStatus("editing");
+      renderServiceMetrics();
     } else {
       alert(`Aucune affectation trouvée pour "${staffName}" sur la période sélectionnée.`);
     }
   }
 
   /* ════════════════════════════════════════════════════════════════════
-     8. MOTEUR DE ROTATION CARRÉE & TABLEAU ÉDITABLE
+     8. MOTEUR DE ROTATION CARRÉE (5 SERVEURS) & TABLEAU ÉDITABLE
      ════════════════════════════════════════════════════════════════════ */
+  function formatWeekdayPair(carreA, carreB) {
+    return `${carreA} (SAL1), ${carreA} (TER2), ${carreB} (TER1), ${carreB} (SAL2), ${carreB} (LOG)`;
+  }
+
   function generatePlanningData() {
     const startStr = document.getElementById("genStartDate").value;
     if (!startStr) { alert("Veuillez sélectionner une date de départ."); return; }
-    
-    const startGroup = parseInt(document.getElementById("genStartGroup").value, 10);
-    const weeksCount = parseInt(document.getElementById("genWeeksCount").value, 10);
+
+    const startRotation = parseInt(document.getElementById("genStartGroup").value, 10) || 0;
+    const weeksCount = parseInt(document.getElementById("genWeeksCount").value, 10) || 1;
     const alertMsg   = document.getElementById("genAlertMsg").value.trim();
 
     const [sy, sm, sd] = startStr.split("-").map(Number);
@@ -859,9 +859,8 @@ function doGet(e) {
     const generatedRows = [];
 
     for (let w = 0; w < weeksCount; w++) {
-      const isG1Matin = (startGroup === 1 && w % 2 === 0) || (startGroup === 2 && w % 2 === 1);
-      const matinGroup = isG1Matin ? G1 : G2;
-      const soirGroup  = isG1Matin ? G2 : G1;
+      const offset = (startRotation + w) % 5;
+      const P = [0, 1, 2, 3, 4].map(i => STAFF[(i + offset) % 5]);
 
       generatedRows.push({
         isHeader: true,
@@ -875,29 +874,36 @@ function doGet(e) {
 
       for (let d = 0; d < 7; d++) {
         const dateLabel = GC.formatFrenchDate(currDate);
-        let matinStr = "", soirStr = "";
+        let matinStr = "", soirStr = "", noteStr = "";
 
         if (d === 0) {
-          matinStr = `${matinGroup[0]} (SAL1), ${matinGroup[0]} (TER2), ${matinGroup[1]} (TER1), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (LOG)`;
-          soirStr  = `${soirGroup[0]} (SAL1), ${soirGroup[0]} (TER2), ${soirGroup[1]} (TER1), ${soirGroup[1]} (SAL2), ${soirGroup[1]} (LOG)`;
+          // Lundi (Repos: P[4]) — 2 Matin / 2 Soir
+          matinStr = formatWeekdayPair(P[0], P[1]);
+          soirStr  = formatWeekdayPair(P[2], P[3]);
         } else if (d === 1) {
-          matinStr = `${matinGroup[1]} (SAL1), ${matinGroup[1]} (TER2), ${matinGroup[2]} (TER1), ${matinGroup[2]} (SAL2), ${matinGroup[2]} (LOG)`;
-          soirStr  = `${soirGroup[2]} (SAL1), ${soirGroup[2]} (TER2), ${soirGroup[0]} (TER1), ${soirGroup[0]} (SAL2), ${soirGroup[0]} (LOG)`;
+          // Mardi (Repos: P[0]) — 24h: P[2],P[3] inversent leurs carrés au Matin
+          matinStr = formatWeekdayPair(P[3], P[2]);
+          soirStr  = formatWeekdayPair(P[1], P[4]);
         } else if (d === 2) {
-          matinStr = `${matinGroup[2]} (SAL1), ${matinGroup[2]} (TER2), ${matinGroup[0]} (TER1), ${matinGroup[0]} (SAL2), ${matinGroup[0]} (LOG)`;
-          soirStr  = `${soirGroup[1]} (SAL1), ${soirGroup[1]} (TER2), ${soirGroup[2]} (TER1), ${soirGroup[2]} (SAL2), ${soirGroup[2]} (LOG)`;
+          // Mercredi (Repos: P[2]) — 24h: P[1],P[4] inversent leurs carrés au Matin
+          matinStr = formatWeekdayPair(P[4], P[1]);
+          soirStr  = formatWeekdayPair(P[3], P[0]);
         } else if (d === 3) {
-          matinStr = `${matinGroup[0]} (SAL1), ${matinGroup[0]} (TER3), ${matinGroup[2]} (SAL2), ${matinGroup[2]} (LOG), ${matinGroup[1]} (TER1), ${matinGroup[1]} (TER2)`;
-          soirStr  = `${soirGroup[2]} (SAL1), ${soirGroup[2]} (TER3), ${soirGroup[1]} (SAL2), ${soirGroup[1]} (LOG), ${soirGroup[0]} (TER1), ${soirGroup[0]} (TER2)`;
+          // Jeudi (Repos: P[1]) — 24h: P[3],P[0] inversent leurs carrés au Matin
+          matinStr = formatWeekdayPair(P[0], P[3]);
+          soirStr  = formatWeekdayPair(P[4], P[2]);
         } else if (d === 4) {
-          matinStr = `${matinGroup[2]} (SAL1), ${matinGroup[2]} (TER3), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (LOG), ${matinGroup[0]} (TER1), ${matinGroup[0]} (TER2)`;
-          soirStr  = `${soirGroup[1]} (SAL1), ${soirGroup[1]} (TER3), ${soirGroup[0]} (SAL2), ${soirGroup[0]} (LOG), ${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2)`;
+          // Vendredi (Repos: P[3]) — 24h: P[4],P[2] inversent leurs carrés au Matin
+          matinStr = formatWeekdayPair(P[2], P[4]);
+          soirStr  = formatWeekdayPair(P[1], P[0]);
         } else if (d === 5) {
-          matinStr = `${matinGroup[1]} (SAL1), ${matinGroup[1]} (TER3), ${matinGroup[0]} (SAL2), ${matinGroup[0]} (LOG), ${matinGroup[2]} (TER1), ${matinGroup[2]} (TER2)`;
-          soirStr  = `${soirGroup[0]} (SAL1), ${soirGroup[0]} (TER3), ${soirGroup[2]} (SAL2), ${soirGroup[2]} (LOG), ${soirGroup[1]} (TER1), ${soirGroup[1]} (TER2)`;
+          // Samedi : 3 Matin / 3 Soir dont 1 Coupure 10H (P[3])
+          matinStr = `${P[0]} (SAL1), ${P[0]} (TER3), ${P[1]} (TER1), ${P[1]} (TER2), ${P[3]} (SAL2 - 10H), ${P[3]} (LOG - 10H)`;
+          soirStr  = `${P[2]} (SAL1), ${P[2]} (TER3), ${P[4]} (SAL2), ${P[4]} (LOG), ${P[3]} (TER1 - 10H), ${P[3]} (TER2 - 10H)`;
         } else if (d === 6) {
-          matinStr = `${matinGroup[0]} (SAL1), ${matinGroup[1]} (SAL2), ${matinGroup[1]} (TER3), ${matinGroup[2]} (TER1), ${matinGroup[2]} (TER2), ${soirGroup[2]} (LOG), ${soirGroup[0]} (deb)`;
-          soirStr  = `${soirGroup[1]} (SAL1), ${soirGroup[1]} (TER3), ${soirGroup[0]} (SAL2), ${soirGroup[0]} (LOG), ${soirGroup[2]} (TER1), ${soirGroup[2]} (TER2)`;
+          // Dimanche : 4 Matin (dont 1 DEB) / 3 Soir avec 2 Coupures 10H (P[0], P[1])
+          matinStr = `${P[2]} (SAL1), ${P[2]} (TER3), ${P[4]} (TER1), ${P[4]} (TER2), ${P[0]} (SAL2 - 10H), ${P[0]} (LOG - 10H), ${P[1]} (DEB - 10H)`;
+          soirStr  = `${P[3]} (SAL1), ${P[3]} (TER3), ${P[0]} (TER1 - 10H), ${P[0]} (TER2 - 10H), ${P[1]} (SAL2 - 10H), ${P[1]} (LOG - 10H)`;
         }
 
         generatedRows.push({
@@ -905,7 +911,7 @@ function doGet(e) {
           date: dateLabel,
           matin: matinStr,
           soir: soirStr,
-          note: "",
+          note: noteStr,
           hMatin: "06:30-14:30",
           hSoir: "14:15- Fin service"
         });
@@ -915,6 +921,83 @@ function doGet(e) {
 
     renderEditableTable(generatedRows);
     updateSyncStatus("editing");
+  }
+
+  function onTableCellEdit() {
+    updateSyncStatus("editing");
+    renderServiceMetrics();
+  }
+
+  function deleteTableRow(btn) {
+    const tr = btn?.closest("tr");
+    if (tr) tr.remove();
+    updateSyncStatus("editing");
+    renderServiceMetrics();
+  }
+
+  function extractShiftEntries(shiftStr) {
+    if (!shiftStr || shiftStr === "-" || shiftStr.includes("— Repos —")) return [];
+    const entries = [];
+    shiftStr.split(",").forEach(seg => {
+      const s = seg.trim();
+      if (!s) return;
+      let nom = "", poste = "";
+      if (s.includes(":")) {
+        const p = s.split(":");
+        poste = p[0].trim();
+        nom = p.slice(1).join(":").trim();
+      } else if (s.includes("(") && s.includes(")")) {
+        nom = s.substring(0, s.indexOf("(")).trim();
+        poste = s.substring(s.indexOf("(") + 1, s.lastIndexOf(")")).trim();
+      } else {
+        nom = s;
+      }
+      if (nom) entries.push({ name: nom.toLowerCase(), is10h: /10\s*h|coup/i.test(poste) });
+    });
+    return entries;
+  }
+
+  function renderServiceMetrics() {
+    const container = document.getElementById("serviceMetricsSummary");
+    if (!container) return;
+
+    const rows = extractTableData().filter(r => r.date && !r.date.toUpperCase().includes("DATE"));
+    if (!rows.length) {
+      container.innerHTML = "";
+      return;
+    }
+
+    const stats = {};
+    STAFF.forEach(n => {
+      stats[n.toLowerCase()] = { label: capName(n), matin: 0, soir: 0, coupure: 0, repos: 0 };
+    });
+
+    rows.forEach(r => {
+      const mEntries = extractShiftEntries(r.matin);
+      const sEntries = extractShiftEntries(r.soir);
+      const mSet = new Set(mEntries.map(e => e.name));
+      const sSet = new Set(sEntries.map(e => e.name));
+
+      Object.keys(stats).forEach(low => {
+        const inM = mSet.has(low);
+        const inS = sSet.has(low);
+        const has10h = mEntries.some(e => e.name === low && e.is10h) || sEntries.some(e => e.name === low && e.is10h);
+        if (inM) stats[low].matin++;
+        if (inS) stats[low].soir++;
+        if ((inM && inS) || has10h) stats[low].coupure++;
+        if (!inM && !inS) stats[low].repos++;
+      });
+    });
+
+    container.innerHTML = Object.values(stats).map(st => `
+      <div class="service-metric-card">
+        <div class="service-metric-name">${GC.escapeHtml(st.label)}</div>
+        <div class="service-metric-stats">
+          Matin: <strong>${st.matin}</strong> · Soir: <strong>${st.soir}</strong><br/>
+          <span class="service-metric-coupure">Coupure 10H: ${st.coupure}</span> · Repos: <strong>${st.repos}</strong>
+        </div>
+      </div>
+    `).join("");
   }
 
   function renderEditableTable(rows) {
@@ -930,13 +1013,13 @@ function doGet(e) {
       }
 
       tr.innerHTML = `
-        <td><input type="text" class="cell-date" value="${GC.escapeHtml(r.date)}" oninput="updateSyncStatus('editing')" /></td>
-        <td><textarea rows="2" class="cell-shift" oninput="updateSyncStatus('editing')">${GC.escapeHtml(r.matin)}</textarea></td>
-        <td><textarea rows="2" class="cell-shift" oninput="updateSyncStatus('editing')">${GC.escapeHtml(r.soir)}</textarea></td>
-        <td><input type="text" class="cell-note" value="${GC.escapeHtml(r.note)}" placeholder="Note/Alerte..." oninput="updateSyncStatus('editing')" /></td>
-        <td><input type="text" class="cell-time" value="${GC.escapeHtml(r.hMatin)}" oninput="updateSyncStatus('editing')" /></td>
-        <td><input type="text" class="cell-time" value="${GC.escapeHtml(r.hSoir)}" oninput="updateSyncStatus('editing')" /></td>
-        <td><button class="btn-del-row" onclick="this.closest('tr').remove(); updateSyncStatus('editing');" title="Supprimer">✕</button></td>
+        <td><input type="text" class="cell-date" value="${GC.escapeHtml(r.date)}" oninput="onTableCellEdit()" /></td>
+        <td><textarea rows="2" class="cell-shift" oninput="onTableCellEdit()">${GC.escapeHtml(r.matin)}</textarea></td>
+        <td><textarea rows="2" class="cell-shift" oninput="onTableCellEdit()">${GC.escapeHtml(r.soir)}</textarea></td>
+        <td><input type="text" class="cell-note" value="${GC.escapeHtml(r.note)}" placeholder="Note/Alerte..." oninput="onTableCellEdit()" /></td>
+        <td><input type="text" class="cell-time" value="${GC.escapeHtml(r.hMatin)}" oninput="onTableCellEdit()" /></td>
+        <td><input type="text" class="cell-time" value="${GC.escapeHtml(r.hSoir)}" oninput="onTableCellEdit()" /></td>
+        <td><button class="btn-del-row" onclick="deleteTableRow(this)" title="Supprimer">✕</button></td>
       `;
       tbody.appendChild(tr);
     });
@@ -959,7 +1042,8 @@ function doGet(e) {
       }
     }
 
-    GC.showToast("✨ Planning généré avec rotation carrée !");
+    renderServiceMetrics();
+    GC.showToast("✨ Planning généré avec rotation carrée (5 serveurs) !");
   }
 
   function addNewDayRow() {
@@ -967,16 +1051,17 @@ function doGet(e) {
     if (!tbody) return;
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td><input type="text" class="cell-date" value="lundi..." oninput="updateSyncStatus('editing')" /></td>
-      <td><textarea rows="2" class="cell-shift" oninput="updateSyncStatus('editing')"></textarea></td>
-      <td><textarea rows="2" class="cell-shift" oninput="updateSyncStatus('editing')"></textarea></td>
-      <td><input type="text" class="cell-note" value="" placeholder="Note/Alerte..." oninput="updateSyncStatus('editing')" /></td>
-      <td><input type="text" class="cell-time" value="06:30-14:30" oninput="updateSyncStatus('editing')" /></td>
-      <td><input type="text" class="cell-time" value="14:15- Fin service" oninput="updateSyncStatus('editing')" /></td>
-      <td><button class="btn-del-row" onclick="this.closest('tr').remove(); updateSyncStatus('editing');">✕</button></td>
+      <td><input type="text" class="cell-date" value="lundi..." oninput="onTableCellEdit()" /></td>
+      <td><textarea rows="2" class="cell-shift" oninput="onTableCellEdit()"></textarea></td>
+      <td><textarea rows="2" class="cell-shift" oninput="onTableCellEdit()"></textarea></td>
+      <td><input type="text" class="cell-note" value="" placeholder="Note/Alerte..." oninput="onTableCellEdit()" /></td>
+      <td><input type="text" class="cell-time" value="06:30-14:30" oninput="onTableCellEdit()" /></td>
+      <td><input type="text" class="cell-time" value="14:15- Fin service" oninput="onTableCellEdit()" /></td>
+      <td><button class="btn-del-row" onclick="deleteTableRow(this)">✕</button></td>
     `;
     tbody.appendChild(tr);
     updateSyncStatus("editing");
+    renderServiceMetrics();
   }
 
   function extractTableData() {
@@ -1069,7 +1154,6 @@ function doGet(e) {
   window.saveToGoogleSheets = saveToGoogleSheets;
   window.loadDraftData = loadDraftData;
   window.toggleTeamConfig = toggleTeamConfig;
-  window.toggleLeaveConfigCard = toggleLeaveConfigCard;
   window.loadTeamNames = loadTeamNames;
   window.saveTeamNames = saveTeamNames;
   window.insertNameBadge = insertNameBadge;
@@ -1078,6 +1162,9 @@ function doGet(e) {
   window.applyLeavePeriod = applyLeavePeriod;
   window.generatePlanningData = generatePlanningData;
   window.renderEditableTable = renderEditableTable;
+  window.renderServiceMetrics = renderServiceMetrics;
+  window.onTableCellEdit = onTableCellEdit;
+  window.deleteTableRow = deleteTableRow;
   window.addNewDayRow = addNewDayRow;
   window.extractTableData = extractTableData;
   window.exportToGoogleSheetsClipboard = exportToGoogleSheetsClipboard;

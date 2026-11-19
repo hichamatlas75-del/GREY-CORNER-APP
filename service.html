@@ -99,7 +99,7 @@
   <div class="modal-overlay" id="generatorModal">
     <div class="modal-box wide">
       <div class="modal-header">
-        <span class="modal-title">Générateur de Planning Carré</span>
+        <span class="modal-title">Générateur de Planning Carré (5 Serveurs)</span>
         <button class="modal-close" onclick="closeGeneratorModal()">✕</button>
       </div>
       <div class="modal-body">
@@ -151,75 +151,25 @@
           </div>
         </div>
 
-        <!-- Carte Équipe & Badges Mémoire (Personnalisation des 6 noms) -->
+        <!-- Carte Équipe & Badges Mémoire (Personnalisation des 5 serveurs) -->
         <div class="team-config-card">
           <div class="team-config-header" onclick="toggleTeamConfig()">
             <span class="team-config-title">
-              👥 Badges Mémoire de l'Équipe (6 Noms)
+              👥 Équipe Service Basse Saison (5 Serveurs — Système 24h)
             </span>
-            <span class="team-config-toggle" id="teamConfigToggle">Personnaliser les 6 noms ▼</span>
+            <span class="team-config-toggle" id="teamConfigToggle">Personnaliser les 5 noms ▼</span>
           </div>
           <div class="team-config-body" id="teamConfigBody" style="display:none;">
-            <div class="team-subgroup">
-              <span class="team-subgroup-title">Groupe 1 (Youness, Mokhtar, Aziz)</span>
+            <div class="team-subgroup full-span">
+              <span class="team-subgroup-title">Serveurs actifs (Youness, Aziz, Youssef, Zakaria, Mohamed)</span>
               <div class="name-input-row">
-                <input type="text" id="cfg_g1_0" placeholder="Serveur 1" value="youness" oninput="saveTeamNames()" />
-                <input type="text" id="cfg_g1_1" placeholder="Serveur 2" value="mokhtar" oninput="saveTeamNames()" />
-                <input type="text" id="cfg_g1_2" placeholder="Serveur 3" value="aziz" oninput="saveTeamNames()" />
+                <input type="text" id="cfg_s_0" placeholder="Serveur 1" value="youness" oninput="saveTeamNames()" />
+                <input type="text" id="cfg_s_1" placeholder="Serveur 2" value="aziz" oninput="saveTeamNames()" />
+                <input type="text" id="cfg_s_2" placeholder="Serveur 3" value="youssef" oninput="saveTeamNames()" />
+                <input type="text" id="cfg_s_3" placeholder="Serveur 4" value="zakaria" oninput="saveTeamNames()" />
+                <input type="text" id="cfg_s_4" placeholder="Serveur 5" value="mohamed" oninput="saveTeamNames()" />
               </div>
             </div>
-            <div class="team-subgroup">
-              <span class="team-subgroup-title">Groupe 2 (Youssef, Zakaria, Mohamed)</span>
-              <div class="name-input-row">
-                <input type="text" id="cfg_g2_0" placeholder="Serveur 1" value="youssef" oninput="saveTeamNames()" />
-                <input type="text" id="cfg_g2_1" placeholder="Serveur 2" value="zakaria" oninput="saveTeamNames()" />
-                <input type="text" id="cfg_g2_2" placeholder="Serveur 3" value="mohamed" oninput="saveTeamNames()" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Carte Congés & Absences -->
-        <div class="team-config-card" style="border-left:3px solid #f59e0b;">
-          <div class="team-config-header" onclick="toggleLeaveConfigCard()">
-            <span class="team-config-title">
-              🏖️ Gestion des Congés & Absences (Date à Date)
-            </span>
-            <span class="team-config-toggle" id="leaveConfigToggle">Ouvrir l'outil Congés ▼</span>
-          </div>
-          <div class="team-config-body" id="leaveConfigCardBody" style="display:none; grid-template-columns:1fr;">
-            <div class="leave-tool-body">
-              <div class="leave-field">
-                <span style="font-weight:600;">Personne :</span>
-                <select id="leaveStaffSelect"></select>
-              </div>
-              <div class="leave-field">
-                <span>Du :</span>
-                <input type="date" id="leaveDateStart" />
-              </div>
-              <div class="leave-field">
-                <span>Au :</span>
-                <input type="date" id="leaveDateEnd" />
-              </div>
-              <div class="leave-field">
-                <span>Action :</span>
-                <select id="leaveActionType" onchange="toggleLeaveActionInputs()">
-                  <option value="remove">🗑️ Retirer le nom (Postes libérés)</option>
-                  <option value="replace">🔄 Remplacer par un autre serveur</option>
-                  <option value="repos">💤 Marquer en Repos</option>
-                </select>
-              </div>
-              <div class="leave-field" id="leaveReplacementField" style="display:none;">
-                <span>Remplaçant :</span>
-                <select id="leaveReplacementSelect"></select>
-              </div>
-              <button class="btn-leave-apply" type="button" onclick="applyLeavePeriod()">
-                🏖️ Appliquer le congé
-              </button>
-            </div>
-            <p style="font-size:10px; color:var(--ink-soft); margin-top:4px;">
-              💡 <em>Vous pouvez générer votre planning avec le bouton ci-dessous, puis appliquer les congés à tout moment.</em>
-            </p>
           </div>
         </div>
 
@@ -230,10 +180,13 @@
             <input type="date" id="genStartDate" class="form-input" />
           </div>
           <div class="form-group">
-            <label class="form-label">Premier Groupe au Matin</label>
+            <label class="form-label">Rotation de départ (Semaine 1)</label>
             <select id="genStartGroup" class="form-select">
-              <option value="1" id="opt_g1">Groupe 1 (Youness, Mokhtar, Aziz)</option>
-              <option value="2" id="opt_g2">Groupe 2 (Youssef, Zakaria, Mohamed)</option>
+              <option value="0" id="opt_rot_0">Rotation 1 — Repos Lun : Mohamed | Matin : Youness &amp; Aziz</option>
+              <option value="1" id="opt_rot_1">Rotation 2 — Repos Lun : Youness | Matin : Aziz &amp; Youssef</option>
+              <option value="2" id="opt_rot_2">Rotation 3 — Repos Lun : Aziz | Matin : Youssef &amp; Zakaria</option>
+              <option value="3" id="opt_rot_3">Rotation 4 — Repos Lun : Youssef | Matin : Zakaria &amp; Mohamed</option>
+              <option value="4" id="opt_rot_4">Rotation 5 — Repos Lun : Zakaria | Matin : Mohamed &amp; Youness</option>
             </select>
           </div>
         </div>
@@ -252,8 +205,16 @@
           </div>
           <div class="form-group">
             <label class="form-label">Message d'alerte (Optionnel)</label>
-            <input type="text" id="genAlertMsg" class="form-input" placeholder="Ex: les personnes en rouge doivent pointer..." />
+            <input type="text" id="genAlertMsg" class="form-input" value="Les personnes en coupure (10H) pointent à 10h00 jusqu'à la fin de service" placeholder="Ex: Les personnes en coupure (10H) pointent à 10h00..." />
           </div>
+        </div>
+
+        <div class="rules-callout">
+          🔄 <strong>Système 24h &amp; Basse Saison (5 Serveurs — jusqu'en Mars) :</strong><br/>
+          • <strong>Lun–Ven :</strong> 2 Matin (06h30) / 2 Soir (14h15) / 1 Repos garanti — le soir assure le lendemain matin avec inversion de carré (<code>SAL1+TER2</code> ↔ <code>TER1+SAL2+LOG</code>).<br/>
+          • <strong>Samedi :</strong> 3 Matin / 3 Soir dont <strong>1 Coupure 10h → Fin</strong>.<br/>
+          • <strong>Dimanche :</strong> 4 Matin (inclus 1 <code>DEB</code>) / 3 Soir dont <strong>2 Coupures 10h → Fin</strong>.<br/>
+          • <strong>Équité :</strong> Rotation circulaire automatique chaque semaine (repos, carrés et coupures).
         </div>
 
         <button class="btn-primary" onclick="generatePlanningData()">
@@ -326,6 +287,9 @@
               </button>
             </div>
           </div>
+
+          <!-- Récapitulatif équité des 5 serveurs -->
+          <div id="serviceMetricsSummary" class="service-metrics-grid"></div>
 
           <div class="table-responsive">
             <table class="table-edit" id="editTable">
@@ -537,10 +501,11 @@
           nom   = s;
           poste = "SERVEUR";
         }
-        const isDouble = duplicates.includes(nom.toLowerCase());
+        const isCoupurePoste = poste.includes("10H") || poste.includes("COUPURE");
+        const isDouble = duplicates.includes(nom.toLowerCase()) || isCoupurePoste;
         return `
           <div class="staff-row">
-            <div class="poste-badge">${GC.escapeHtml(poste)}</div>
+            <div class="poste-badge ${isCoupurePoste ? 'is-coupure' : ''}">${GC.escapeHtml(poste)}</div>
             <div class="staff-name ${isDouble ? 'double-shift' : ''}">${GC.escapeHtml(nom)}</div>
           </div>
         `;

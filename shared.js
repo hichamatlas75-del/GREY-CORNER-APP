@@ -248,22 +248,31 @@
   // ─── 4. NORMALISATION ROBUSTE DES POSTES ───
   GC.cleanPoste = function(raw) {
     if (!raw) return '';
-    const p = String(raw).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[\s_]/g, '').trim();
-    if (p.includes('ter1')) return 'TER 1';
-    if (p.includes('ter2')) return 'TER 2';
-    if (p.includes('ter3')) return 'TER 3';
-    if (p.includes('ter'))  return 'TER';
-    if (p.includes('sal1') || p.includes('sala1')) return 'SAL 1';
-    if (p.includes('sal2') || p.includes('sala2')) return 'SAL 2';
-    if (p.includes('sal3') || p.includes('sala3')) return 'SAL 3';
-    if (p.includes('sal')  || p.includes('sala'))  return 'SAL 1';
-    if (p.includes('log'))  return 'LOGE';
-    if (p.includes('deb'))  return 'DEB';
-    if (p.includes('bar'))  return 'BAR';
-    if (p.includes('cais')) return 'CAISSE';
-    if (p.includes('run'))  return 'RUNNER';
-    if (p.includes('acc'))  return 'ACCUEIL';
-    return String(raw).substring(0, 6).toUpperCase();
+    const str = String(raw).trim();
+    const is10h = /10\s*h|coup/i.test(str);
+    const p = str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[\s_-]/g, '').trim();
+    let base = '';
+    if (p.includes('ter1')) base = 'TER 1';
+    else if (p.includes('ter2')) base = 'TER 2';
+    else if (p.includes('ter3')) base = 'TER 3';
+    else if (p.includes('ter'))  base = 'TER';
+    else if (p.includes('sal1') || p.includes('sala1')) base = 'SAL 1';
+    else if (p.includes('sal2') || p.includes('sala2')) base = 'SAL 2';
+    else if (p.includes('sal3') || p.includes('sala3')) base = 'SAL 3';
+    else if (p.includes('sal')  || p.includes('sala'))  base = 'SAL 1';
+    else if (p.includes('log'))  base = 'LOGE';
+    else if (p.includes('deb'))  base = 'DEB';
+    else if (p.includes('bar'))  base = 'BAR';
+    else if (p.includes('cais')) base = 'CAISSE';
+    else if (p.includes('run'))  base = 'RUNNER';
+    else if (p.includes('acc'))  base = 'ACCUEIL';
+    else if (is10h) base = 'COUPURE';
+    else base = str.substring(0, 6).toUpperCase();
+
+    if (is10h && !base.includes('10H')) {
+      return `${base} • 10H`;
+    }
+    return base;
   };
 
   GC.pickTime = function(raw, fallback) {
