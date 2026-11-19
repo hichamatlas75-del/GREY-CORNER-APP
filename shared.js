@@ -8,36 +8,165 @@
 
   const GC = root.GC || {};
 
-  // ─── 1. SÉCURITÉ & HACHAGE SHA-256 (PINs DÉDIÉS) ───
+  // ─── 1. SÉCURITÉ, ANTI-BRUTEFORCE, SESSIONS & RÔLES ───
+  // NOTE D'ARCHITECTURE : Le hachage SHA-256 et le stockage de session côté navigateur
+  // constituent uniquement un verrou d'interface utilisateur (accès vestiaires).
+  // Ils ne protègent pas les données contre un utilisateur inspectant le code client.
+  // La validation réelle des opérations d'écriture doit s'appuyer sur le backend
+  // (jeton / secret vérifié côté Google Apps Script ou authentification Google).
   // Hash SHA-256 du code PIN Staff
   GC.PIN_STAFF_HASH = "7d12ba56e9f8b3dc64f77c87318c4f37bc12cfbf1a37573cdf3e4fa683f20155";
   // Hash SHA-256 du code PIN Administrateur (2008)
   GC.PIN_ADMIN_HASH = "e5e53c784d5d49de1cabb6e904bf3380026aadcb9769775a268dd304dd9aa2df";
   GC.MASTER_PIN_HASH = GC.PIN_ADMIN_HASH;
 
+  GC.PIN_MAX_ATTEMPTS = 5;
+  GC.PIN_LOCKOUT_MS = 5 * 60 * 1000; // 5 minutes
+  GC.PIN_LOCKOUT_KEY = 'gc_pin_lockout_v1';
+
+  GC.SESSION_TTL_ADMIN_MS = 30 * 60 * 1000; // 30 minutes
+  GC.SESSION_TTL_STAFF_MS = 8 * 60 * 60 * 1000; // 8 heures
+  GC.ADMIN_SESSION_KEYS = ['gc_service_admin', 'gc_bar_admin', 'gc_cuisine_admin', 'gc_menage_admin'];
+  GC.STAFF_SESSION_KEYS = ['gc_vestiaire_auth', 'gc_auth'];
+  GC.lastPinError = '';
+
+  function readLockoutStore() {
+    try {
+      const raw = localStorage.getItem(GC.PIN_LOCKOUT_KEY);
+      const parsed = raw ? JSON.parse(raw) : {};
+      return (parsed && typeof parsed === 'object') ? parsed : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function writeLockoutStore(store) {
+    try {
+      localStorage.setItem(GC.PIN_LOCKOUT_KEY, JSON.stringify(store));
+    } catch (e) {}
+  }
+
+  GC.getPinLockoutStatus = function(scope = 'staff') {
+    const store = readLockoutStore();
+    const rec = store[scope] || { attempts: 0, lockedUntil: 0 };
+    const now = Date.now();
+    if (rec.lockedUntil && now < rec.lockedUntil) {
+      const remainingMs = rec.lockedUntil - now;
+      return {
+        locked: true,
+        remainingMs,
+        remainingSec: Math.ceil(remainingMs / 1000),
+        attempts: rec.attempts || GC.PIN_MAX_ATTEMPTS,
+        remainingAttempts: 0
+      };
+    }
+    if (rec.lockedUntil && now >= rec.lockedUntil) {
+      delete store[scope];
+      writeLockoutStore(store);
+      return { locked: false, remainingMs: 0, remainingSec: 0, attempts: 0, remainingAttempts: GC.PIN_MAX_ATTEMPTS };
+    }
+    const attempts = rec.attempts || 0;
+    return {
+      locked: false,
+      remainingMs: 0,
+      remainingSec: 0,
+      attempts,
+      remainingAttempts: Math.max(0, GC.PIN_MAX_ATTEMPTS - attempts)
+    };
+  };
+
+  GC.recordPinAttempt = function(scope = 'staff', success = false) {
+    const store = readLockoutStore();
+    if (success) {
+      delete store[scope];
+      writeLockoutStore(store);
+      return { locked: false, remainingMs: 0, remainingSec: 0, attempts: 0, remainingAttempts: GC.PIN_MAX_ATTEMPTS };
+    }
+    const prev = store[scope] || { attempts: 0, lockedUntil: 0 };
+    const attempts = (prev.attempts || 0) + 1;
+    let lockedUntil = 0;
+    if (attempts >= GC.PIN_MAX_ATTEMPTS) {
+      lockedUntil = Date.now() + GC.PIN_LOCKOUT_MS;
+    }
+    store[scope] = { attempts, lockedUntil };
+    writeLockoutStore(store);
+    const locked = lockedUntil > 0;
+    const remainingMs = locked ? (lockedUntil - Date.now()) : 0;
+    return {
+      locked,
+      remainingMs,
+      remainingSec: Math.ceil(remainingMs / 1000),
+      attempts,
+      remainingAttempts: Math.max(0, GC.PIN_MAX_ATTEMPTS - attempts)
+    };
+  };
+
+  GC.resetPinLockout = function(scope) {
+    if (!scope) {
+      try { localStorage.removeItem(GC.PIN_LOCKOUT_KEY); } catch (e) {}
+      return;
+    }
+    const store = readLockoutStore();
+    delete store[scope];
+    writeLockoutStore(store);
+  };
+
   GC.hashPin = async function(str) {
     if (!str) return '';
-    if (typeof window !== 'undefined' && window.crypto && crypto.subtle) {
+    const subtle = (typeof crypto !== 'undefined' && crypto.subtle)
+      ? crypto.subtle
+      : (root && root.crypto && root.crypto.subtle ? root.crypto.subtle : null);
+    if (subtle) {
       const enc = new TextEncoder().encode(String(str));
-      const buf = await crypto.subtle.digest('SHA-256', enc);
+      const buf = await subtle.digest('SHA-256', enc);
       return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
     return '';
   };
 
   /**
-   * Vérification du PIN selon le rôle :
-   * - 'admin' : Seul le PIN Admin est accepté (Générateurs, Cuisine Admin).
-   * - 'staff' : Le PIN Staff OU le PIN Admin est accepté.
+   * Vérification du PIN selon le rôle avec limitation de tentatives (5 max / 5 min) :
+   * - 'admin' : Seul le PIN Admin est accepté (Générateurs, Cuisine Admin, Ménage Admin).
+   * - 'staff' : Le PIN Staff OU le PIN Admin est accepté (Vestiaires).
    */
   GC.verifyPin = async function(inputPin, role = 'staff') {
-    if (!inputPin) return false;
-    const hashed = await GC.hashPin(inputPin);
-    if (role === 'admin') {
-      return hashed === GC.PIN_ADMIN_HASH;
+    const scope = (role === 'admin') ? 'admin' : 'staff';
+    const lockStatus = GC.getPinLockoutStatus(scope);
+    if (lockStatus.locked) {
+      GC.lastPinError = `Trop de tentatives incorrectes. Réessayez dans ${lockStatus.remainingSec}s.`;
+      return false;
     }
-    // Rôle Staff : accepte staff ou admin maître
-    return hashed === GC.PIN_STAFF_HASH || hashed === GC.PIN_ADMIN_HASH;
+    if (!inputPin || String(inputPin).trim().length === 0) {
+      GC.lastPinError = 'Saisissez un code PIN à 4 chiffres.';
+      return false;
+    }
+
+    const hashed = await GC.hashPin(String(inputPin).trim());
+    if (!hashed) {
+      GC.lastPinError = 'Vérification cryptographique indisponible (HTTPS requis).';
+      return false;
+    }
+
+    const isOk = (scope === 'admin')
+      ? (hashed === GC.PIN_ADMIN_HASH)
+      : (hashed === GC.PIN_STAFF_HASH || hashed === GC.PIN_ADMIN_HASH);
+
+    if (isOk) {
+      GC.recordPinAttempt(scope, true);
+      GC.lastPinError = '';
+      if (hashed === GC.PIN_ADMIN_HASH) {
+        try { sessionStorage.setItem('gc_admin_token_hash', hashed); } catch (e) {}
+      }
+      return true;
+    }
+
+    const after = GC.recordPinAttempt(scope, false);
+    if (after.locked) {
+      GC.lastPinError = `Accès bloqué pendant ${after.remainingSec}s suite à ${GC.PIN_MAX_ATTEMPTS} échecs.`;
+    } else {
+      GC.lastPinError = `Code PIN incorrect (${after.remainingAttempts} essai(s) restant(s)).`;
+    }
+    return false;
   };
 
   GC.verifyAdminPin = async function(inputPin) {
@@ -48,23 +177,117 @@
     return GC.verifyPin(inputPin, 'staff');
   };
 
-  GC.isSessionAuth = function(key = 'gc_auth') {
+  GC.isSessionAuth = function(key = 'gc_auth', requiredRole) {
     try {
-      return sessionStorage.getItem(key) === '1';
+      const raw = sessionStorage.getItem(key);
+      if (!raw) return false;
+      const mustBeAdmin = (requiredRole === 'admin') || GC.ADMIN_SESSION_KEYS.includes(key);
+      const ttl = mustBeAdmin ? GC.SESSION_TTL_ADMIN_MS : GC.SESSION_TTL_STAFF_MS;
+
+      let data;
+      if (raw === '1') {
+        // Migration d'une session legacy sans métadonnées : interdit pour admin par sécurité
+        if (mustBeAdmin) {
+          sessionStorage.removeItem(key);
+          return false;
+        }
+        data = { auth: true, role: 'staff', createdAt: Date.now(), expiresAt: Date.now() + ttl };
+        sessionStorage.setItem(key, JSON.stringify(data));
+        return true;
+      }
+
+      data = JSON.parse(raw);
+      if (!data || data.auth !== true) {
+        sessionStorage.removeItem(key);
+        return false;
+      }
+
+      const now = Date.now();
+      if (!data.expiresAt || now > data.expiresAt) {
+        sessionStorage.removeItem(key);
+        if (mustBeAdmin) GC.cleanupUnusedAdminToken();
+        return false;
+      }
+
+      if (mustBeAdmin && data.role !== 'admin') {
+        return false;
+      }
+
+      // Fenêtre glissante à l'activité
+      data.expiresAt = now + (data.role === 'admin' ? GC.SESSION_TTL_ADMIN_MS : GC.SESSION_TTL_STAFF_MS);
+      sessionStorage.setItem(key, JSON.stringify(data));
+      return true;
     } catch (e) {
       return false;
     }
   };
 
-  GC.setSessionAuth = function(key = 'gc_auth') {
+  GC.setSessionAuth = function(key = 'gc_auth', role) {
     try {
-      sessionStorage.setItem(key, '1');
+      const isAdminKey = GC.ADMIN_SESSION_KEYS.includes(key);
+      const effectiveRole = role || (isAdminKey ? 'admin' : 'staff');
+      // Empêche une session staff de s'auto-élever en session admin
+      if (isAdminKey && effectiveRole !== 'admin') return false;
+      const ttl = (effectiveRole === 'admin') ? GC.SESSION_TTL_ADMIN_MS : GC.SESSION_TTL_STAFF_MS;
+      const now = Date.now();
+      sessionStorage.setItem(key, JSON.stringify({
+        auth: true,
+        role: effectiveRole,
+        createdAt: now,
+        expiresAt: now + ttl
+      }));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  GC.cleanupUnusedAdminToken = function() {
+    try {
+      const anyAdminActive = GC.ADMIN_SESSION_KEYS.some(k => {
+        const raw = sessionStorage.getItem(k);
+        if (!raw || raw === '1') return false;
+        try {
+          const parsed = JSON.parse(raw);
+          return parsed && parsed.auth === true && parsed.role === 'admin' && parsed.expiresAt > Date.now();
+        } catch (err) {
+          return false;
+        }
+      });
+      if (!anyAdminActive) {
+        sessionStorage.removeItem('gc_admin_token_hash');
+      }
     } catch (e) {}
+  };
+
+  GC.getAdminAuthToken = function() {
+    try {
+      const anyAdminActive = GC.ADMIN_SESSION_KEYS.some(k => GC.isSessionAuth(k, 'admin'));
+      if (!anyAdminActive) return '';
+      return sessionStorage.getItem('gc_admin_token_hash') || '';
+    } catch (e) {
+      return '';
+    }
   };
 
   GC.clearSessionAuth = function(key = 'gc_auth') {
     try {
       sessionStorage.removeItem(key);
+      if (GC.ADMIN_SESSION_KEYS.includes(key)) {
+        GC.cleanupUnusedAdminToken();
+      }
+    } catch (e) {}
+  };
+
+  GC.logout = function(keyOrAll = 'all') {
+    try {
+      if (!keyOrAll || keyOrAll === 'all') {
+        const allKeys = [...GC.ADMIN_SESSION_KEYS, ...GC.STAFF_SESSION_KEYS, 'gc_admin_token_hash'];
+        allKeys.forEach(k => sessionStorage.removeItem(k));
+        return;
+      }
+      sessionStorage.removeItem(keyOrAll);
+      GC.cleanupUnusedAdminToken();
     } catch (e) {}
   };
 
@@ -284,50 +507,77 @@
   GC.FRENCH_DAYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
   GC.FRENCH_MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 
-  GC.todayMidnight = function() {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
+  GC.isValidDate = function(d) {
+    return d instanceof Date && !isNaN(d.getTime());
+  };
+
+  GC.createSafeLocalDate = function(year, monthIndex, day) {
+    if (!Number.isInteger(year) || !Number.isInteger(monthIndex) || !Number.isInteger(day)) return null;
+    if (monthIndex < 0 || monthIndex > 11 || day < 1 || day > 31) return null;
+    const d = new Date(year, monthIndex, day, 0, 0, 0, 0);
+    if (isNaN(d.getTime())) return null;
+    if (d.getFullYear() !== year || d.getMonth() !== monthIndex || d.getDate() !== day) return null;
     return d;
   };
 
+  GC.todayMidnight = function() {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+  };
+
   GC.sameDay = function(a, b) {
-    return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    return GC.isValidDate(a) && GC.isValidDate(b) &&
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate();
   };
 
   GC.formatFrenchDate = function(dateObj) {
-    if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) return '';
+    if (!GC.isValidDate(dateObj)) return '';
     const dayName = GC.FRENCH_DAYS[dateObj.getDay()];
     const dayNum  = dateObj.getDate();
     const month   = GC.FRENCH_MONTHS[dateObj.getMonth()];
     return `${dayName} ${dayNum} ${month}`;
   };
 
-  GC.parseDateLabel = function(label) {
+  function resolveYearWithoutExplicitYear(monthIndex, day, refDate) {
+    const baseYear = refDate.getFullYear();
+    const candidate = GC.createSafeLocalDate(baseYear, monthIndex, day);
+    if (!candidate) return null;
+    const diffDays = (candidate.getTime() - refDate.getTime()) / 86400000;
+    if (diffDays < -180) {
+      return GC.createSafeLocalDate(baseYear + 1, monthIndex, day);
+    }
+    if (diffDays > 180) {
+      return GC.createSafeLocalDate(baseYear - 1, monthIndex, day);
+    }
+    return candidate;
+  }
+
+  GC.parseDateLabel = function(label, refDate) {
     const s = String(label ?? '').trim();
     if (!s || s.toUpperCase() === 'DATE') return null;
 
-    // Format YYYY-MM-DD
+    const ref = GC.isValidDate(refDate)
+      ? new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate(), 0, 0, 0, 0)
+      : GC.todayMidnight();
+
+    // Format YYYY-MM-DD ou YYYY/MM/DD
     let m = s.match(/\b(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})\b/);
     if (m) {
-      const d = new Date(+m[1], +m[2] - 1, +m[3]);
-      d.setHours(0, 0, 0, 0);
-      return isNaN(d.getTime()) ? null : d;
+      return GC.createSafeLocalDate(+m[1], +m[2] - 1, +m[3]);
     }
 
-    // Format DD/MM/YYYY
+    // Format DD/MM/YYYY ou DD-MM-YYYY
     m = s.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})\b/);
     if (m) {
-      const d = new Date(+m[3], +m[2] - 1, +m[1]);
-      d.setHours(0, 0, 0, 0);
-      return isNaN(d.getTime()) ? null : d;
+      return GC.createSafeLocalDate(+m[3], +m[2] - 1, +m[1]);
     }
 
-    // Format DD/MM
+    // Format DD/MM sans année
     m = s.match(/^(\d{1,2})[\/-](\d{1,2})$/);
     if (m) {
-      const d = new Date(new Date().getFullYear(), +m[2] - 1, +m[1]);
-      d.setHours(0, 0, 0, 0);
-      return isNaN(d.getTime()) ? null : d;
+      return resolveYearWithoutExplicitYear(+m[2] - 1, +m[1], ref);
     }
 
     // Mois FR (complet + abrégé)
@@ -349,13 +599,46 @@
     const low = s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\./g, '');
     m = low.match(/\b(\d{1,2})\s+([a-z]+)\b(?:\s+(\d{4}))?/);
     if (m && months[m[2]] !== undefined) {
-      const yr = m[3] ? +m[3] : new Date().getFullYear();
-      const d  = new Date(yr, months[m[2]], +m[1]);
-      d.setHours(0, 0, 0, 0);
-      return isNaN(d.getTime()) ? null : d;
+      const monthIdx = months[m[2]];
+      const dayNum = +m[1];
+      if (m[3]) {
+        return GC.createSafeLocalDate(+m[3], monthIdx, dayNum);
+      }
+      return resolveYearWithoutExplicitYear(monthIdx, dayNum, ref);
     }
 
     return null;
+  };
+
+  GC.filterActivePlanningRows = function(rows, refDate) {
+    if (!Array.isArray(rows) || !rows.length) return [];
+    const ref = GC.isValidDate(refDate)
+      ? new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate(), 0, 0, 0, 0)
+      : GC.todayMidnight();
+
+    const normalized = rows
+      .filter(r => r && r.date && !String(r.date).trim().toUpperCase().startsWith('DATE'))
+      .map(r => {
+        const parsed = GC.isValidDate(r.dateObj) ? r.dateObj : GC.parseDateLabel(r.date, ref);
+        return Object.assign({}, r, { dateObj: parsed });
+      });
+
+    const validDated = normalized.filter(r => GC.isValidDate(r.dateObj));
+    if (validDated.length > 0) {
+      return validDated.filter(r => r.dateObj.getTime() >= ref.getTime());
+    }
+    return normalized;
+  };
+
+  GC.findTodayRowIndex = function(rows, refDate) {
+    if (!Array.isArray(rows) || !rows.length) return -1;
+    const ref = GC.isValidDate(refDate) ? refDate : GC.todayMidnight();
+    const exactIdx = rows.findIndex(r => GC.isValidDate(r.dateObj) && GC.sameDay(r.dateObj, ref));
+    if (exactIdx !== -1) return exactIdx;
+    const anyDated = rows.some(r => GC.isValidDate(r.dateObj));
+    if (anyDated) return -1;
+    const todayDayName = (GC.FRENCH_DAYS && GC.FRENCH_DAYS[ref.getDay()]) ? GC.FRENCH_DAYS[ref.getDay()].toLowerCase() : '';
+    return todayDayName ? rows.findIndex(r => r.date && String(r.date).toLowerCase().includes(todayDayName)) : -1;
   };
 
   // ─── 6. NOTIFICATIONS UI (ALERTE & TOAST) ───
@@ -453,16 +736,21 @@
   root.MASTER_PIN_HASH = GC.MASTER_PIN_HASH;
   root.verifyPin = GC.verifyPin;
   root.hashPin = GC.hashPin;
+  root.logout = GC.logout;
   root.escapeHtml = root.escapeHtml || GC.escapeHtml;
   root.isHtml = root.isHtml || GC.isHtml;
   root.splitCsv = root.splitCsv || GC.splitCsv;
   root.parseCsvLine = root.parseCsvLine || GC.parseCsvLine;
   root.cleanPoste = root.cleanPoste || GC.cleanPoste;
   root.pickTime = root.pickTime || GC.pickTime;
+  root.isValidDate = root.isValidDate || GC.isValidDate;
+  root.createSafeLocalDate = root.createSafeLocalDate || GC.createSafeLocalDate;
   root.todayMidnight = root.todayMidnight || GC.todayMidnight;
   root.sameDay = root.sameDay || GC.sameDay;
   root.formatFrenchDate = root.formatFrenchDate || GC.formatFrenchDate;
   root.parseDateLabel = root.parseDateLabel || GC.parseDateLabel;
+  root.filterActivePlanningRows = root.filterActivePlanningRows || GC.filterActivePlanningRows;
+  root.findTodayRowIndex = root.findTodayRowIndex || GC.findTodayRowIndex;
   root.showAlert = root.showAlert || GC.showAlert;
   root.hideAlert = root.hideAlert || GC.hideAlert;
   root.showToast = root.showToast || GC.showToast;

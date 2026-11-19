@@ -114,6 +114,41 @@
     ];
 
     /* ── main ── */
+    function parseAndRenderBar(text) {
+      const container = document.getElementById("planning-container");
+      const rows = text.split(/\r?\n/).map(r => r.trim()).filter(r => r);
+      if (rows.length <= 1) { container.innerHTML = `<div class="empty-state">CSV vide.</div>`; return; }
+
+      /* Banner D2 */
+      if (rows.length >= 2) {
+        const c2 = GC.parseCsvLine(rows[1]);
+        while (c2.length < 6) c2.push("");
+        const banner = String(c2[3] ?? "").trim();
+        if (banner && banner !== "-" && !banner.toLowerCase().includes("notification")) GC.showAlert(banner);
+      }
+
+      const t0 = GC.todayMidnight();
+      const all = [];
+      for (let i = 1; i < rows.length; i++) {
+        const c = GC.parseCsvLine(rows[i]);
+        while (c.length < 6) c.push("");
+        const label = (c[0] ?? "").trim();
+        if (label && !label.toUpperCase().startsWith("DATE")) {
+          all.push({
+            date: label,
+            dateObj: GC.parseDateLabel(label, t0),
+            matin: c[1] ?? '',
+            soir: c[2] ?? '',
+            hMatin: c[4] ?? '',
+            hSoir: c[5] ?? ''
+          });
+        }
+      }
+
+      const data = GC.filterActivePlanningRows(all, t0);
+      render(data, t0);
+    }
+
     async function init() {
       const container = document.getElementById("planning-container");
       try {
@@ -121,63 +156,33 @@
         const text = await resp.text();
 
         if (GC.isHtml(text)) {
-          container.innerHTML = `<div class="empty-state">Accès refusé — feuille non publique.</div>`;
-          GC.showAlert("Gérer l'accès → Toute personne avec le lien (Lecteur).");
-          return;
+          throw new Error("Feuille non publique ou HTML renvoyé");
         }
 
-        const rows = text.split(/\r?\n/).map(r => r.trim()).filter(r => r);
-        if (rows.length <= 1) { container.innerHTML = `<div class="empty-state">CSV vide.</div>`; return; }
-
-        /* Banner D2 */
-        if (rows.length >= 2) {
-          const c2 = GC.parseCsvLine(rows[1]);
-          while (c2.length < 6) c2.push("");
-          const banner = String(c2[3] ?? "").trim();
-          if (banner && banner !== "-") GC.showAlert(banner);
-        }
-
-        const all = [];
-        for (let i = 1; i < rows.length; i++) {
-          const c = GC.parseCsvLine(rows[i]);
-          while (c.length < 6) c.push("");
-          const label = (c[0] ?? "").trim();
-          if (label) {
-            all.push({
-              date: label,
-              dateObj: GC.parseDateLabel(label),
-              matin: c[1] ?? '',
-              soir: c[2] ?? '',
-              hMatin: c[4] ?? '',
-              hSoir: c[5] ?? ''
-            });
-          }
-        }
-
-        const t0 = GC.todayMidnight();
-        const anyParsable = all.some(r => r.dateObj instanceof Date);
-        const data = anyParsable ? all.filter(r => r.dateObj && r.dateObj >= t0) : all;
-
-        render(data, t0);
+        localStorage.setItem("gc_bar_sheet_cache", text);
+        parseAndRenderBar(text);
 
       } catch (e) {
-        container.innerHTML = `<div class="empty-state">Erreur réseau / connexion.</div>`;
-        GC.showAlert("Vérifiez votre connexion internet.");
+        console.warn("Échec chargement Bar en ligne, tentative via cache local:", e);
+        const cached = localStorage.getItem("gc_bar_sheet_cache");
+        if (cached) {
+          parseAndRenderBar(cached);
+          GC.showToast("📡 Mode hors-ligne : affichage des données en cache.");
+        } else {
+          container.innerHTML = `<div class="empty-state">Erreur réseau / connexion.</div>`;
+          GC.showAlert("Vérifiez votre connexion internet.");
+        }
       }
     }
 
-    function render(data, t0) {
+    function render(data, t0 = GC.todayMidnight()) {
       const container = document.getElementById("planning-container");
       if (!data.length) {
         container.innerHTML = `<div class="empty-state">Aucun jour à afficher.</div>`;
         return;
       }
 
-      let todayIdx = data.findIndex(r => r.dateObj && GC.sameDay(r.dateObj, t0));
-      if (todayIdx === -1) {
-        const todayDayName = (GC.FRENCH_DAYS && GC.FRENCH_DAYS[t0.getDay()]) ? GC.FRENCH_DAYS[t0.getDay()].toLowerCase() : '';
-        todayIdx = data.findIndex(r => r.date && r.date.toLowerCase().includes(todayDayName));
-      }
+      const todayIdx = GC.findTodayRowIndex(data, t0);
 
       container.innerHTML = data.map((j, idx) => {
         const isToday = idx === todayIdx;
@@ -304,13 +309,22 @@
     async function submitPin() {
       const err = document.getElementById("mPinError");
       const panel = document.getElementById("pinPanel");
+      const lockStatus = GC.getPinLockoutStatus('admin');
+      if (lockStatus.locked) {
+        if (err) err.textContent = `Trop de tentatives incorrectes. Réessayez dans ${lockStatus.remainingSec}s.`;
+        return;
+      }
+      if (mPinValue.length !== 4) {
+        if (err) err.textContent = "Entrez le code à 4 chiffres.";
+        return;
+      }
 
       const isValid = await GC.verifyAdminPin(mPinValue);
       if (isValid) {
-        GC.setSessionAuth("gc_bar_admin");
+        GC.setSessionAuth("gc_bar_admin", "admin");
         window.location.href = "generateur.html";
       } else {
-        if (err) err.textContent = "Code PIN Admin incorrect.";
+        if (err) err.textContent = GC.lastPinError || "Code PIN Admin incorrect.";
         if (panel) {
           panel.classList.remove("shake");
           void panel.offsetWidth;
