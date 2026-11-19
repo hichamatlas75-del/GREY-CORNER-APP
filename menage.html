@@ -153,10 +153,42 @@
     let currentWeek = 'S1';
     let isMenageAdminEdit = false;
     let isMenageSyncing = false;
+    let pendingMenageResync = false;
+    let autoSyncMenageTimer = null;
     let mPinValue = '';
 
     function getMenageWebhookUrl() {
-      return (localStorage.getItem('gc_menage_webhook_url') || localStorage.getItem('gc_webhook_url') || '').trim();
+      return GC.getWebhookUrl('gc_menage_webhook_url');
+    }
+
+    function syncDomToMenageData() {
+      const container = document.getElementById('planning-list');
+      if (!container || !PLANNING_DATA[currentWeek]) return false;
+      let changed = false;
+      const fields = container.querySelectorAll('.staff-name-menage[data-idx][data-shift]');
+      fields.forEach(el => {
+        const idx = parseInt(el.getAttribute('data-idx'), 10);
+        const shiftKey = el.getAttribute('data-shift');
+        const sched = PLANNING_DATA[currentWeek].schedules[idx];
+        if (!sched || !sched[shiftKey]) return;
+        const val = String(el.textContent || '').replace(/\s+/g, ' ').trim();
+        if (val !== sched[shiftKey].staff) {
+          sched[shiftKey].staff = val;
+          changed = true;
+        }
+      });
+      if (changed) saveMenageToLocal(true);
+      return changed;
+    }
+
+    function scheduleAutoSyncMenage() {
+      if (autoSyncMenageTimer) clearTimeout(autoSyncMenageTimer);
+      autoSyncMenageTimer = setTimeout(() => {
+        autoSyncMenageTimer = null;
+        if (isMenageAdminEdit && GC.isSessionAuth('gc_menage_admin', 'admin')) {
+          syncMenageToCloud({ silent: true });
+        }
+      }, 1200);
     }
 
     function mergeMenageData(incoming) {
@@ -213,7 +245,7 @@
         const json = await resp.json();
         if (json && json.status === 'success' && json.data && (json.data.S1?.schedules?.length || json.data.S2?.schedules?.length)) {
           if (isDirty) {
-            GC.showAlert("Des modifications locales Ménage ne sont pas encore synchronisées. Ouvrez Admin > ☁️ Sync Sheets.");
+            GC.showAlert("Des modifications locales Ménage ne sont pas encore synchronisées. Ouvrez Admin > 💾 Enregistrer.");
           } else if (mergeMenageData(json.data)) {
             saveMenageToLocal(false);
             renderPlanning();
@@ -231,6 +263,7 @@
     }
 
     function switchWeek(weekKey) {
+      if (isMenageAdminEdit) syncDomToMenageData();
       currentWeek = weekKey;
       
       const btns = document.querySelectorAll('.tab-btn');
@@ -248,8 +281,24 @@
 
     function updateMenageStaff(idx, shiftKey, value) {
       if (!PLANNING_DATA[currentWeek] || !PLANNING_DATA[currentWeek].schedules[idx]) return;
-      PLANNING_DATA[currentWeek].schedules[idx][shiftKey].staff = String(value || '').trim();
+      PLANNING_DATA[currentWeek].schedules[idx][shiftKey].staff = String(value || '').replace(/\s+/g, ' ').trim();
       saveMenageToLocal(true);
+    }
+
+    function onMenageFieldInput(idx, shiftKey, value) {
+      updateMenageStaff(idx, shiftKey, value);
+      scheduleAutoSyncMenage();
+    }
+
+    function onMenageFieldBlur(idx, shiftKey, value) {
+      if (autoSyncMenageTimer) {
+        clearTimeout(autoSyncMenageTimer);
+        autoSyncMenageTimer = null;
+      }
+      updateMenageStaff(idx, shiftKey, value);
+      if (isMenageAdminEdit && GC.isSessionAuth('gc_menage_admin', 'admin')) {
+        syncMenageToCloud({ silent: true });
+      }
     }
 
     function renderPlanning() {
@@ -279,7 +328,7 @@
                 <div class="icon-box-menage">☀️</div>
                 <div class="shift-info-box">
                   <div class="shift-label-menage matin">Service Matin • ${isWE ? '06:30 – 14:00' : '06:30 – 12:00'}</div>
-                  <div class="staff-name-menage" ${editAttrs} oninput="updateMenageStaff(${idx}, 'matin', this.innerText)">${GC.escapeHtml(row.matin.staff)}</div>
+                  <div class="staff-name-menage" data-idx="${idx}" data-shift="matin" ${editAttrs} oninput="onMenageFieldInput(${idx}, 'matin', this.textContent)" onblur="onMenageFieldBlur(${idx}, 'matin', this.textContent)">${GC.escapeHtml(row.matin.staff)}</div>
                 </div>
               </div>
 
@@ -287,7 +336,7 @@
                 <div class="icon-box-menage">🌙</div>
                 <div class="shift-info-box">
                   <div class="shift-label-menage soir">Service Soir • ${isWE ? '14:00 – Fin' : '12:00 – Fin'}</div>
-                  <div class="staff-name-menage" ${editAttrs} oninput="updateMenageStaff(${idx}, 'soir', this.innerText)">${GC.escapeHtml(row.soir.staff)}</div>
+                  <div class="staff-name-menage" data-idx="${idx}" data-shift="soir" ${editAttrs} oninput="onMenageFieldInput(${idx}, 'soir', this.textContent)" onblur="onMenageFieldBlur(${idx}, 'soir', this.textContent)">${GC.escapeHtml(row.soir.staff)}</div>
                 </div>
               </div>
 
@@ -297,7 +346,9 @@
       }).join('');
 
       // Défilement automatique vers le jour courant au milieu de l'écran
-      GC.scrollToElement(`day-${today}`, 150);
+      if (!isMenageAdminEdit) {
+        GC.scrollToElement(`day-${today}`, 150);
+      }
       GC.initTodayFAB();
     }
 
@@ -319,29 +370,42 @@
       return cleaned;
     }
 
-    async function syncMenageToCloud() {
+    async function syncMenageToCloud(opts = {}) {
+      const silent = !!(opts && opts.silent);
+      if (autoSyncMenageTimer) {
+        clearTimeout(autoSyncMenageTimer);
+        autoSyncMenageTimer = null;
+      }
+      syncDomToMenageData();
+
       if (isMenageSyncing) {
-        GC.showToast('⏳ Synchronisation déjà en cours...');
+        pendingMenageResync = true;
+        if (!silent) GC.showToast('⏳ Synchronisation déjà en cours...');
         return;
       }
-      if (!GC.isSessionAuth('gc_menage_admin', 'admin')) {
-        alert('Session administrateur expirée. Veuillez vous reconnecter.');
-        logoutMenageAdmin();
+
+      const authHash = (opts && opts.authToken) || GC.getAdminAuthToken();
+      if (!opts.authToken && !GC.isSessionAuth('gc_menage_admin', 'admin')) {
+        if (!silent) {
+          alert('Session administrateur expirée. Veuillez vous reconnecter.');
+          logoutMenageAdmin();
+        }
         return;
       }
 
       let webhookUrl = getMenageWebhookUrl();
       if (!webhookUrl) {
+        if (silent) return;
         webhookUrl = configureMenageWebhook();
         if (!webhookUrl) return;
       }
 
       saveMenageToLocal(true);
       const syncBtn = document.getElementById('menage-sync-btn');
-      const origHtml = syncBtn ? syncBtn.innerHTML : '';
-      if (syncBtn) {
+      const origHtml = syncBtn ? syncBtn.innerHTML : '💾 Enregistrer';
+      if (syncBtn && !silent) {
         syncBtn.disabled = true;
-        syncBtn.innerHTML = '⏳ Sync...';
+        syncBtn.innerHTML = '⏳ Enregistrement...';
       }
 
       isMenageSyncing = true;
@@ -355,7 +419,7 @@
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({
             action: 'save_menage',
-            authHash: GC.getAdminAuthToken(),
+            authHash,
             menageData: PLANNING_DATA
           }),
           signal: controller ? controller.signal : undefined
@@ -371,17 +435,25 @@
         }
         localStorage.removeItem('gc_menage_dirty');
         GC.hideAlert();
-        GC.showToast('☁️ Planning Ménage synchronisé sur Google Sheets !');
+        GC.showToast(silent ? '☁️ Modification Ménage enregistrée sur Google Sheets !' : '☁️ Planning Ménage synchronisé sur Google Sheets !');
       } catch (err) {
         console.error('Erreur sync Ménage:', err);
-        GC.showToast('❌ Échec Cloud — Données conservées en local.');
-        alert('❌ Échec de synchronisation Ménage :\n' + (err.message || err) + '\n\nVos modifications restent sauvegardées en local.');
+        if (silent) {
+          GC.showToast('⚠️ Sauvegardé localement (Google Sheets hors-ligne).');
+        } else {
+          GC.showToast('❌ Échec Cloud — Données conservées en local.');
+          alert('❌ Échec de synchronisation Ménage :\n' + (err.message || err) + '\n\nVos modifications restent sauvegardées en local.');
+        }
       } finally {
         isMenageSyncing = false;
         if (timer) clearTimeout(timer);
-        if (syncBtn) {
+        if (syncBtn && !silent) {
           syncBtn.disabled = false;
           syncBtn.innerHTML = origHtml;
+        }
+        if (pendingMenageResync) {
+          pendingMenageResync = false;
+          syncMenageToCloud({ silent: true });
         }
       }
     }
@@ -399,8 +471,8 @@
         syncBtn.id = 'menage-sync-btn';
         syncBtn.type = 'button';
         syncBtn.className = 'back-btn';
-        syncBtn.innerHTML = '☁️ Sync Sheets';
-        syncBtn.onclick = syncMenageToCloud;
+        syncBtn.innerHTML = '💾 Enregistrer';
+        syncBtn.onclick = () => syncMenageToCloud({ silent: false });
         headerActions.insertBefore(syncBtn, adminBtn);
 
         const cfgBtn = document.createElement('button');
@@ -420,10 +492,19 @@
         headerActions.appendChild(outBtn);
       }
       renderPlanning();
-      GC.showToast('✨ Mode édition Ménage activé (Semaine 01 & 02).');
+      GC.showToast('✨ Mode édition Ménage activé — sauvegarde automatique active.');
     }
 
     function logoutMenageAdmin() {
+      if (autoSyncMenageTimer) {
+        clearTimeout(autoSyncMenageTimer);
+        autoSyncMenageTimer = null;
+      }
+      syncDomToMenageData();
+      if (localStorage.getItem('gc_menage_dirty') === '1') {
+        const token = GC.getAdminAuthToken();
+        if (token) syncMenageToCloud({ silent: true, authToken: token });
+      }
       GC.logout('gc_menage_admin');
       isMenageAdminEdit = false;
       ['menage-sync-btn', 'menage-cfg-btn', 'menage-logout-btn'].forEach(id => document.getElementById(id)?.remove());

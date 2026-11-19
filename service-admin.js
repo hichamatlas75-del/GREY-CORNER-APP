@@ -570,7 +570,7 @@ function doGet(e) {
       } catch (e) {}
     }
 
-    const webhookUrl = (localStorage.getItem("gc_webhook_url") || "").trim();
+    const webhookUrl = GC.getWebhookUrl();
     if (webhookUrl) {
       try {
         const resp = await fetch(`${webhookUrl}?type=draft&t=${Date.now()}`, { redirect: "follow" });
@@ -596,7 +596,7 @@ function doGet(e) {
       return;
     }
 
-    const webhookUrl = (localStorage.getItem("gc_webhook_url") || "").trim();
+    const webhookUrl = GC.getWebhookUrl();
     if (!webhookUrl) {
       const body = document.getElementById("syncConfigBody");
       if (body) body.style.display = "flex";
@@ -698,7 +698,7 @@ function doGet(e) {
   }
 
   function loadWebhookUrl() {
-    const url = localStorage.getItem("gc_webhook_url") || "";
+    const url = GC.getWebhookUrl();
     const input = document.getElementById("cfg_webhook_url");
     if (input) input.value = url;
   }
@@ -757,7 +757,7 @@ function doGet(e) {
       return;
     }
 
-    const webhookUrl = (localStorage.getItem("gc_webhook_url") || "").trim();
+    const webhookUrl = GC.getWebhookUrl();
     const rowsData = extractTableData();
 
     const validation = validatePlanningRows(rowsData);
@@ -845,7 +845,7 @@ function doGet(e) {
   }
 
   async function loadDraftData() {
-    const webhookUrl = (localStorage.getItem("gc_webhook_url") || "").trim();
+    const webhookUrl = GC.getWebhookUrl();
     let draftRows = null;
     GC.showToast("⏳ Chargement du brouillon...");
 

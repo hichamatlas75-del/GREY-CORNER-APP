@@ -30,6 +30,19 @@
   GC.STAFF_SESSION_KEYS = ['gc_vestiaire_auth', 'gc_auth'];
   GC.lastPinError = '';
 
+  GC.DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyJa4NlDqO9epWLvb97_DSo871acvtsfqMg_mRoCU1lsKJ0r9b2mYlpvYMW6ro7Y4vu/exec";
+  GC.getWebhookUrl = function(customKey) {
+    try {
+      if (customKey) {
+        const specific = (localStorage.getItem(customKey) || '').trim();
+        if (specific) return specific;
+      }
+      const shared = (localStorage.getItem('gc_webhook_url') || '').trim();
+      if (shared) return shared;
+    } catch (e) {}
+    return GC.DEFAULT_WEBHOOK_URL;
+  };
+
   function readLockoutStore() {
     try {
       const raw = localStorage.getItem(GC.PIN_LOCKOUT_KEY);
