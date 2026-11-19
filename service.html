@@ -100,7 +100,10 @@
     <div class="modal-box wide">
       <div class="modal-header">
         <span class="modal-title">Générateur de Planning Carré (5 Serveurs)</span>
-        <button class="modal-close" onclick="closeGeneratorModal()">✕</button>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="logout-btn" onclick="logoutServiceAdmin()" title="Fermer la session Administrateur">🔒 Déconnexion Admin</button>
+          <button class="modal-close" onclick="closeGeneratorModal()">✕</button>
+        </div>
       </div>
       <div class="modal-body">
         
@@ -388,13 +391,14 @@
         }
       }
 
+      const t0 = GC.todayMidnight();
       const all = [];
       for (let i = 1; i < rows.length; i++) {
         const c = GC.splitCsv(rows[i]);
         if (c.length >= 3 && c[0] && !c[0].toUpperCase().includes("DATE")) {
           all.push({
             date: c[0],
-            dateObj: GC.parseDateLabel(c[0]),
+            dateObj: GC.parseDateLabel(c[0], t0),
             matin: c[1] ?? '',
             soir: c[2] ?? '',
             hMatin: c[4] ?? '',
@@ -402,13 +406,11 @@
           });
         }
       }
-      const t0 = GC.todayMidnight();
-      const anyParsable = all.some(r => r.dateObj instanceof Date);
-      const data = anyParsable ? all.filter(r => !r.dateObj || r.dateObj >= t0) : all;
+      const data = GC.filterActivePlanningRows(all, t0);
 
       let maxDate = null;
       all.forEach(r => {
-        if (r.dateObj instanceof Date && !isNaN(r.dateObj)) {
+        if (GC.isValidDate(r.dateObj)) {
           if (!maxDate || r.dateObj > maxDate) maxDate = r.dateObj;
         }
       });
@@ -424,11 +426,7 @@
         return;
       }
 
-      let todayIdx = data.findIndex(r => r.dateObj && GC.sameDay(r.dateObj, t0));
-      if (todayIdx === -1) {
-        const todayDayName = (GC.FRENCH_DAYS && GC.FRENCH_DAYS[t0.getDay()]) ? GC.FRENCH_DAYS[t0.getDay()].toLowerCase() : '';
-        todayIdx = data.findIndex(r => r.date && r.date.toLowerCase().includes(todayDayName));
-      }
+      const todayIdx = GC.findTodayRowIndex(data, t0);
 
       container.innerHTML = data.map((j, idx) => {
         const isToday = idx === todayIdx;

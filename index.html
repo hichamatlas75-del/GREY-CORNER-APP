@@ -87,13 +87,18 @@
     }
 
     async function submitPin() {
+      const lockStatus = GC.getPinLockoutStatus('staff');
+      if (lockStatus.locked) {
+        showError(`Trop de tentatives incorrectes. Réessayez dans ${lockStatus.remainingSec}s.`);
+        return;
+      }
       if (pinValue.length !== 4) { showError("Entrez un code à 4 chiffres."); return; }
       const isValid = await GC.verifyStaffPin(pinValue);
       if (isValid) {
         clearError();
         unlockApp();
       } else {
-        showError("Code incorrect. Réessayez.");
+        showError(GC.lastPinError || "Code incorrect. Réessayez.");
         pinValue = "";
         updateDots();
       }
@@ -220,7 +225,17 @@
             className: 'festive-week-badge',
             id: 'festive-badge'
           }, '✨ Ambiance Festive de la Semaine'),
-          React.createElement('div', { className: 'gold-rule' })
+          React.createElement('div', { className: 'gold-rule' }),
+          React.createElement('button', {
+            type: 'button',
+            className: 'logout-btn',
+            style: { marginTop: '4px' },
+            title: 'Verrouiller l\'accès Vestiaire et fermer les sessions',
+            onClick: () => {
+              GC.logout('all');
+              window.location.reload();
+            }
+          }, '🔒 Verrouiller')
         ),
 
         React.createElement('div', { className: 'section-header fade-up', style: { animationDelay: '.07s' } },

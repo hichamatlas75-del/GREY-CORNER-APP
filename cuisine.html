@@ -132,6 +132,13 @@
   <div class="glow-a"></div>
   <div class="glow-b"></div>
 
+  <div id="alert-box">
+    <span id="alert-text"></span>
+    <button id="alert-close" onclick="GC.hideAlert()">✕</button>
+  </div>
+
+  <div id="toast"></div>
+
   <!-- ─── ADMIN LOCKSCREEN MODAL (PIN SÉCURISÉ SHA-256) ─── -->
   <div id="lockscreen" class="lockscreen hidden-app">
     <div class="pin-panel" id="pinPanel">
@@ -325,7 +332,8 @@
   <!-- ─── SCRIPTS INTERACTIFS CUISINE ─── -->
   <script>
     let pinCode = "";
-    
+    let isCuisineSyncing = false;
+
     const lockscreen = document.getElementById('lockscreen');
     const adminBtn = document.getElementById('admin-btn');
     const adminActions = document.getElementById('admin-actions');
@@ -336,29 +344,95 @@
     const clearBtn = document.getElementById('pin-clear');
     const enterBtn = document.getElementById('pin-enter');
 
-    // 1. RESTAURATION STRUCTURÉE DU PLANNING DEPUIS LOCALSTORAGE
+    function getCuisineWebhookUrl() {
+      return (localStorage.getItem('gc_cuisine_webhook_url') || localStorage.getItem('gc_webhook_url') || '').trim();
+    }
+
+    function extractCuisineFromDom() {
+      const planningData = [];
+      document.querySelectorAll('.day-card').forEach((card) => {
+        const dayName = card.querySelector('.day-name')?.innerText || '';
+        const staff = [];
+        card.querySelectorAll('.staff-row').forEach(row => {
+          const nameEl = row.querySelector('.staff-name');
+          const badgeEl = row.querySelector('.badge');
+          if (nameEl && badgeEl) {
+            staff.push({
+              name: nameEl.innerText.trim(),
+              gender: nameEl.classList.contains('femme') ? 'femme' : 'homme',
+              badge: badgeEl.innerText.trim()
+            });
+          }
+        });
+        planningData.push({ dayName, staff });
+      });
+      return planningData;
+    }
+
+    function applyCuisineDataToDom(planningData) {
+      if (!Array.isArray(planningData) || !planningData.length) return;
+      const dayCards = document.querySelectorAll('.day-card');
+      const isEditActive = document.body.classList.contains('admin-edit');
+
+      planningData.forEach((dayData, dayIndex) => {
+        const card = dayCards[dayIndex];
+        if (!card || !Array.isArray(dayData.staff)) return;
+        const list = card.querySelector('.staff-list');
+        if (!list) return;
+
+        const addBtn = list.querySelector('.add-row-btn');
+        list.querySelectorAll('.staff-row').forEach(row => row.remove());
+
+        dayData.staff.forEach(s => {
+          const gender = (s.gender === 'femme') ? 'femme' : 'homme';
+          const badgeText = String(s.badge || '');
+          const row = document.createElement('div');
+          row.className = 'staff-row';
+          row.innerHTML = `<span class="staff-name ${gender}">${escapeHtml(s.name)}</span><span class="badge ${badgeText.toLowerCase().trim() === 'off' ? 'off' : ''}">${escapeHtml(badgeText)}</span>`;
+          if (addBtn) list.insertBefore(row, addBtn);
+          else list.appendChild(row);
+          if (isEditActive) setupRowEditing(row);
+        });
+      });
+    }
+
+    async function loadCuisineFromCloud() {
+      const webhookUrl = getCuisineWebhookUrl();
+      if (!webhookUrl) return;
+
+      const isDirty = localStorage.getItem('gc_cuisine_dirty') === '1';
+      const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      const timer = controller ? setTimeout(() => controller.abort(), 10000) : null;
+
+      try {
+        const resp = await fetch(`${webhookUrl}?type=cuisine&t=${Date.now()}`, {
+          redirect: 'follow',
+          signal: controller ? controller.signal : undefined
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const json = await resp.json();
+        if (json && json.status === 'success' && Array.isArray(json.data) && json.data.length > 0) {
+          if (isDirty) {
+            GC.showAlert("Des modifications locales Cuisine ne sont pas encore synchronisées. Ouvrez Admin > ☁️ Sync Sheets pour publier.");
+          } else {
+            applyCuisineDataToDom(json.data);
+            localStorage.setItem('planningGreyCornerCuisineData', JSON.stringify(json.data));
+          }
+        }
+      } catch (e) {
+        console.warn("Synchronisation Cloud Cuisine indisponible (mode local/hors-ligne actif):", e);
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+    }
+
+    // 1. RESTAURATION STRUCTURÉE DU PLANNING DEPUIS LOCALSTORAGE + SYNCHRO CLOUD
     document.addEventListener("DOMContentLoaded", () => {
       const savedData = localStorage.getItem('planningGreyCornerCuisineData');
       if (savedData) {
         try {
           const planningData = JSON.parse(savedData);
-          const dayCards = document.querySelectorAll('.day-card');
-          
-          planningData.forEach((dayData, dayIndex) => {
-            const card = dayCards[dayIndex];
-            if (!card) return;
-            const list = card.querySelector('.staff-list');
-            if (!list) return;
-            
-            list.querySelectorAll('.staff-row').forEach(row => row.remove());
-            
-            dayData.staff.forEach(s => {
-              const row = document.createElement('div');
-              row.className = 'staff-row';
-              row.innerHTML = `<span class="staff-name ${s.gender}">${escapeHtml(s.name)}</span><span class="badge ${s.badge.toLowerCase() === 'off' ? 'off' : ''}">${escapeHtml(s.badge)}</span>`;
-              list.appendChild(row);
-            });
-          });
+          applyCuisineDataToDom(planningData);
         } catch (e) {
           console.error("Erreur lors de la lecture des données Cuisine:", e);
         }
@@ -381,30 +455,17 @@
         }
       });
 
+      loadCuisineFromCloud();
       GC.scrollToToday(200);
       GC.initTodayFAB();
     });
 
     // 2. MOTEUR DE SAUVEGARDE EN LOCALSTORAGE
     function savePlanningToLocal() {
-      const planningData = [];
-      document.querySelectorAll('.day-card').forEach((card) => {
-        const dayName = card.querySelector('.day-name')?.innerText || '';
-        const staff = [];
-        card.querySelectorAll('.staff-row').forEach(row => {
-          const nameEl = row.querySelector('.staff-name');
-          const badgeEl = row.querySelector('.badge');
-          if (nameEl && badgeEl) {
-            staff.push({
-              name: nameEl.innerText.trim(),
-              gender: nameEl.classList.contains('femme') ? 'femme' : 'homme',
-              badge: badgeEl.innerText.trim()
-            });
-          }
-        });
-        planningData.push({ dayName, staff });
-      });
+      const planningData = extractCuisineFromDom();
       localStorage.setItem('planningGreyCornerCuisineData', JSON.stringify(planningData));
+      localStorage.setItem('gc_cuisine_dirty', '1');
+      return planningData;
     }
 
     function updateBadgeStyle(badge) {
@@ -415,12 +476,101 @@
       }
     }
 
+    function configureCuisineWebhook() {
+      const current = getCuisineWebhookUrl();
+      const input = prompt(
+        "Entrez l'URL du Webhook Google Apps Script (Web App /exec) pour synchroniser Cuisine entre appareils :",
+        current
+      );
+      if (input === null) return "";
+      const cleaned = input.trim();
+      if (cleaned) {
+        localStorage.setItem('gc_cuisine_webhook_url', cleaned);
+        if (!localStorage.getItem('gc_webhook_url')) {
+          localStorage.setItem('gc_webhook_url', cleaned);
+        }
+        showToast("💾 URL Webhook Cuisine enregistrée !");
+      }
+      return cleaned;
+    }
+
+    async function syncCuisineToCloud() {
+      if (isCuisineSyncing) {
+        showToast("⏳ Synchronisation déjà en cours...");
+        return;
+      }
+      if (!GC.isSessionAuth('gc_cuisine_admin', 'admin')) {
+        alert("Session administrateur expirée. Veuillez vous reconnecter.");
+        logoutCuisineAdmin();
+        return;
+      }
+
+      let webhookUrl = getCuisineWebhookUrl();
+      if (!webhookUrl) {
+        webhookUrl = configureCuisineWebhook();
+        if (!webhookUrl) return;
+      }
+
+      const cuisineData = extractCuisineFromDom();
+      localStorage.setItem('planningGreyCornerCuisineData', JSON.stringify(cuisineData));
+
+      const syncBtn = document.getElementById('sync-cloud-btn');
+      const origHtml = syncBtn ? syncBtn.innerHTML : '';
+      if (syncBtn) {
+        syncBtn.disabled = true;
+        syncBtn.innerHTML = '⏳ Sync...';
+      }
+
+      isCuisineSyncing = true;
+      const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      const timer = controller ? setTimeout(() => controller.abort(), 15000) : null;
+
+      try {
+        const resp = await fetch(webhookUrl, {
+          method: 'POST',
+          redirect: 'follow',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'save_cuisine',
+            authHash: GC.getAdminAuthToken(),
+            cuisineData
+          }),
+          signal: controller ? controller.signal : undefined
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const rawText = await resp.text();
+        if (GC.isHtml(rawText)) {
+          throw new Error("Le Webhook a renvoyé du HTML (vérifiez les droits Web App).");
+        }
+        const json = JSON.parse(rawText);
+        if (!json || json.status !== 'success') {
+          throw new Error((json && json.message) || "Confirmation serveur refusée.");
+        }
+        localStorage.removeItem('gc_cuisine_dirty');
+        GC.hideAlert();
+        showToast("☁️ Planning Cuisine synchronisé et confirmé sur Google Sheets !");
+      } catch (err) {
+        console.error("Erreur sync Cuisine:", err);
+        localStorage.setItem('gc_cuisine_dirty', '1');
+        showToast("❌ Échec Cloud — Modifications conservées localement.");
+        alert("❌ Échec de synchronisation Cuisine vers Google Sheets :\n" + (err.message || err) + "\n\nVos modifications restent sauvegardées localement.");
+      } finally {
+        isCuisineSyncing = false;
+        if (timer) clearTimeout(timer);
+        if (syncBtn) {
+          syncBtn.disabled = false;
+          syncBtn.innerHTML = origHtml;
+        }
+      }
+    }
+
     // Gestion du code PIN
     const updateDots = () => dots.forEach((dot, index) => dot.classList.toggle('filled', index < pinCode.length));
     const resetPin = () => { pinCode = ""; pinError.innerText = ""; updateDots(); };
 
     adminBtn.addEventListener('click', () => {
-      if (GC.isSessionAuth('gc_cuisine_admin')) {
+      if (document.body.classList.contains('admin-edit')) return;
+      if (GC.isSessionAuth('gc_cuisine_admin', 'admin')) {
         unlockEditMode();
       } else {
         lockscreen.classList.remove('hidden-app');
@@ -447,13 +597,18 @@
     enterBtn.addEventListener('click', submitPin);
 
     async function submitPin() {
+      const lockStatus = GC.getPinLockoutStatus('admin');
+      if (lockStatus.locked) {
+        pinError.innerText = `Trop de tentatives. Réessayez dans ${lockStatus.remainingSec}s.`;
+        return;
+      }
       if (pinCode.length !== 4) { pinError.innerText = "Entrez 4 chiffres."; return; }
       const isValid = await GC.verifyAdminPin(pinCode);
       if (isValid) {
-        GC.setSessionAuth('gc_cuisine_admin');
+        GC.setSessionAuth('gc_cuisine_admin', 'admin');
         unlockEditMode();
       } else {
-        pinError.innerText = "Code Admin incorrect. Réessayez.";
+        pinError.innerText = GC.lastPinError || "Code Admin incorrect. Réessayez.";
         pinPanel.classList.remove("shake");
         void pinPanel.offsetWidth;
         pinPanel.classList.add("shake");
@@ -491,21 +646,24 @@
       name.style.cursor = "text";
       name.title = "Double-cliquez pour basculer Homme / Femme";
       
-      name.addEventListener('input', savePlanningToLocal);
-      name.addEventListener('dblclick', () => {
-        name.classList.toggle('femme');
-        name.classList.toggle('homme');
-        savePlanningToLocal();
-      });
+      if (!row.dataset.editBound) {
+        name.addEventListener('input', savePlanningToLocal);
+        name.addEventListener('dblclick', () => {
+          name.classList.toggle('femme');
+          name.classList.toggle('homme');
+          savePlanningToLocal();
+        });
+
+        badge.addEventListener('input', () => {
+          updateBadgeStyle(badge);
+          savePlanningToLocal();
+        });
+        row.dataset.editBound = '1';
+      }
 
       badge.setAttribute('contenteditable', 'true');
       badge.style.border = "1px dashed var(--terracotta)";
       badge.style.cursor = "text";
-      
-      badge.addEventListener('input', () => {
-        updateBadgeStyle(badge);
-        savePlanningToLocal();
-      });
 
       if (!row.querySelector('.del-row-btn')) {
         const delBtn = document.createElement('button');
@@ -520,6 +678,26 @@
       }
     }
 
+    function logoutCuisineAdmin() {
+      GC.logout('gc_cuisine_admin');
+      document.body.classList.remove('admin-edit');
+      document.querySelectorAll('.add-row-btn, .del-row-btn').forEach(el => el.remove());
+      ['sync-cloud-btn', 'webhook-cfg-btn', 'export-btn', 'logout-cuisine-btn'].forEach(id => {
+        document.getElementById(id)?.remove();
+      });
+      document.querySelectorAll('.staff-name, .badge').forEach(el => {
+        el.removeAttribute('contenteditable');
+        el.style.border = '';
+        el.style.cursor = '';
+        el.removeAttribute('title');
+      });
+      adminBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="width:11px; height:11px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0110 0v4"></path></svg> Admin`;
+      adminBtn.style.color = '';
+      adminBtn.style.borderColor = '';
+      adminBtn.style.background = '';
+      showToast("🔒 Session administrateur Cuisine fermée.");
+    }
+
     function unlockEditMode() {
       lockscreen.classList.add('hidden-app');
       document.body.classList.add('admin-edit');
@@ -529,9 +707,30 @@
       adminBtn.style.borderColor = "var(--terracotta)";
       adminBtn.style.background = "var(--terracotta-soft)";
       
+      if (!document.getElementById('sync-cloud-btn')) {
+        const syncBtn = document.createElement('button');
+        syncBtn.id = 'sync-cloud-btn';
+        syncBtn.type = 'button';
+        syncBtn.className = 'back-btn';
+        syncBtn.innerHTML = `☁️ Sync Sheets`;
+        syncBtn.addEventListener('click', syncCuisineToCloud);
+        adminActions.insertBefore(syncBtn, adminBtn);
+      }
+
+      if (!document.getElementById('webhook-cfg-btn')) {
+        const cfgBtn = document.createElement('button');
+        cfgBtn.id = 'webhook-cfg-btn';
+        cfgBtn.type = 'button';
+        cfgBtn.className = 'back-btn';
+        cfgBtn.innerHTML = `⚙️ Webhook`;
+        cfgBtn.addEventListener('click', configureCuisineWebhook);
+        adminActions.insertBefore(cfgBtn, adminBtn);
+      }
+
       if (!document.getElementById('export-btn')) {
         const exportBtn = document.createElement('button');
         exportBtn.id = 'export-btn';
+        exportBtn.type = 'button';
         exportBtn.className = 'back-btn';
         exportBtn.style.color = "var(--brass-deep)";
         exportBtn.style.borderColor = "var(--brass)";
@@ -539,6 +738,16 @@
         exportBtn.innerHTML = `📥 Exporter le HTML`;
         exportBtn.addEventListener('click', exportHTMLFile);
         adminActions.insertBefore(exportBtn, adminBtn);
+      }
+
+      if (!document.getElementById('logout-cuisine-btn')) {
+        const outBtn = document.createElement('button');
+        outBtn.id = 'logout-cuisine-btn';
+        outBtn.type = 'button';
+        outBtn.className = 'logout-btn';
+        outBtn.innerHTML = `🔒 Déconnexion`;
+        outBtn.addEventListener('click', logoutCuisineAdmin);
+        adminActions.appendChild(outBtn);
       }
       
       document.querySelectorAll('.staff-row').forEach(row => setupRowEditing(row));

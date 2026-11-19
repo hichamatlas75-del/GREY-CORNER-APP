@@ -388,6 +388,9 @@
         <a href="index.html" class="nav-btn">
           Menu Vestiaires
         </a>
+        <button type="button" class="logout-btn" onclick="logoutBarAdmin()" title="Fermer la session Admin">
+          🔒 Déconnexion
+        </button>
       </div>
     </header>
 
@@ -844,18 +847,35 @@
       dots.forEach((d, i) => d.classList.toggle("filled", i < genPinVal.length));
     }
 
+    function logoutBarAdmin() {
+      GC.logout("gc_bar_admin");
+      genPinVal = "";
+      updateGenPinDots();
+      checkAuth();
+      showToast("🔒 Session administrateur Bar fermée.");
+    }
+
     async function submitGenPin() {
       const err = document.getElementById("genPinError");
       const panel = document.getElementById("genPinPanel");
+      const lockStatus = GC.getPinLockoutStatus("admin");
+      if (lockStatus.locked) {
+        if (err) err.textContent = `Trop de tentatives incorrectes. Réessayez dans ${lockStatus.remainingSec}s.`;
+        return;
+      }
+      if (genPinVal.length !== 4) {
+        if (err) err.textContent = "Entrez le code à 4 chiffres.";
+        return;
+      }
 
       const isValid = await GC.verifyAdminPin(genPinVal);
       if (isValid) {
-        GC.setSessionAuth("gc_bar_admin");
+        GC.setSessionAuth("gc_bar_admin", "admin");
         const lock = document.getElementById("genLockscreen");
         if (lock) lock.style.display = "none";
         document.getElementById("mainShell").style.display = "block";
       } else {
-        if (err) err.textContent = "Code PIN Admin incorrect.";
+        if (err) err.textContent = GC.lastPinError || "Code PIN Admin incorrect.";
         if (panel) {
           panel.classList.remove("shake");
           void panel.offsetWidth;

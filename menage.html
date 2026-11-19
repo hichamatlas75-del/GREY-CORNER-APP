@@ -13,12 +13,66 @@
     .scroll-mt-24 {
       scroll-margin-top: 5rem;
     }
+    .staff-name-menage[contenteditable="true"] {
+      border: 1px dashed var(--brass);
+      border-radius: 6px;
+      padding: 4px 8px;
+      background: #fff;
+      outline: none;
+      cursor: text;
+    }
   </style>
 </head>
 <body>
   <div class="grain"></div>
   <div class="glow-a"></div>
   <div class="glow-b"></div>
+
+  <div id="alert-box">
+    <span id="alert-text"></span>
+    <button id="alert-close" onclick="GC.hideAlert()">✕</button>
+  </div>
+
+  <div id="toast"></div>
+
+  <!-- Modal PIN Admin Ménage -->
+  <div class="modal-overlay" id="pinModal" onclick="handleBackdropClick(event)">
+    <div class="pin-panel" id="pinPanel">
+      <button class="modal-close" style="position:absolute; top:12px; right:14px;" onclick="closePinModal()" title="Fermer">✕</button>
+      <div class="pin-badge">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <h3 class="pin-title">Admin Ménage</h3>
+      <p class="pin-sub">Saisissez le code PIN Administrateur pour modifier et synchroniser le planning.</p>
+
+      <div class="pin-dots" id="mPinDots">
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+      </div>
+
+      <div class="pin-error" id="mPinError"></div>
+
+      <div class="pin-pad">
+        <button class="pin-key" onclick="pressPin('1')">1</button>
+        <button class="pin-key" onclick="pressPin('2')">2</button>
+        <button class="pin-key" onclick="pressPin('3')">3</button>
+        <button class="pin-key" onclick="pressPin('4')">4</button>
+        <button class="pin-key" onclick="pressPin('5')">5</button>
+        <button class="pin-key" onclick="pressPin('6')">6</button>
+        <button class="pin-key" onclick="pressPin('7')">7</button>
+        <button class="pin-key" onclick="pressPin('8')">8</button>
+        <button class="pin-key" onclick="pressPin('9')">9</button>
+        <button class="pin-key func" onclick="clearPin()">⌫</button>
+        <button class="pin-key" onclick="pressPin('0')">0</button>
+        <button class="pin-key func enter" onclick="submitPin()">↵</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ─── HEADER ─── -->
   <header class="fade-up" style="animation-delay: 0s;">
@@ -30,11 +84,15 @@
     <p class="page-sub">Organisation et propreté de l'espace vestiaires.</p>
     <div class="festive-week-badge" id="festive-badge">✨ Chargement...</div>
     <div class="gold-rule"></div>
-    <div class="header-actions">
+    <div class="header-actions" id="menage-header-actions">
       <a href="index.html" class="back-btn">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
         Retour Menu
       </a>
+      <button type="button" id="menageAdminBtn" onclick="openPinModal()" class="admin-btn" title="Mode Édition Admin Ménage">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="width:11px; height:11px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0110 0v4"></path></svg>
+        Admin
+      </button>
     </div>
   </header>
 
@@ -93,6 +151,80 @@
       'var(--acc-7)'  // Dimanche : Lagon Turquoise
     ];
     let currentWeek = 'S1';
+    let isMenageAdminEdit = false;
+    let isMenageSyncing = false;
+    let mPinValue = '';
+
+    function getMenageWebhookUrl() {
+      return (localStorage.getItem('gc_menage_webhook_url') || localStorage.getItem('gc_webhook_url') || '').trim();
+    }
+
+    function mergeMenageData(incoming) {
+      if (!incoming || typeof incoming !== 'object') return false;
+      let changed = false;
+      ['S1', 'S2'].forEach(wk => {
+        if (incoming[wk] && Array.isArray(incoming[wk].schedules) && incoming[wk].schedules.length > 0) {
+          PLANNING_DATA[wk].schedules = incoming[wk].schedules.map((row, idx) => {
+            const fallback = PLANNING_DATA[wk].schedules[idx] || { day: row.day, matin: { staff: '' }, soir: { staff: '' } };
+            return {
+              day: String(row.day || fallback.day || '').toLowerCase(),
+              matin: { staff: String((row.matin && row.matin.staff) ?? fallback.matin.staff) },
+              soir: { staff: String((row.soir && row.soir.staff) ?? fallback.soir.staff) }
+            };
+          });
+          changed = true;
+        }
+      });
+      return changed;
+    }
+
+    function saveMenageToLocal(markDirty = true) {
+      try {
+        localStorage.setItem('planningGreyCornerMenageData', JSON.stringify(PLANNING_DATA));
+        if (markDirty) localStorage.setItem('gc_menage_dirty', '1');
+      } catch (e) {}
+    }
+
+    function restoreMenageFromLocal() {
+      try {
+        const raw = localStorage.getItem('planningGreyCornerMenageData');
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        mergeMenageData(parsed);
+      } catch (e) {
+        console.error('Erreur lecture planning ménage local:', e);
+      }
+    }
+
+    async function loadMenageFromCloud() {
+      const webhookUrl = getMenageWebhookUrl();
+      if (!webhookUrl) return;
+
+      const isDirty = localStorage.getItem('gc_menage_dirty') === '1';
+      const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      const timer = controller ? setTimeout(() => controller.abort(), 10000) : null;
+
+      try {
+        const resp = await fetch(`${webhookUrl}?type=menage&t=${Date.now()}`, {
+          redirect: 'follow',
+          signal: controller ? controller.signal : undefined
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const json = await resp.json();
+        if (json && json.status === 'success' && json.data && (json.data.S1?.schedules?.length || json.data.S2?.schedules?.length)) {
+          if (isDirty) {
+            GC.showAlert("Des modifications locales Ménage ne sont pas encore synchronisées. Ouvrez Admin > ☁️ Sync Sheets.");
+          } else if (mergeMenageData(json.data)) {
+            saveMenageToLocal(false);
+            renderPlanning();
+          }
+        }
+      } catch (e) {
+        console.warn('Synchro Cloud Ménage indisponible (mode local actif):', e);
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+    }
 
     function getTodayLabel() {
       return new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(new Date()).toLowerCase().trim();
@@ -114,12 +246,20 @@
       renderPlanning();
     }
 
+    function updateMenageStaff(idx, shiftKey, value) {
+      if (!PLANNING_DATA[currentWeek] || !PLANNING_DATA[currentWeek].schedules[idx]) return;
+      PLANNING_DATA[currentWeek].schedules[idx][shiftKey].staff = String(value || '').trim();
+      saveMenageToLocal(true);
+    }
+
     function renderPlanning() {
       const listContainer = document.getElementById('planning-list');
       const today = getTodayLabel();
       const schedules = PLANNING_DATA[currentWeek].schedules;
       const badge = document.getElementById('festive-badge');
       if(badge) badge.innerText = `✨ ${PLANNING_DATA[currentWeek].title}`;
+
+      const editAttrs = isMenageAdminEdit ? 'contenteditable="true"' : '';
 
       listContainer.innerHTML = schedules.map((row, idx) => {
         const isToday = row.day === today;
@@ -139,7 +279,7 @@
                 <div class="icon-box-menage">☀️</div>
                 <div class="shift-info-box">
                   <div class="shift-label-menage matin">Service Matin • ${isWE ? '06:30 – 14:00' : '06:30 – 12:00'}</div>
-                  <div class="staff-name-menage">${GC.escapeHtml(row.matin.staff)}</div>
+                  <div class="staff-name-menage" ${editAttrs} oninput="updateMenageStaff(${idx}, 'matin', this.innerText)">${GC.escapeHtml(row.matin.staff)}</div>
                 </div>
               </div>
 
@@ -147,7 +287,7 @@
                 <div class="icon-box-menage">🌙</div>
                 <div class="shift-info-box">
                   <div class="shift-label-menage soir">Service Soir • ${isWE ? '14:00 – Fin' : '12:00 – Fin'}</div>
-                  <div class="staff-name-menage">${GC.escapeHtml(row.soir.staff)}</div>
+                  <div class="staff-name-menage" ${editAttrs} oninput="updateMenageStaff(${idx}, 'soir', this.innerText)">${GC.escapeHtml(row.soir.staff)}</div>
                 </div>
               </div>
 
@@ -161,9 +301,228 @@
       GC.initTodayFAB();
     }
 
-    // Lancement automatique avec la semaine courante (S1 / S2)
+    function configureMenageWebhook() {
+      const current = getMenageWebhookUrl();
+      const input = prompt(
+        "Entrez l'URL du Webhook Google Apps Script (Web App /exec) pour synchroniser le planning Ménage :",
+        current
+      );
+      if (input === null) return '';
+      const cleaned = input.trim();
+      if (cleaned) {
+        localStorage.setItem('gc_menage_webhook_url', cleaned);
+        if (!localStorage.getItem('gc_webhook_url')) {
+          localStorage.setItem('gc_webhook_url', cleaned);
+        }
+        GC.showToast('💾 URL Webhook Ménage enregistrée !');
+      }
+      return cleaned;
+    }
+
+    async function syncMenageToCloud() {
+      if (isMenageSyncing) {
+        GC.showToast('⏳ Synchronisation déjà en cours...');
+        return;
+      }
+      if (!GC.isSessionAuth('gc_menage_admin', 'admin')) {
+        alert('Session administrateur expirée. Veuillez vous reconnecter.');
+        logoutMenageAdmin();
+        return;
+      }
+
+      let webhookUrl = getMenageWebhookUrl();
+      if (!webhookUrl) {
+        webhookUrl = configureMenageWebhook();
+        if (!webhookUrl) return;
+      }
+
+      saveMenageToLocal(true);
+      const syncBtn = document.getElementById('menage-sync-btn');
+      const origHtml = syncBtn ? syncBtn.innerHTML : '';
+      if (syncBtn) {
+        syncBtn.disabled = true;
+        syncBtn.innerHTML = '⏳ Sync...';
+      }
+
+      isMenageSyncing = true;
+      const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      const timer = controller ? setTimeout(() => controller.abort(), 15000) : null;
+
+      try {
+        const resp = await fetch(webhookUrl, {
+          method: 'POST',
+          redirect: 'follow',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'save_menage',
+            authHash: GC.getAdminAuthToken(),
+            menageData: PLANNING_DATA
+          }),
+          signal: controller ? controller.signal : undefined
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const rawText = await resp.text();
+        if (GC.isHtml(rawText)) {
+          throw new Error("Le Webhook a renvoyé une page HTML (vérifiez les droits d'accès Web App).");
+        }
+        const json = JSON.parse(rawText);
+        if (!json || json.status !== 'success') {
+          throw new Error((json && json.message) || 'Confirmation serveur refusée.');
+        }
+        localStorage.removeItem('gc_menage_dirty');
+        GC.hideAlert();
+        GC.showToast('☁️ Planning Ménage synchronisé sur Google Sheets !');
+      } catch (err) {
+        console.error('Erreur sync Ménage:', err);
+        GC.showToast('❌ Échec Cloud — Données conservées en local.');
+        alert('❌ Échec de synchronisation Ménage :\n' + (err.message || err) + '\n\nVos modifications restent sauvegardées en local.');
+      } finally {
+        isMenageSyncing = false;
+        if (timer) clearTimeout(timer);
+        if (syncBtn) {
+          syncBtn.disabled = false;
+          syncBtn.innerHTML = origHtml;
+        }
+      }
+    }
+
+    function unlockMenageAdmin() {
+      isMenageAdminEdit = true;
+      closePinModal();
+      const headerActions = document.getElementById('menage-header-actions');
+      const adminBtn = document.getElementById('menageAdminBtn');
+      if (adminBtn) {
+        adminBtn.innerHTML = '✍️ Édition Active';
+      }
+      if (headerActions && !document.getElementById('menage-sync-btn')) {
+        const syncBtn = document.createElement('button');
+        syncBtn.id = 'menage-sync-btn';
+        syncBtn.type = 'button';
+        syncBtn.className = 'back-btn';
+        syncBtn.innerHTML = '☁️ Sync Sheets';
+        syncBtn.onclick = syncMenageToCloud;
+        headerActions.insertBefore(syncBtn, adminBtn);
+
+        const cfgBtn = document.createElement('button');
+        cfgBtn.id = 'menage-cfg-btn';
+        cfgBtn.type = 'button';
+        cfgBtn.className = 'back-btn';
+        cfgBtn.innerHTML = '⚙️ Webhook';
+        cfgBtn.onclick = configureMenageWebhook;
+        headerActions.insertBefore(cfgBtn, adminBtn);
+
+        const outBtn = document.createElement('button');
+        outBtn.id = 'menage-logout-btn';
+        outBtn.type = 'button';
+        outBtn.className = 'logout-btn';
+        outBtn.innerHTML = '🔒 Déconnexion';
+        outBtn.onclick = logoutMenageAdmin;
+        headerActions.appendChild(outBtn);
+      }
+      renderPlanning();
+      GC.showToast('✨ Mode édition Ménage activé (Semaine 01 & 02).');
+    }
+
+    function logoutMenageAdmin() {
+      GC.logout('gc_menage_admin');
+      isMenageAdminEdit = false;
+      ['menage-sync-btn', 'menage-cfg-btn', 'menage-logout-btn'].forEach(id => document.getElementById(id)?.remove());
+      const adminBtn = document.getElementById('menageAdminBtn');
+      if (adminBtn) {
+        adminBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="width:11px; height:11px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0110 0v4"></path></svg> Admin`;
+      }
+      renderPlanning();
+      GC.showToast('🔒 Session administrateur Ménage fermée.');
+    }
+
+    /* ── MODAL PIN ADMIN MÉNAGE ── */
+    function openPinModal() {
+      if (isMenageAdminEdit) return;
+      if (GC.isSessionAuth('gc_menage_admin', 'admin')) {
+        unlockMenageAdmin();
+        return;
+      }
+      const modal = document.getElementById('pinModal');
+      if (!modal) return;
+      mPinValue = '';
+      updateMPinDots();
+      const err = document.getElementById('mPinError');
+      if (err) err.textContent = '';
+      modal.classList.add('active');
+    }
+
+    function closePinModal() {
+      const modal = document.getElementById('pinModal');
+      if (modal) modal.classList.remove('active');
+      mPinValue = '';
+    }
+
+    function handleBackdropClick(e) {
+      if (e.target.id === 'pinModal') closePinModal();
+    }
+
+    function updateMPinDots() {
+      document.querySelectorAll('#mPinDots .pin-dot').forEach((d, i) => d.classList.toggle('filled', i < mPinValue.length));
+    }
+
+    function pressPin(digit) {
+      if (mPinValue.length >= 4) return;
+      mPinValue += digit;
+      const err = document.getElementById('mPinError');
+      if (err) err.textContent = '';
+      updateMPinDots();
+      if (mPinValue.length === 4) setTimeout(submitPin, 140);
+    }
+
+    function clearPin() {
+      mPinValue = '';
+      const err = document.getElementById('mPinError');
+      if (err) err.textContent = '';
+      updateMPinDots();
+    }
+
+    async function submitPin() {
+      const err = document.getElementById('mPinError');
+      const panel = document.getElementById('pinPanel');
+      const lockStatus = GC.getPinLockoutStatus('admin');
+      if (lockStatus.locked) {
+        if (err) err.textContent = `Trop de tentatives incorrectes. Réessayez dans ${lockStatus.remainingSec}s.`;
+        return;
+      }
+      if (mPinValue.length !== 4) {
+        if (err) err.textContent = 'Entrez le code à 4 chiffres.';
+        return;
+      }
+      const isValid = await GC.verifyAdminPin(mPinValue);
+      if (isValid) {
+        GC.setSessionAuth('gc_menage_admin', 'admin');
+        unlockMenageAdmin();
+      } else {
+        if (err) err.textContent = GC.lastPinError || 'Code PIN Admin incorrect.';
+        if (panel) {
+          panel.classList.remove('shake');
+          void panel.offsetWidth;
+          panel.classList.add('shake');
+        }
+        mPinValue = '';
+        updateMPinDots();
+      }
+    }
+
+    document.addEventListener('keydown', e => {
+      const modal = document.getElementById('pinModal');
+      if (!modal || !modal.classList.contains('active')) return;
+      if (e.key >= '0' && e.key <= '9') pressPin(e.key);
+      else if (e.key === 'Backspace') { mPinValue = mPinValue.slice(0, -1); updateMPinDots(); }
+      else if (e.key === 'Enter') submitPin();
+      else if (e.key === 'Escape') closePinModal();
+    });
+
+    // Lancement automatique avec restauration locale + synchro Cloud
+    restoreMenageFromLocal();
     const initialWeek = (typeof GC !== 'undefined' && typeof GC.getWeekNumber === 'function' && (GC.getWeekNumber() % 2 === 0)) ? 'S2' : 'S1';
     switchWeek(initialWeek);
+    loadMenageFromCloud();
   </script>
 </body>
 </html>

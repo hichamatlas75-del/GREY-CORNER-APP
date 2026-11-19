@@ -22,6 +22,16 @@
   /* Filets & Bordures */
   --hairline: rgba(13, 56, 44, 0.1);
   --hairline-color: rgba(212, 175, 55, 0.4);
+  --hairline-gold: rgba(212, 175, 55, 0.45);
+
+  /* Palette Automne & Cuisine (Terracotta, Sauge, Laiton) */
+  --terracotta: #c2410c;
+  --terracotta-soft: rgba(194, 65, 12, 0.12);
+  --sage: #047857;
+  --brass: #b45309;
+  --brass-deep: #78350f;
+  --brass-soft: rgba(245, 158, 11, 0.15);
+  --festive-bg: linear-gradient(180deg, #fbf8f3 0%, #f7f1e7 50%, #efe5d5 100%);
 
   /* Statuts */
   --err: #dc2626;
@@ -565,6 +575,7 @@ header > *, .hero > * {
   box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
   position: relative;
   overflow: hidden;
+  transition: all 0.18s ease;
 }
 .admin-btn::after {
   content: '';
@@ -583,8 +594,6 @@ header > *, .hero > * {
   animation: goldSheen 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   pointer-events: none;
 }
-  transition: all 0.18s ease;
-}
 .admin-btn:hover {
   background: linear-gradient(135deg, #dc2626, #991b1b) !important;
   box-shadow: 0 4px 14px rgba(220, 38, 38, 0.42);
@@ -602,6 +611,38 @@ header > *, .hero > * {
   height: 11px !important;
   stroke: #ffffff !important;
   stroke-width: 2.4;
+}
+.logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  background: var(--paper2);
+  border: 1px solid var(--hairline-color);
+  padding: 5px 11px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  transition: all 0.18s ease;
+}
+.logout-btn:hover {
+  color: var(--err);
+  border-color: var(--err);
+  background: var(--err-bg);
+}
+header .logout-btn, .hero .logout-btn {
+  color: #fef3c7;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+header .logout-btn:hover, .hero .logout-btn:hover {
+  background: rgba(220, 38, 38, 0.28);
+  border-color: #fca5a5;
+  color: #ffffff;
 }
 
 /* ─── CONTENEUR PRINCIPAL ─── */
@@ -1757,6 +1798,7 @@ button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:a
 .status-tag.draft { background: #fdf4db; color: #8c6b12; border: 1px solid #e0c878; }
 .status-tag.published { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
 .status-tag.editing { background: var(--paper2); color: var(--ink-soft); border: 1px solid var(--hairline-color); }
+.status-tag.error { background: var(--err-bg); color: var(--err); border: 1px solid #fca5a5; }
 
 .btn-save-draft {
   background: linear-gradient(135deg, #f59e0b, #d97706);

@@ -41,17 +41,22 @@
   }
 
   async function submitAdminPin() {
+    const lockStatus = GC.getPinLockoutStatus("admin");
+    if (lockStatus.locked) {
+      if (adminPinError) adminPinError.textContent = `Trop de tentatives incorrectes. Réessayez dans ${lockStatus.remainingSec}s.`;
+      return;
+    }
     if (adminPinInput.length !== 4) {
       if (adminPinError) adminPinError.textContent = "Entrez le code à 4 chiffres.";
       return;
     }
     const isValid = await GC.verifyAdminPin(adminPinInput);
     if (isValid) {
-      GC.setSessionAuth("gc_service_admin");
+      GC.setSessionAuth("gc_service_admin", "admin");
       closePinModal();
       openGeneratorDashboard();
     } else {
-      if (adminPinError) adminPinError.textContent = "Code PIN Admin incorrect. Réessayez.";
+      if (adminPinError) adminPinError.textContent = GC.lastPinError || "Code PIN Admin incorrect. Réessayez.";
       adminPinInput = "";
       updateAdminDots();
       if (pinBox) {
@@ -60,6 +65,12 @@
         pinBox.classList.add("shake");
       }
     }
+  }
+
+  function logoutServiceAdmin() {
+    GC.logout("gc_service_admin");
+    closeGeneratorModal();
+    GC.showToast("🔒 Session administrateur fermée.");
   }
 
   // Événements clavier et pavé numérique PIN
@@ -130,10 +141,16 @@
      3. CODE GOOGLE APPS SCRIPT WEBHOOK EMBARQUÉ
      ════════════════════════════════════════════════════════════════════ */
   const APPS_SCRIPT_CODE = `/**
- * GREY CORNER — WEBHOOK PLANNING SERVICE
+ * GREY CORNER — WEBHOOK PLANNING CENTRALISÉ (SERVICE, CUISINE, MÉNAGE)
  * Workflow Chronologique : Ajout sous le dernier planning avec 1 ligne sautée
  * Formatage strict en français sans mention GMT/UTC dans la Colonne A
+ *
+ * NOTE SÉCURITÉ SERVEUR :
+ * Pour exiger un secret côté serveur sur les écritures (doPost), ajoutez une propriété
+ * "ADMIN_WRITE_SECRET" dans Extensions > Apps Script > Paramètres du projet > Propriétés de script.
  */
+
+var EXPECTED_ADMIN_HASH = "e5e53c784d5d49de1cabb6e904bf3380026aadcb9769775a268dd304dd9aa2df";
 
 function formatToFrenchDateString(val) {
   if (val === null || val === undefined || val === "") return "";
@@ -154,12 +171,80 @@ function formatToFrenchDateString(val) {
   return s;
 }
 
+function verifyWriteAuthorization(payload) {
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var serverSecret = props ? props.getProperty("ADMIN_WRITE_SECRET") : "";
+    if (serverSecret && payload.authSecret !== serverSecret) {
+      return false;
+    }
+  } catch (e) {}
+  if (payload && payload.authHash !== undefined && payload.authHash !== "" && payload.authHash !== EXPECTED_ADMIN_HASH) {
+    return false;
+  }
+  return true;
+}
+
 function doPost(e) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const payload = JSON.parse(e.postData.contents);
+    if (!verifyWriteAuthorization(payload)) {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "error",
+        message: "Autorisation administrateur invalide ou refusée."
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
     const action = payload.action || "save_draft";
     const newRows = payload.rows || [];
+
+    if (action === "save_cuisine") {
+      var cuisineData = payload.cuisineData || [];
+      var cSheet = ss.getSheetByName("CUISINE") || ss.insertSheet("CUISINE");
+      var cMatrix = [["JOUR", "MEMBRE", "GENRE", "HORAIRE"]];
+      cuisineData.forEach(function(dayItem) {
+        var dayName = String(dayItem.dayName || "");
+        var staffArr = Array.isArray(dayItem.staff) ? dayItem.staff : [];
+        staffArr.forEach(function(m) {
+          cMatrix.push([dayName, String(m.name || ""), String(m.gender || "homme"), String(m.badge || "")]);
+        });
+      });
+      cSheet.clear();
+      var cRange = cSheet.getRange(1, 1, cMatrix.length, 4);
+      cRange.setValues(cMatrix);
+      cSheet.getRange(1, 1, 1, 4).setFontWeight("bold");
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        stage: "cuisine",
+        message: "Planning Cuisine synchronisé dans l'onglet CUISINE",
+        count: cMatrix.length - 1
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (action === "save_menage") {
+      var menageData = payload.menageData || {};
+      var mSheet = ss.getSheetByName("MENAGE") || ss.insertSheet("MENAGE");
+      var mMatrix = [["SEMAINE", "JOUR", "MATIN", "SOIR"]];
+      ["S1", "S2"].forEach(function(wk) {
+        var wkObj = menageData[wk];
+        if (wkObj && Array.isArray(wkObj.schedules)) {
+          wkObj.schedules.forEach(function(r) {
+            mMatrix.push([wk, String(r.day || ""), String((r.matin && r.matin.staff) || ""), String((r.soir && r.soir.staff) || "")]);
+          });
+        }
+      });
+      mSheet.clear();
+      var mRange = mSheet.getRange(1, 1, mMatrix.length, 4);
+      mRange.setValues(mMatrix);
+      mSheet.getRange(1, 1, 1, 4).setFontWeight("bold");
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        stage: "menage",
+        message: "Planning Ménage synchronisé dans l'onglet MENAGE",
+        count: mMatrix.length - 1
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
 
     let draftSheet = ss.getSheetByName("BROUILLON");
     if (!draftSheet) draftSheet = ss.insertSheet("BROUILLON");
@@ -168,7 +253,7 @@ function doPost(e) {
     if (!liveSheet) {
       const allSheets = ss.getSheets();
       for (let s = 0; s < allSheets.length; s++) {
-        if (allSheets[s].getName() !== "BROUILLON") {
+        if (allSheets[s].getName() !== "BROUILLON" && allSheets[s].getName() !== "CUISINE" && allSheets[s].getName() !== "MENAGE") {
           liveSheet = allSheets[s];
           break;
         }
@@ -272,30 +357,34 @@ function doPost(e) {
         while (draftData.length > 0 && draftData[draftData.length - 1].every(function(c) { return String(c).trim() === ""; })) {
           draftData.pop();
         }
-        if (draftData.length > 0) {
-          liveSheet.clear();
-          var numCols = Math.max.apply(null, draftData.map(function(r) { return r.length; })) || 3;
-          var padded = draftData.map(function(row) {
-            var nr = row.slice();
-            while (nr.length < numCols) nr.push("");
-            return nr;
-          });
-          var range = liveSheet.getRange(1, 1, padded.length, numCols);
-          range.setValues(padded);
-          liveSheet.getRange(1, 1, padded.length, 1).setNumberFormat("@");
-          liveSheet.setColumnWidth(1, 140);
-          liveSheet.setColumnWidth(2, 420);
-          liveSheet.setColumnWidth(3, 420);
-          if (numCols >= 4) liveSheet.setColumnWidth(4, 200);
-          range.setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
-          range.setVerticalAlignment("middle");
-          range.setFontFamily("Arial");
-          range.setFontSize(10);
+        if (draftData.length === 0) {
+          return ContentService.createTextOutput(JSON.stringify({
+            status: "error",
+            message: "Le brouillon est vide. Impossible de diffuser."
+          })).setMimeType(ContentService.MimeType.JSON);
+        }
+        liveSheet.clear();
+        var numCols = Math.max.apply(null, draftData.map(function(r) { return r.length; })) || 3;
+        var padded = draftData.map(function(row) {
+          var nr = row.slice();
+          while (nr.length < numCols) nr.push("");
+          return nr;
+        });
+        var range = liveSheet.getRange(1, 1, padded.length, numCols);
+        range.setValues(padded);
+        liveSheet.getRange(1, 1, padded.length, 1).setNumberFormat("@");
+        liveSheet.setColumnWidth(1, 140);
+        liveSheet.setColumnWidth(2, 420);
+        liveSheet.setColumnWidth(3, 420);
+        if (numCols >= 4) liveSheet.setColumnWidth(4, 200);
+        range.setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
+        range.setVerticalAlignment("middle");
+        range.setFontFamily("Arial");
+        range.setFontSize(10);
 
-          for (var i = 0; i < padded.length; i++) {
-            if (String(padded[i][0]).toUpperCase().indexOf("DATE") !== -1) {
-              liveSheet.getRange(i + 1, 1, 1, numCols).setFontWeight("bold");
-            }
+        for (var i = 0; i < padded.length; i++) {
+          if (String(padded[i][0]).toUpperCase().indexOf("DATE") !== -1) {
+            liveSheet.getRange(i + 1, 1, 1, numCols).setFontWeight("bold");
           }
         }
       }
@@ -319,6 +408,53 @@ function doGet(e) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const type = (e && e.parameter && e.parameter.type) || "draft";
+
+    if (type === "cuisine") {
+      var cSheet = ss.getSheetByName("CUISINE");
+      if (!cSheet) {
+        return ContentService.createTextOutput(JSON.stringify({ status: "success", type: "cuisine", data: [] }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+      var cVals = cSheet.getDataRange().getValues();
+      var dayMap = {};
+      var dayOrder = [];
+      for (var i = 1; i < cVals.length; i++) {
+        var dName = String(cVals[i][0] || "").trim();
+        var mName = String(cVals[i][1] || "").trim();
+        var gender = String(cVals[i][2] || "homme").trim();
+        var badge = String(cVals[i][3] || "").trim();
+        if (!dName || !mName) continue;
+        if (!dayMap[dName]) {
+          dayMap[dName] = { dayName: dName, staff: [] };
+          dayOrder.push(dayMap[dName]);
+        }
+        dayMap[dName].staff.push({ name: mName, gender: gender, badge: badge });
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "success", type: "cuisine", data: dayOrder }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (type === "menage") {
+      var mSheet = ss.getSheetByName("MENAGE");
+      if (!mSheet) {
+        return ContentService.createTextOutput(JSON.stringify({ status: "success", type: "menage", data: null }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+      var mVals = mSheet.getDataRange().getValues();
+      var res = { S1: { title: "Semaine 01", schedules: [] }, S2: { title: "Semaine 02", schedules: [] } };
+      for (var j = 1; j < mVals.length; j++) {
+        var wk = String(mVals[j][0] || "").trim();
+        var day = String(mVals[j][1] || "").trim().toLowerCase();
+        var matinStaff = String(mVals[j][2] || "").trim();
+        var soirStaff = String(mVals[j][3] || "").trim();
+        if ((wk === "S1" || wk === "S2") && day) {
+          res[wk].schedules.push({ day: day, matin: { staff: matinStaff }, soir: { staff: soirStaff } });
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "success", type: "menage", data: res }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     const sheet = (type === "live") 
       ? (ss.getSheetByName("PUBLIE") || ss.getSheetByName("Feuille 1") || ss.getSheets()[0])
       : (ss.getSheetByName("BROUILLON") || ss.getSheetByName("PUBLIE") || ss.getSheets()[0]);
@@ -347,8 +483,76 @@ function doGet(e) {
 }`;
 
   /* ════════════════════════════════════════════════════════════════════
-     4. DÉTECTION & DIFFUSION DIRECTE DU BROUILLON
+     4. DÉTECTION, VALIDATION & PUBLICATION FIABILISÉE (CONFIRMATION CORS)
      ════════════════════════════════════════════════════════════════════ */
+  let isSyncInFlight = false;
+  let lastPublishedSignature = "";
+  let lastPublishedAt = 0;
+
+  function validatePlanningRows(rowsData) {
+    if (!Array.isArray(rowsData) || rowsData.length === 0) {
+      return { valid: false, error: "Le planning est vide. Veuillez d'abord générer des données.", dayCount: 0 };
+    }
+    const dayRows = rowsData.filter(r => r && !String(r.date || "").trim().toUpperCase().startsWith("DATE"));
+    if (dayRows.length === 0) {
+      return { valid: false, error: "Le planning ne contient aucune journée active (hors en-tête DATE).", dayCount: 0 };
+    }
+    for (let i = 0; i < dayRows.length; i++) {
+      const r = dayRows[i];
+      const dateStr = String(r.date || "").trim();
+      const matinStr = String(r.matin || "").trim();
+      const soirStr = String(r.soir || "").trim();
+      if (!dateStr) {
+        return { valid: false, error: `Ligne ${i + 1} : date manquante.`, dayCount: dayRows.length };
+      }
+      if (!matinStr && !soirStr) {
+        return { valid: false, error: `Jour "${dateStr}" : les services Matin et Soir sont tous les deux vides.`, dayCount: dayRows.length };
+      }
+    }
+    return { valid: true, error: "", dayCount: dayRows.length };
+  }
+
+  async function postToGoogleSheetsWebhook(webhookUrl, payload) {
+    if (!webhookUrl) {
+      throw new Error("URL Webhook Google Apps Script manquante.");
+    }
+    const controller = (typeof AbortController !== "undefined") ? new AbortController() : null;
+    const timer = controller ? setTimeout(() => controller.abort(), 15000) : null;
+    try {
+      const resp = await fetch(webhookUrl, {
+        method: "POST",
+        redirect: "follow",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+        signal: controller ? controller.signal : undefined
+      });
+      if (!resp.ok) {
+        throw new Error(`Erreur serveur HTTP ${resp.status}`);
+      }
+      const rawText = await resp.text();
+      if (GC.isHtml(rawText)) {
+        throw new Error("Le Webhook a renvoyé une page HTML (vérifiez que l'accès Web App est configuré sur 'Tout le monde').");
+      }
+      let json;
+      try {
+        json = JSON.parse(rawText);
+      } catch (parseErr) {
+        throw new Error("Réponse non-JSON reçue depuis Google Apps Script.");
+      }
+      if (!json || json.status !== "success") {
+        throw new Error((json && json.message) || "Échec confirmé par le serveur Google Sheets.");
+      }
+      return json;
+    } catch (err) {
+      if (err && err.name === "AbortError") {
+        throw new Error("Délai d'attente dépassé (15s) lors de la communication avec Google Sheets.");
+      }
+      throw err;
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  }
+
   async function checkForPendingDraft() {
     const card = document.getElementById("draftPendingCard");
     const details = document.getElementById("draftPendingDetails");
@@ -369,7 +573,7 @@ function doGet(e) {
     const webhookUrl = (localStorage.getItem("gc_webhook_url") || "").trim();
     if (webhookUrl) {
       try {
-        const resp = await fetch(`${webhookUrl}?type=draft&t=${Date.now()}`);
+        const resp = await fetch(`${webhookUrl}?type=draft&t=${Date.now()}`, { redirect: "follow" });
         const json = await resp.json();
         if (json && json.status === "success" && Array.isArray(json.rows) && json.rows.length) {
           card.style.display = "flex";
@@ -382,12 +586,42 @@ function doGet(e) {
   }
 
   async function publishDraftDirectly() {
-    const webhookUrl = (localStorage.getItem("gc_webhook_url") || "").trim();
-    const localDraft = localStorage.getItem("gc_draft_cache");
+    if (isSyncInFlight) {
+      GC.showToast("⏳ Une publication est déjà en cours...");
+      return;
+    }
+    if (!GC.isSessionAuth("gc_service_admin", "admin")) {
+      alert("Session administrateur expirée. Veuillez vous reconnecter.");
+      logoutServiceAdmin();
+      return;
+    }
 
+    const webhookUrl = (localStorage.getItem("gc_webhook_url") || "").trim();
+    if (!webhookUrl) {
+      const body = document.getElementById("syncConfigBody");
+      if (body) body.style.display = "flex";
+      alert("Veuillez configurer l'URL du Webhook Google Apps Script avant de diffuser le brouillon.");
+      document.getElementById("cfg_webhook_url")?.focus();
+      return;
+    }
+
+    const localDraft = localStorage.getItem("gc_draft_cache");
     let rowsToPublish = null;
     if (localDraft) {
       try { rowsToPublish = JSON.parse(localDraft); } catch (e) {}
+    }
+
+    if (Array.isArray(rowsToPublish) && rowsToPublish.length > 0) {
+      const validation = validatePlanningRows(rowsToPublish);
+      if (!validation.valid) {
+        alert("Brouillon incohérent : " + validation.error);
+        return;
+      }
+      const sig = JSON.stringify(rowsToPublish);
+      if (sig === lastPublishedSignature && (Date.now() - lastPublishedAt) < 10000) {
+        GC.showToast("ℹ️ Ce brouillon vient déjà d'être diffusé.");
+        return;
+      }
     }
 
     const confirmPublish = confirm(
@@ -405,18 +639,18 @@ function doGet(e) {
       btn.innerHTML = "⏳ Diffusion en cours...";
     }
 
+    isSyncInFlight = true;
     try {
-      if (webhookUrl) {
-        const payload = { action: "publish_draft_direct", rows: rowsToPublish || [] };
-        await fetch(webhookUrl, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload)
-        });
-      }
+      const payload = {
+        action: "publish_draft_direct",
+        authHash: GC.getAdminAuthToken(),
+        rows: rowsToPublish || []
+      };
+      const result = await postToGoogleSheetsWebhook(webhookUrl, payload);
 
       if (rowsToPublish && rowsToPublish.length) {
+        lastPublishedSignature = JSON.stringify(rowsToPublish);
+        lastPublishedAt = Date.now();
         localStorage.setItem("gc_live_cache", JSON.stringify(rowsToPublish));
         const cleanData = rowsToPublish.filter(r => !String(r.date).toUpperCase().includes("DATE")).map(r => ({
           date: r.date,
@@ -435,11 +669,13 @@ function doGet(e) {
       if (card) card.style.display = "none";
 
       closeGeneratorModal();
-      GC.showToast("🚀 Feu Vert Accordé ! Le brouillon a été officiellement diffusé à toute l'équipe.");
+      GC.showToast(`🚀 ${result.message || "Feu Vert Accordé ! Brouillon diffusé à toute l'équipe."}`);
     } catch (err) {
       console.error("Erreur diffusion directe brouillon:", err);
-      alert("Erreur lors de la diffusion. Vérifiez la connexion ou le Webhook.");
+      GC.showToast("❌ Échec de diffusion. Le brouillon est conservé.");
+      alert("❌ Échec de la diffusion vers Google Sheets :\n" + (err.message || err) + "\n\nLe brouillon a été conservé sans modification.");
     } finally {
+      isSyncInFlight = false;
       if (btn) {
         btn.classList.remove("btn-disabled");
         btn.innerHTML = origText;
@@ -496,6 +732,10 @@ function doGet(e) {
       badge.className = "status-tag published";
       badge.innerHTML = "🟢 Diffusé et en ligne";
       if (msg) msg.textContent = customMsg || "En ligne sur Google Sheets & visible par l'équipe.";
+    } else if (stage === "error") {
+      badge.className = "status-tag error";
+      badge.innerHTML = "🔴 Échec de synchronisation";
+      if (msg) msg.textContent = customMsg || "Erreur serveur ou réseau. Brouillon sauvegardé localement.";
     } else {
       badge.className = "status-tag editing";
       badge.innerHTML = "✍️ En cours de modification";
@@ -504,14 +744,25 @@ function doGet(e) {
   }
 
   /* ════════════════════════════════════════════════════════════════════
-     5. ENREGISTREMENT GOOGLE SHEETS & CHARGEMENT
+     5. ENREGISTREMENT GOOGLE SHEETS & CHARGEMENT (AVEC CONFIRMATION RÉELLE)
      ════════════════════════════════════════════════════════════════════ */
   async function saveToGoogleSheets(isPublishLive) {
+    if (isSyncInFlight) {
+      GC.showToast("⏳ Une opération Cloud est déjà en cours...");
+      return;
+    }
+    if (!GC.isSessionAuth("gc_service_admin", "admin")) {
+      alert("Session administrateur expirée. Veuillez vous reconnecter.");
+      logoutServiceAdmin();
+      return;
+    }
+
     const webhookUrl = (localStorage.getItem("gc_webhook_url") || "").trim();
     const rowsData = extractTableData();
 
-    if (!rowsData.length) {
-      alert("Le planning est vide. Veuillez d'abord générer des données.");
+    const validation = validatePlanningRows(rowsData);
+    if (!validation.valid) {
+      alert(validation.error);
       return;
     }
 
@@ -520,6 +771,12 @@ function doGet(e) {
       if (body) body.style.display = "flex";
       alert("Veuillez configurer l'URL de votre Webhook Google Apps Script ci-dessus pour activer la persistance automatique.");
       document.getElementById("cfg_webhook_url")?.focus();
+      return;
+    }
+
+    const sig = JSON.stringify(rowsData);
+    if (isPublishLive && sig === lastPublishedSignature && (Date.now() - lastPublishedAt) < 10000) {
+      GC.showToast("ℹ️ Ce planning vient déjà d'être publié à l'instant.");
       return;
     }
 
@@ -545,32 +802,37 @@ function doGet(e) {
     if (isPublishLive && btnPublishLive) btnPublishLive.innerHTML = "⏳ Diffusion en cours...";
     else if (!isPublishLive && btnSaveDraft) btnSaveDraft.innerHTML = "⏳ Sauvegarde brouillon...";
 
-    const payload = { action: isPublishLive ? "publish_live" : "save_draft", rows: rowsData };
+    const payload = {
+      action: isPublishLive ? "publish_live" : "save_draft",
+      authHash: GC.getAdminAuthToken(),
+      rows: rowsData
+    };
 
+    isSyncInFlight = true;
     try {
-      await fetch(webhookUrl, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      });
+      const result = await postToGoogleSheetsWebhook(webhookUrl, payload);
 
-      localStorage.setItem("gc_draft_cache", JSON.stringify(rowsData));
+      localStorage.setItem("gc_draft_cache", sig);
 
       if (!isPublishLive) {
-        updateSyncStatus("draft", "Brouillon stocké dans Google Sheets sans diffusion.");
-        GC.showToast("🟡 Brouillon enregistré dans Google Sheets (Onglet BROUILLON). Non visible par l'équipe.");
+        updateSyncStatus("draft", result.message || "Brouillon confirmé dans Google Sheets sans diffusion.");
+        GC.showToast("🟡 Brouillon confirmé dans Google Sheets (Onglet BROUILLON).");
       } else {
-        localStorage.setItem("gc_live_cache", JSON.stringify(rowsData));
-        updateSyncStatus("published", "Planning officiellement publié et actif.");
-        GC.showToast("🚀 Feu Vert Accordé ! Le planning est maintenant diffusé à l'équipe.");
+        lastPublishedSignature = sig;
+        lastPublishedAt = Date.now();
+        localStorage.setItem("gc_live_cache", sig);
+        updateSyncStatus("published", result.message || "Planning officiellement publié et confirmé.");
+        GC.showToast("🚀 Feu Vert Confirmé ! Planning diffusé dans Google Sheets.");
         applyGeneratedToLiveView();
       }
     } catch (err) {
       console.error("Erreur sync Google Sheets:", err);
-      localStorage.setItem("gc_draft_cache", JSON.stringify(rowsData));
-      GC.showToast("⚠️ Enregistré en local. Vérifiez la connexion ou l'URL du Webhook.");
+      localStorage.setItem("gc_draft_cache", sig);
+      updateSyncStatus("error", `Échec Cloud (${err.message || "réseau"}). Brouillon conservé en local.`);
+      GC.showToast("❌ Échec Cloud — Brouillon conservé en local.");
+      alert("❌ La publication vers Google Sheets a échoué :\n" + (err.message || err) + "\n\nVos données ont été conservées localement en brouillon.");
     } finally {
+      isSyncInFlight = false;
       if (btnSaveDraft) {
         btnSaveDraft.classList.remove("btn-disabled");
         btnSaveDraft.innerHTML = origDraftText;
@@ -1141,8 +1403,11 @@ function doGet(e) {
   window.closePinModal = closePinModal;
   window.clearAdminPin = clearAdminPin;
   window.submitAdminPin = submitAdminPin;
+  window.logoutServiceAdmin = logoutServiceAdmin;
   window.openGeneratorDashboard = openGeneratorDashboard;
   window.closeGeneratorModal = closeGeneratorModal;
+  window.validatePlanningRows = validatePlanningRows;
+  window.postToGoogleSheetsWebhook = postToGoogleSheetsWebhook;
   window.checkForPendingDraft = checkForPendingDraft;
   window.publishDraftDirectly = publishDraftDirectly;
   window.initAppsScriptPreview = initAppsScriptPreview;
