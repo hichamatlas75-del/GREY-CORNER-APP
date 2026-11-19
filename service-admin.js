@@ -1159,11 +1159,11 @@ function doGet(e) {
           matinStr = formatWeekdayPair(P[2], P[4]);
           soirStr  = formatWeekdayPair(P[1], P[0]);
         } else if (d === 5) {
-          // Samedi : 3 Matin / 3 Soir dont 1 Coupure 10H (P[3])
+          // Samedi : 3 Matin / 3 Soir dont 1 Continu 10H (P[3])
           matinStr = `${P[0]} (SAL1), ${P[0]} (TER3), ${P[1]} (TER1), ${P[1]} (TER2), ${P[3]} (SAL2 - 10H), ${P[3]} (LOG - 10H)`;
           soirStr  = `${P[2]} (SAL1), ${P[2]} (TER3), ${P[4]} (SAL2), ${P[4]} (LOG), ${P[3]} (TER1 - 10H), ${P[3]} (TER2 - 10H)`;
         } else if (d === 6) {
-          // Dimanche : 4 Matin (dont 1 DEB) / 3 Soir avec 2 Coupures 10H (P[0], P[1])
+          // Dimanche : 4 Matin (dont 1 DEB) / 3 Soir avec 2 Continus 10H (P[0], P[1])
           matinStr = `${P[2]} (SAL1), ${P[2]} (TER3), ${P[4]} (TER1), ${P[4]} (TER2), ${P[0]} (SAL2 - 10H), ${P[0]} (LOG - 10H), ${P[1]} (DEB - 10H)`;
           soirStr  = `${P[3]} (SAL1), ${P[3]} (TER3), ${P[0]} (TER1 - 10H), ${P[0]} (TER2 - 10H), ${P[1]} (SAL2 - 10H), ${P[1]} (LOG - 10H)`;
         }
@@ -1214,7 +1214,7 @@ function doGet(e) {
       } else {
         nom = s;
       }
-      if (nom) entries.push({ name: nom.toLowerCase(), is10h: /10\s*h|coup/i.test(poste) });
+      if (nom) entries.push({ name: nom.toLowerCase(), is10h: /10\s*h|coup|contin/i.test(poste) });
     });
     return entries;
   }
@@ -1256,7 +1256,7 @@ function doGet(e) {
         <div class="service-metric-name">${GC.escapeHtml(st.label)}</div>
         <div class="service-metric-stats">
           Matin: <strong>${st.matin}</strong> · Soir: <strong>${st.soir}</strong><br/>
-          <span class="service-metric-coupure">Coupure 10H: ${st.coupure}</span> · Repos: <strong>${st.repos}</strong>
+          <span class="service-metric-coupure service-metric-continu">Continu 10H: ${st.coupure}</span> · Repos: <strong>${st.repos}</strong>
         </div>
       </div>
     `).join("");

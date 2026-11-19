@@ -485,7 +485,7 @@
   GC.cleanPoste = function(raw) {
     if (!raw) return '';
     const str = String(raw).trim();
-    const is10h = /10\s*h|coup/i.test(str);
+    const is10h = /10\s*h|coup|contin/i.test(str);
     const p = str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[\s_-]/g, '').trim();
     let base = '';
     if (p.includes('ter1')) base = 'TER 1';
@@ -502,7 +502,7 @@
     else if (p.includes('cais')) base = 'CAISSE';
     else if (p.includes('run'))  base = 'RUNNER';
     else if (p.includes('acc'))  base = 'ACCUEIL';
-    else if (is10h) base = 'COUPURE';
+    else if (is10h) base = 'CONTINU';
     else base = str.substring(0, 6).toUpperCase();
 
     if (is10h && !base.includes('10H')) {

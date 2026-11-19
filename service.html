@@ -208,16 +208,16 @@
           </div>
           <div class="form-group">
             <label class="form-label">Message d'alerte (Optionnel)</label>
-            <input type="text" id="genAlertMsg" class="form-input" value="Les personnes en coupure (10H) pointent à 10h00 jusqu'à la fin de service" placeholder="Ex: Les personnes en coupure (10H) pointent à 10h00..." />
+            <input type="text" id="genAlertMsg" class="form-input" value="Les personnes en continu (10H) pointent à 10h00 jusqu'à la fin de service" placeholder="Ex: Les personnes en continu (10H) pointent à 10h00..." />
           </div>
         </div>
 
         <div class="rules-callout">
           🔄 <strong>Système 24h &amp; Basse Saison (5 Serveurs — jusqu'en Mars) :</strong><br/>
           • <strong>Lun–Ven :</strong> 2 Matin (06h30) / 2 Soir (14h15) / 1 Repos garanti — le soir assure le lendemain matin avec inversion de carré (<code>SAL1+TER2</code> ↔ <code>TER1+SAL2+LOG</code>).<br/>
-          • <strong>Samedi :</strong> 3 Matin / 3 Soir dont <strong>1 Coupure 10h → Fin</strong>.<br/>
-          • <strong>Dimanche :</strong> 4 Matin (inclus 1 <code>DEB</code>) / 3 Soir dont <strong>2 Coupures 10h → Fin</strong>.<br/>
-          • <strong>Équité :</strong> Rotation circulaire automatique chaque semaine (repos, carrés et coupures).
+          • <strong>Samedi :</strong> 3 Matin / 3 Soir dont <strong>1 Continu 10h → Fin</strong>.<br/>
+          • <strong>Dimanche :</strong> 4 Matin (inclus 1 <code>DEB</code>) / 3 Soir dont <strong>2 Continus 10h → Fin</strong>.<br/>
+          • <strong>Équité :</strong> Rotation circulaire automatique chaque semaine (repos, carrés et shifts continus).
         </div>
 
         <button class="btn-primary" onclick="generatePlanningData()">
@@ -499,11 +499,11 @@
           nom   = s;
           poste = "SERVEUR";
         }
-        const isCoupurePoste = poste.includes("10H") || poste.includes("COUPURE");
-        const isDouble = duplicates.includes(nom.toLowerCase()) || isCoupurePoste;
+        const isContinuPoste = poste.includes("10H") || poste.includes("CONTINU") || poste.includes("COUPURE");
+        const isDouble = duplicates.includes(nom.toLowerCase()) || isContinuPoste;
         return `
           <div class="staff-row">
-            <div class="poste-badge ${isCoupurePoste ? 'is-coupure' : ''}">${GC.escapeHtml(poste)}</div>
+            <div class="poste-badge ${isContinuPoste ? 'is-coupure is-continu' : ''}">${GC.escapeHtml(poste)}</div>
             <div class="staff-name ${isDouble ? 'double-shift' : ''}">${GC.escapeHtml(nom)}</div>
           </div>
         `;

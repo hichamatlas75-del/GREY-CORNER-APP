@@ -1374,13 +1374,13 @@ button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:a
   margin-top: 30px;
 }
 
-/* ─── COUPURE / DOUBLE SHIFT & POSTES ─── */
+/* ─── CONTINU / DOUBLE SHIFT & POSTES ─── */
 .staff-name.double-shift {
   color: #b91c1c;
   font-weight: 700;
 }
 .staff-name.double-shift::after {
-  content: 'COUPURE 10H';
+  content: 'CONTINU 10H';
   font-family: 'DM Sans', sans-serif;
   font-weight: 800;
   font-size: 8.5px;
@@ -1394,7 +1394,8 @@ button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:a
   margin-left: 6px;
   vertical-align: middle;
 }
-.poste-badge.is-coupure {
+.poste-badge.is-coupure,
+.poste-badge.is-continu {
   background: #fff1f2;
   color: #dc2626;
   border-color: #f87171;
@@ -1686,7 +1687,8 @@ button:active, .nav-card:active, .tab-btn:active, .admin-btn:active, .back-btn:a
   line-height: 1.4;
 }
 .service-metric-stats strong { color: var(--ink); }
-.service-metric-coupure {
+.service-metric-coupure,
+.service-metric-continu {
   color: #dc2626;
   font-weight: 700;
 }
